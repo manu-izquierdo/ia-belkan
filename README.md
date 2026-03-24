@@ -74,7 +74,7 @@ A continuación, puedes lanzar el software con interfaz gráfica con `./practica
 Cuando realices cualquier modificación en el código, debes recompilar, así que usa `make clean` y `make -j$(nproc)`.
 
 
-
+> Esto lo puse yo.
 
 ## Más información
 Hemos creado un [fichero con preguntas frecuentes](./FAQ.md) que han ido apareciendo en las distintas sesiones de prácticas.
