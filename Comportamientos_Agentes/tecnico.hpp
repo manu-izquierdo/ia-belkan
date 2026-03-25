@@ -33,6 +33,9 @@ public:
    */
   ComportamientoTecnico(unsigned int size = 0) : Comportamiento(size) {
     // Inicializar Variables de Estado
+    tiene_zapatillas = false;
+    last_action = IDLE;
+    giro45Izq = 0;
   }
 
   /**
@@ -44,7 +47,9 @@ public:
                        std::vector<std::vector<unsigned char>> mapaC): 
                        Comportamiento(mapaR, mapaC) {
     // Inicializar Variables de Estado
-
+    tiene_zapatillas = false;
+    last_action = IDLE;
+    giro45Izq = 0;
   }
 
   ComportamientoTecnico(const ComportamientoTecnico &comport): Comportamiento(comport) {}
@@ -187,8 +192,10 @@ private:
   // =========================================================================
   // VARIABLES DE ESTADO (PUEDEN SER EXTENDIDAS POR EL ALUMNO)
   // =========================================================================
-
-  
+  // No es relevante tener zapatillas, ya que no le permite moverse mejor por las casillas camino al tecnico.
+  bool tiene_zapatillas;
+  Action last_action;
+  int giro45Izq;
 };
 
 #endif

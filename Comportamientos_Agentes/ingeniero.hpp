@@ -22,6 +22,9 @@ public:
    */
   ComportamientoIngeniero(unsigned int size = 0) : Comportamiento(size) {
     // Inicializar Variables de Estado
+    tiene_zapatillas = false;
+    last_action = IDLE;
+    giro45Izq = 0;
   }
 
   /**
@@ -33,6 +36,9 @@ public:
                          std::vector<std::vector<unsigned char>> mapaC): 
                          Comportamiento(mapaR, mapaC) {
     // Inicializar Variables de Estado
+    tiene_zapatillas = false;
+    last_action = IDLE;
+    giro45Izq = 0;
   }
 
   ComportamientoIngeniero(const ComportamientoIngeniero &comport)
@@ -182,7 +188,10 @@ private:
   // =========================================================================
   // VARIABLES DE ESTADO (PUEDEN SER EXTENDIDAS POR EL ALUMNO)
   // =========================================================================
-
+  // Como los sensores se borran en cada turno, usaremos una variable de estado para saber si tenemos o no zapatillas
+  bool tiene_zapatillas;
+  Action last_action;
+  int giro45Izq;
 };
 
 #endif
