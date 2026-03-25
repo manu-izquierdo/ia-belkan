@@ -99,6 +99,11 @@ Action ComportamientoIngeniero::ComportamientoIngenieroNivel_0(Sensores sensores
   char i = ViablePorAlturaI (sensores.superficie[1], sensores.cota[1]-sensores.cota[0], tiene_zapatillas);
   char c = ViablePorAlturaI (sensores.superficie[2], sensores.cota[2]-sensores.cota[0], tiene_zapatillas);
   char d = ViablePorAlturaI (sensores.superficie[3], sensores.cota[3]-sensores.cota[0], tiene_zapatillas);
+  
+  if (sensores.agentes[1] != '_') i = 'P'; // Si hay alguien a la izq, no es transitable
+  if (sensores.agentes[2] != '_') c = 'P'; // Si hay alguien delante, no es transitable
+  if (sensores.agentes[3] != '_') d = 'P'; // Si hay alguien a la dch, no es transitable
+
   int pos = VeoCasillaInteresanteI(i, c, d, tiene_zapatillas);
 
   switch (pos)
@@ -118,6 +123,10 @@ Action ComportamientoIngeniero::ComportamientoIngenieroNivel_0(Sensores sensores
   default:
   accion = TURN_SL;
   break;
+  }
+
+  if (accion == WALK && sensores.agentes[2] != '_') {
+      accion = IDLE; 
   }
   
   last_action=accion;
