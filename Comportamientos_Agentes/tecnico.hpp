@@ -35,7 +35,6 @@ public:
     // Inicializar Variables de Estado
     tiene_zapatillas = false;
     last_action = IDLE;
-    giro45Izq = 0;
   }
 
   /**
@@ -49,7 +48,6 @@ public:
     // Inicializar Variables de Estado
     tiene_zapatillas = false;
     last_action = IDLE;
-    giro45Izq = 0;
   }
 
   ComportamientoTecnico(const ComportamientoTecnico &comport): Comportamiento(comport) {}
@@ -195,7 +193,6 @@ private:
   // No es relevante tener zapatillas, ya que no le permite moverse mejor por las casillas camino al tecnico.
   bool tiene_zapatillas;
   Action last_action;
-  int giro45Izq;
 };
 
 #endif

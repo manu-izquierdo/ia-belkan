@@ -121,13 +121,16 @@ Action ComportamientoIngeniero::ComportamientoIngenieroNivel_0(Sensores sensores
   break;
   
   default:
-  accion = TURN_SL;
+  accion = TURN_SR;
   break;
   }
 
   if (accion == WALK && sensores.agentes[2] != '_') {
       accion = IDLE; 
   }
+
+  instante++;
+  mtiempo[sensores.posF][sensores.posC]=instante;
   
   last_action=accion;
   return accion;

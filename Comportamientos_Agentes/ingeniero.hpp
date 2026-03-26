@@ -24,7 +24,10 @@ public:
     // Inicializar Variables de Estado
     tiene_zapatillas = false;
     last_action = IDLE;
-    giro45Izq = 0;
+    
+    vector<int> aux(0,size);
+    for(int i=0;i<size;i++)
+       mtiempo.push_back(aux);
   }
 
   /**
@@ -38,7 +41,6 @@ public:
     // Inicializar Variables de Estado
     tiene_zapatillas = false;
     last_action = IDLE;
-    giro45Izq = 0;
   }
 
   ComportamientoIngeniero(const ComportamientoIngeniero &comport)
@@ -191,7 +193,8 @@ private:
   // Como los sensores se borran en cada turno, usaremos una variable de estado para saber si tenemos o no zapatillas
   bool tiene_zapatillas;
   Action last_action;
-  int giro45Izq;
+  vector<vector<int>> mtiempo; // Se usará para que se tenga como un mapa en el que se represente el recorrido y que intente acceder a la que hace más tiempo que no accedió
+  int instante; // Variable que se incrementará 
 };
 
 #endif
