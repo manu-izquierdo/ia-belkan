@@ -35,6 +35,11 @@ public:
     // Inicializar Variables de Estado
     tiene_zapatillas = false;
     last_action = IDLE;
+
+    instante = 0;
+    vector<int> aux(size, 0);
+    for(int i = 0; i < size; i++)
+      mtiempo.push_back(aux);
   }
 
   /**
@@ -193,6 +198,8 @@ private:
   // No es relevante tener zapatillas, ya que no le permite moverse mejor por las casillas camino al tecnico.
   bool tiene_zapatillas;
   Action last_action;
+  vector<vector<int>> mtiempo; // Se usará para que se tenga como un mapa en el que se represente el recorrido y que intente acceder a la que hace más tiempo que no accedió
+  int instante; // Variable que se incrementará 
 };
 
 #endif

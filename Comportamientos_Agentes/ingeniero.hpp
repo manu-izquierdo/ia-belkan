@@ -25,9 +25,10 @@ public:
     tiene_zapatillas = false;
     last_action = IDLE;
     
-    vector<int> aux(0,size);
+    instante=0;
+    vector<int> aux(size,0);
     for(int i=0;i<size;i++)
-       mtiempo.push_back(aux);
+      mtiempo.push_back(aux);
   }
 
   /**

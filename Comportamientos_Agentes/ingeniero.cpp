@@ -59,29 +59,47 @@ char ViablePorAlturaI (char casilla, int dif, bool zap) {
   }
 }
 
-/**
-* @brief Determina la mejor opcion entre las 3 casillas que tiene delante.
-* @param i terreno que hay en la posición 1 de superficie (45 izq)
-* @param c terreno que hay en la posición 2 de supeficie (justo delante)
-* @param d terreno que hay en la posición 3 de supeficie (45 dch)
-* @param zap indica si estoy en posesión de las zapatillas
-* @return 2 si es mejor WALK, 1 para TURN_SL y 3 para TURN_SR. O no hay nada interesante.
-*/
-int VeoCasillaInteresanteI (char i, char c, char d, bool zap) {
-  if (c == 'U') return 2;
-  else if (i == 'U') return 1;
-  else if (d == 'U') return 3;
-  else if (!zap){
-    if (c == 'D') return 2;
-    else if (i == 'D') return 1;
-    else if (d == 'D') return 3;
-  }
-  if (c == 'C') return 2;
-  else if (i == 'C') return 1;
-  else if (d == 'C') return 3;
-  else return 0;
-}
 
+/**
+ * @brief Decide la mejor opción para el Nivel 0 usando el mapa de pulgarcito.
+ * @param i terreno que hay en la posición 1 de superficie (45 izq)
+ * @param c terreno que hay en la posición 2 de supeficie (justo delante)
+ * @param d terreno que hay en la posición 3 de supeficie (45 dch)
+ * @param t_i tiempo que hay en la posición 1
+ * @param t_c tiempo que hay en la posición 2
+ * @param t_d tiempo que hay en la posición 3
+ * @param zap indica si estoy en posesión de las zapatillas
+ * @return 2 si es mejor WALK, 1 para TURN_SL y 3 para TURN_SR. O no hay nada interesante.
+ */
+int VeoCasillaPulgarcitoNivel0I (char i, char c, char d, int t_i, int t_c, int t_d, bool zap) {
+    // Prioridad a la Meta y Zapatillas
+    if (c == 'U') return 2;
+    else if (i == 'U') return 1;
+    else if (d == 'U') return 3;
+
+    if (!zap) {
+        if (c == 'D') return 2;
+        else if (i == 'D') return 1;
+        else if (d == 'D') return 3;
+    }
+
+    // Descarto todo lo que NO sea camino poniendole un tiempo alto simulando que es un muro
+    if (i != 'C') t_i = 999999;
+    if (c != 'C') t_c = 999999;
+    if (d != 'C') t_d = 999999;
+
+    // Si no hay ningún camino viable delante, devolvemos 0 para que gire a buscar uno usando el default del switch
+    if (t_i == 999999 && t_c == 999999 && t_d == 999999) return 0;
+
+    // Vemos el camino con menor tiempo que será el más antiguo o nunca visitado
+    int min_tiempo = min(t_i, min(t_c, t_d));
+
+    if (min_tiempo == t_c) return 2; // WALK
+    if (min_tiempo == t_i) return 1; // TURN_SL
+    if (min_tiempo == t_d) return 3; // TURN_SR
+
+    return 0;
+}
 
 // Niveles iniciales (Comportamientos reactivos simples)
 Action ComportamientoIngeniero::ComportamientoIngenieroNivel_0(Sensores sensores)
@@ -96,15 +114,31 @@ Action ComportamientoIngeniero::ComportamientoIngenieroNivel_0(Sensores sensores
 
   if(sensores.superficie[0]=='U')  return IDLE;
 
-  char i = ViablePorAlturaI (sensores.superficie[1], sensores.cota[1]-sensores.cota[0], tiene_zapatillas);
+  char i = ViablePorAlturaI (sensores.superficie[1], sensores.cota[1]-sensores.cota[0], tiene_zapatillas); // Si la altura es <= 1 o tiene zapatillas y es <= 2 es transitable
   char c = ViablePorAlturaI (sensores.superficie[2], sensores.cota[2]-sensores.cota[0], tiene_zapatillas);
   char d = ViablePorAlturaI (sensores.superficie[3], sensores.cota[3]-sensores.cota[0], tiene_zapatillas);
   
   if (sensores.agentes[1] != '_') i = 'P'; // Si hay alguien a la izq, no es transitable
-  if (sensores.agentes[2] != '_') c = 'P'; // Si hay alguien delante, no es transitable
-  if (sensores.agentes[3] != '_') d = 'P'; // Si hay alguien a la dch, no es transitable
+  if (sensores.agentes[2] != '_') c = 'P'; 
+  if (sensores.agentes[3] != '_') d = 'P';
 
-  int pos = VeoCasillaInteresanteI(i, c, d, tiene_zapatillas);
+  // Sacamos las coordenadas reales de la posición actual (Fila, Columna y Rumbo)
+  ubicacion posActual = {sensores.posF, sensores.posC, sensores.rumbo};
+  ubicacion posC = Delante(posActual); // Frente (2)
+  ubicacion posI = posActual;
+  posI.brujula = (Orientacion)((posI.brujula + 7) % 8);
+  posI = Delante(posI); // Izquierda (1)  
+  ubicacion posD = posActual; 
+  posD.brujula = (Orientacion)((posD.brujula + 1) % 8);
+  posD = Delante(posD); // Derecha (3)
+
+  // Extraemos los tiempos
+  int t_i = (posI.f >= 0 && posI.f < mtiempo.size() && posI.c >= 0 && posI.c < mtiempo[0].size()) ? mtiempo[posI.f][posI.c] : 999999;
+  int t_c = (posC.f >= 0 && posC.f < mtiempo.size() && posC.c >= 0 && posC.c < mtiempo[0].size()) ? mtiempo[posC.f][posC.c] : 999999;
+  int t_d = (posD.f >= 0 && posD.f < mtiempo.size() && posD.c >= 0 && posD.c < mtiempo[0].size()) ? mtiempo[posD.f][posD.c] : 999999;
+
+  // Llamamos a la función de pulgarcito
+  int pos = VeoCasillaPulgarcitoNivel0I(i, c, d, t_i, t_c, t_d, tiene_zapatillas);
 
   switch (pos)
   {
@@ -121,12 +155,8 @@ Action ComportamientoIngeniero::ComportamientoIngenieroNivel_0(Sensores sensores
   break;
   
   default:
-  accion = TURN_SR;
+  accion = TURN_SL;
   break;
-  }
-
-  if (accion == WALK && sensores.agentes[2] != '_') {
-      accion = IDLE; 
   }
 
   instante++;
