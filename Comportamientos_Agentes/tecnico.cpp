@@ -157,13 +157,13 @@ bool ComportamientoTecnico::es_camino(unsigned char c) const {
 /**
  * @brief Viabilidad para Nivel 1. Muros y Agua bloquean. Resto pasa si la altura lo permite.
  */
-char ViablePorAlturaT1 (char casilla, int dif, bool zap) {
+char ViablePorAltura1T (char casilla, int dif, bool zap) {
   // En el nivel 1, Muro y Agua son paredes de hormigón
   if (casilla == 'M' || casilla == 'A' || casilla == 'P') return 'P'; 
   
   if (casilla == 'B' && !zap) return 'P';
 
-  if (abs(dif) <= 1 || (zap && casilla == 'B')){
+  if (abs(dif) <= 1){
     return casilla;
   } else {
     return 'P';
@@ -182,6 +182,7 @@ char ViablePorAlturaT1 (char casilla, int dif, bool zap) {
  * @return 2 si es mejor WALK, 1 para TURN_SL y 3 para TURN_SR. O no hay nada interesante.
  */
 int VeoCasillaPulgarcitoNivel1T (char i, char c, char d, int t_i, int t_c, int t_d, bool zap) {
+  // Si lo que ve es un Precipicio lo descartamos y le damos un tiempo infinito
   if (c == 'P') t_c = 999999;
   if (i == 'P') t_i = 999999;
   if (d == 'P') t_d = 999999;
@@ -191,13 +192,14 @@ int VeoCasillaPulgarcitoNivel1T (char i, char c, char d, int t_i, int t_c, int t
   // Vemos el camino con menor tiempo que será el más antiguo o nunca visitado
   int min_tiempo = min(t_i, min(t_c, t_d));
 
+  // Prioridad a las zapatillas
   if (!zap) {
       if (c == 'D') return 2;
       if (i == 'D') return 1;
       if (d == 'D') return 3;
   }
 
-  // 3. PRIORIDAD MÁXIMA: Buscar Caminos o Senderos ('C' o 'S') que NO hayamos visitado (tiempo 0)
+  // Prioridad a Caminos o Senderos ('C' o 'S') que NO hayamos visitado (tiempo 0)
   if (min_tiempo == 0) {
       if ((c == 'C' || c == 'S') && t_c == 0) return 2;
       if ((i == 'C' || i == 'S') && t_i == 0) return 1;
@@ -213,21 +215,22 @@ int VeoCasillaPulgarcitoNivel1T (char i, char c, char d, int t_i, int t_c, int t
 
 
 /**
- * @brief Comportamiento reactivo del técnico para el Nivel 1.
+ * @brief Comportamiento reactivo del ingeniero para el Nivel 1.
  * @param sensores Datos actuales de los sensores.
  * @return Acción a realizar.
  */
-Action ComportamientoTecnico::ComportamientoTecnicoNivel_1(Sensores sensores) {
+Action ComportamientoTecnico::ComportamientoTecnicoNivel_1(Sensores sensores)
+{
   Action accion = IDLE;
 
   ActualizarMapa(sensores);
 
   if (sensores.superficie[0] == 'D') tiene_zapatillas = true;
 
-  char i = ViablePorAlturaT1 (sensores.superficie[1], sensores.cota[1]-sensores.cota[0],tiene_zapatillas); // Si la altura es <= 1 es transitable
-  char c = ViablePorAlturaT1 (sensores.superficie[2], sensores.cota[2]-sensores.cota[0],tiene_zapatillas);
-  char d = ViablePorAlturaT1 (sensores.superficie[3], sensores.cota[3]-sensores.cota[0],tiene_zapatillas);
-  
+  char i = ViablePorAltura1T (sensores.superficie[1], sensores.cota[1]-sensores.cota[0], tiene_zapatillas); // Si la altura es <= 1 o tiene zapatillas y es <= 2 es transitable
+  char c = ViablePorAltura1T (sensores.superficie[2], sensores.cota[2]-sensores.cota[0], tiene_zapatillas);
+  char d = ViablePorAltura1T (sensores.superficie[3], sensores.cota[3]-sensores.cota[0], tiene_zapatillas);
+
   if (sensores.agentes[1] != '_') i = 'P'; // Si hay alguien a la izq, no es transitable
   if (sensores.agentes[2] != '_') c = 'P'; 
   if (sensores.agentes[3] != '_') d = 'P';
@@ -274,6 +277,7 @@ Action ComportamientoTecnico::ComportamientoTecnicoNivel_1(Sensores sensores) {
   last_action=accion;
   return accion;
 }
+
 
 /**
  * @brief Comportamiento del técnico para el Nivel 2.

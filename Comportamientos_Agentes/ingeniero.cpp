@@ -17,27 +17,13 @@ Action ComportamientoIngeniero::think(Sensores sensores)
   // Decisión del agente según el nivel
   switch (sensores.nivel)
   {
-  case 0:
-    accion = ComportamientoIngenieroNivel_0(sensores);
-    break;
-  case 1:
-    accion = ComportamientoIngenieroNivel_1(sensores);
-    break;
-  case 2:
-    accion = ComportamientoIngenieroNivel_2(sensores);
-    break;
-  case 3:
-    accion = ComportamientoIngenieroNivel_3(sensores);
-    break;
-  case 4:
-    accion = ComportamientoIngenieroNivel_4(sensores);
-    break;
-  case 5:
-    accion = ComportamientoIngenieroNivel_5(sensores);
-    break;
-  case 6:
-    accion = ComportamientoIngenieroNivel_6(sensores);
-    break;
+  case 0: accion = ComportamientoIngenieroNivel_0(sensores); break;
+  case 1: accion = ComportamientoIngenieroNivel_1(sensores); break;
+  case 2: accion = ComportamientoIngenieroNivel_2(sensores); break;
+  case 3: accion = ComportamientoIngenieroNivel_3(sensores); break;
+  case 4: accion = ComportamientoIngenieroNivel_4(sensores); break;
+  case 5: accion = ComportamientoIngenieroNivel_5(sensores); break;
+  case 6: accion = ComportamientoIngenieroNivel_6(sensores); break;
   }
 
   return accion;
@@ -177,7 +163,7 @@ bool ComportamientoIngeniero::es_camino(unsigned char c) const
 /**
  * @brief Viabilidad para Nivel 1. Muros y Agua bloquean. Resto pasa si la altura lo permite.
  */
-char ViablePorAlturaI1 (char casilla, int dif, bool zap) {
+char ViablePorAltura1I (char casilla, int dif, bool zap) {
   // En el nivel 1, Muro y Agua son paredes de hormigón
   if (casilla == 'M' || casilla == 'A' || casilla == 'P' || casilla == 'B') return 'P'; 
   
@@ -200,6 +186,7 @@ char ViablePorAlturaI1 (char casilla, int dif, bool zap) {
  * @return 2 si es mejor WALK, 1 para TURN_SL y 3 para TURN_SR. O no hay nada interesante.
  */
 int VeoCasillaPulgarcitoNivel1I (char i, char c, char d, int t_i, int t_c, int t_d, bool zap) {
+  // Si lo que ve es un Precipicio lo descartamos y le damos un tiempo infinito
   if (c == 'P') t_c = 999999;
   if (i == 'P') t_i = 999999;
   if (d == 'P') t_d = 999999;
@@ -209,13 +196,14 @@ int VeoCasillaPulgarcitoNivel1I (char i, char c, char d, int t_i, int t_c, int t
   // Vemos el camino con menor tiempo que será el más antiguo o nunca visitado
   int min_tiempo = min(t_i, min(t_c, t_d));
 
+  // Prioridad a las zapatillas
   if (!zap) {
       if (c == 'D') return 2;
       if (i == 'D') return 1;
       if (d == 'D') return 3;
   }
 
-  // 3. PRIORIDAD MÁXIMA: Buscar Caminos o Senderos ('C' o 'S') que NO hayamos visitado (tiempo 0)
+  // Prioridad a Caminos o Senderos ('C' o 'S') que NO hayamos visitado (tiempo 0)
   if (min_tiempo == 0) {
       if ((c == 'C' || c == 'S') && t_c == 0) return 2;
       if ((i == 'C' || i == 'S') && t_i == 0) return 1;
@@ -243,9 +231,9 @@ Action ComportamientoIngeniero::ComportamientoIngenieroNivel_1(Sensores sensores
 
   if (sensores.superficie[0] == 'D') tiene_zapatillas = true;
 
-  char i = ViablePorAlturaI1 (sensores.superficie[1], sensores.cota[1]-sensores.cota[0], tiene_zapatillas); // Si la altura es <= 1 o tiene zapatillas y es <= 2 es transitable
-  char c = ViablePorAlturaI1 (sensores.superficie[2], sensores.cota[2]-sensores.cota[0], tiene_zapatillas);
-  char d = ViablePorAlturaI1 (sensores.superficie[3], sensores.cota[3]-sensores.cota[0], tiene_zapatillas);
+  char i = ViablePorAltura1I (sensores.superficie[1], sensores.cota[1]-sensores.cota[0], tiene_zapatillas); // Si la altura es <= 1 o tiene zapatillas y es <= 2 es transitable
+  char c = ViablePorAltura1I (sensores.superficie[2], sensores.cota[2]-sensores.cota[0], tiene_zapatillas);
+  char d = ViablePorAltura1I (sensores.superficie[3], sensores.cota[3]-sensores.cota[0], tiene_zapatillas);
 
   if (sensores.agentes[1] != '_') i = 'P'; // Si hay alguien a la izq, no es transitable
   if (sensores.agentes[2] != '_') c = 'P'; 
