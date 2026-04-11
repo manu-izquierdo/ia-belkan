@@ -22,13 +22,13 @@ public:
    */
   ComportamientoIngeniero(unsigned int size = 0) : Comportamiento(size) {
     // Inicializar Variables de Estado
-    tiene_zapatillas = false;
-    last_action = IDLE;
+    tiene_zapatillas = false; // Nada mas empezar el jugador no tiene zapatillas
+    last_action = IDLE;       // La última acción no fue ninguna
     
-    instante=0;
-    vector<int> aux(size,0);
+    instante=0;               // Comenzará en el instante 0
+    vector<int> aux(size,0);  // Creamos un vector del tamaño el tamaño del mapa relleno de ceros
     for(int i=0;i<size;i++)
-      mtiempo.push_back(aux);
+      mtiempo.push_back(aux); // Hacemos un push back sobre el vector de vectores llamado mtiempo de manera que la matriz comience llena de ceros
   }
 
   /**
@@ -191,11 +191,12 @@ private:
   // =========================================================================
   // VARIABLES DE ESTADO (PUEDEN SER EXTENDIDAS POR EL ALUMNO)
   // =========================================================================
+
   // Como los sensores se borran en cada turno, usaremos una variable de estado para saber si tenemos o no zapatillas
-  bool tiene_zapatillas;
-  Action last_action;
-  vector<vector<int>> mtiempo; // Se usará para que se tenga como un mapa en el que se represente el recorrido y que intente acceder a la que hace más tiempo que no accedió
-  int instante; // Variable que se incrementará 
+  bool tiene_zapatillas;  // Usado para saber si ha obtenido las zapatillas
+  Action last_action; // Usado para recordar cual fue su accion anterior
+  vector<vector<int>> mtiempo; // Se usará para que se tenga un mapa de valores que representará el recorrido, de manera que intente acceder a la posición que hace más tiempo que no accedió
+  int instante; // Variable que se incrementará representando el recorrido hecho por el jugador
 };
 
 #endif
