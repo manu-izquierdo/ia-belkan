@@ -15,15 +15,14 @@ Action ComportamientoIngeniero::think(Sensores sensores)
   Action accion = IDLE;
 
   // Decisión del agente según el nivel
-  switch (sensores.nivel)
-  {
-  case 0: accion = ComportamientoIngenieroNivel_0(sensores); break;
-  case 1: accion = ComportamientoIngenieroNivel_1(sensores); break;
-  case 2: accion = ComportamientoIngenieroNivel_2(sensores); break;
-  case 3: accion = ComportamientoIngenieroNivel_3(sensores); break;
-  case 4: accion = ComportamientoIngenieroNivel_4(sensores); break;
-  case 5: accion = ComportamientoIngenieroNivel_5(sensores); break;
-  case 6: accion = ComportamientoIngenieroNivel_6(sensores); break;
+  switch (sensores.nivel) {
+    case 0: accion = ComportamientoIngenieroNivel_0(sensores); break;
+    case 1: accion = ComportamientoIngenieroNivel_1(sensores); break;
+    case 2: accion = ComportamientoIngenieroNivel_2(sensores); break;
+    case 3: accion = ComportamientoIngenieroNivel_3(sensores); break;
+    case 4: accion = ComportamientoIngenieroNivel_4(sensores); break;
+    case 5: accion = ComportamientoIngenieroNivel_5(sensores); break;
+    case 6: accion = ComportamientoIngenieroNivel_6(sensores); break;
   }
 
   return accion;
@@ -36,8 +35,12 @@ Action ComportamientoIngeniero::think(Sensores sensores)
 * @param dif diferencia de altura entre casillas
 * @param zap indica si estoy en posesión de las zapatillas
 * @return 'P' si no es accesible por altura y casilla en otro caso
+* @note Recibe el tipo de terreno, la dif entre casillas si tiene las 
+* zapatillas y comprueba si es viable por altura.
+* DIFERENCIA: He usado esta función en vez de EsAccesiblePorAltura puesto que de esta manera,
+* en la función VeoCasillaPulgarcitoNivel0I puedo establecer prioridad dependiendo del tipo de casilla que devuelve.
 */
-char ViablePorAlturaI (char casilla, int dif, bool zap) {
+char ViablePorAltura0I (char casilla, int dif, bool zap) {
   if (abs(dif) <= 1 or (zap and abs(dif) <=2)){
     return casilla;
   } else {
@@ -69,7 +72,7 @@ int VeoCasillaPulgarcitoNivel0I (char i, char c, char d, int t_i, int t_c, int t
         else if (d == 'D') return 3;
     }
 
-    // Descarto todo lo que NO sea camino poniendole un tiempo alto simulando que es un muro
+    // Descarto todo lo que no es camino poniendo un tiempo muy alto
     if (i != 'C') t_i = 999999;
     if (c != 'C') t_c = 999999;
     if (d != 'C') t_d = 999999;
@@ -77,7 +80,7 @@ int VeoCasillaPulgarcitoNivel0I (char i, char c, char d, int t_i, int t_c, int t
     // Si no hay ningún camino viable delante, devolvemos 0 para que gire a buscar uno usando el default del switch
     if (t_i == 999999 && t_c == 999999 && t_d == 999999) return 0;
 
-    // Vemos el camino con menor tiempo que será el más antiguo o nunca visitado
+    // Compruebo cual es el menor de los 3 tiempos y el que lo sea decidirá cual acción se deberá hacer
     int min_tiempo = min(t_i, min(t_c, t_d));
 
     if (min_tiempo == t_c) return 2; // WALK
@@ -92,36 +95,48 @@ Action ComportamientoIngeniero::ComportamientoIngenieroNivel_0(Sensores sensores
 {
   Action accion = IDLE;
   
+  // Poner el valor de los sensores de visión sobre los mapas
   ActualizarMapa(sensores);
   
+  // Primero comprobamos si la casilla en la que nos situamos es la de las Zapatillas ('D') actualizando su variable de estado
   if (sensores.superficie[0] == 'D') tiene_zapatillas = true;
 
+  // Comprobamos si la casilla en la que nos situamos es la Planta de Residuos ('U'), en cuyo caso habríamos terminado
   if(sensores.superficie[0]=='U')  return IDLE;
 
-  char i = ViablePorAlturaI (sensores.superficie[1], sensores.cota[1]-sensores.cota[0], tiene_zapatillas); // Si la altura es <= 1 o tiene zapatillas y es <= 2 es transitable
-  char c = ViablePorAlturaI (sensores.superficie[2], sensores.cota[2]-sensores.cota[0], tiene_zapatillas);
-  char d = ViablePorAlturaI (sensores.superficie[3], sensores.cota[3]-sensores.cota[0], tiene_zapatillas);
+  // Extraemos el valor de las casillas centro, 45º izquierda, 45º derecha
+  // El valor del char será la superficie de la casilla si se puede acceder a ella y Precipicio'P' en caso contrario
+  char i = ViablePorAltura0I (sensores.superficie[1], sensores.cota[1]-sensores.cota[0], tiene_zapatillas); 
+  char c = ViablePorAltura0I (sensores.superficie[2], sensores.cota[2]-sensores.cota[0], tiene_zapatillas);
+  char d = ViablePorAltura0I (sensores.superficie[3], sensores.cota[3]-sensores.cota[0], tiene_zapatillas);
   
-  if (sensores.agentes[1] != '_') i = 'P'; // Si hay alguien a la izq, no es transitable
-  if (sensores.agentes[2] != '_') c = 'P'; 
+  // Descartamos aquellos movimientos que hagan colisión con el técnico comprobando en la matriz de agentes si las casillas están desocupadas o no
+  if (sensores.agentes[1] != '_') i = 'P';
+  if (sensores.agentes[2] != '_') c = 'P';
   if (sensores.agentes[3] != '_') d = 'P';
 
-  // Sacamos las coordenadas reales de la posición actual (Fila, Columna y Rumbo)
+  // Sacamos las coordenadas y rumbo de la posición actual
   ubicacion posActual = {sensores.posF, sensores.posC, sensores.rumbo};
-  ubicacion posC = Delante(posActual); // Frente (2)
+
+  // Las coordenadas y rumbo de la posición de delante usando el método Delante
+  ubicacion posC = Delante(posActual);
+
+  // Las coordenadas y rumbo de la posición izquierda las saco modificando el rumbo hacia la izquierda incrementando el "enum" Orientacion, aplicando el operador % y dando un paso Delante
   ubicacion posI = posActual;
   posI.brujula = (Orientacion)((posI.brujula + 7) % 8);
-  posI = Delante(posI); // Izquierda (1)  
+  posI = Delante(posI);
+
+  // Para la derecha hago lo mismo que hice en la izquierda
   ubicacion posD = posActual; 
   posD.brujula = (Orientacion)((posD.brujula + 1) % 8);
-  posD = Delante(posD); // Derecha (3)
+  posD = Delante(posD);
 
-  // Extraemos los tiempos
+  // Ya teniendo los 3 objetos ubicacion(posI,posC,posD), guardo en una variable el tiempo que hay almacenado en cada posición
   int t_i = (posI.f >= 0 && posI.f < mtiempo.size() && posI.c >= 0 && posI.c < mtiempo[0].size()) ? mtiempo[posI.f][posI.c] : 999999;
   int t_c = (posC.f >= 0 && posC.f < mtiempo.size() && posC.c >= 0 && posC.c < mtiempo[0].size()) ? mtiempo[posC.f][posC.c] : 999999;
   int t_d = (posD.f >= 0 && posD.f < mtiempo.size() && posD.c >= 0 && posD.c < mtiempo[0].size()) ? mtiempo[posD.f][posD.c] : 999999;
 
-  // Llamamos a la función de pulgarcito
+  // Tras obtener las superficies i,c,d los tiempos almacenados en esas casillas t_i,t_c,t_d y comprobar que no ha habido choques, planteamos que hacer en la función VeoCasillaPulgarcitoNivel0I
   int pos = VeoCasillaPulgarcitoNivel0I(i, c, d, t_i, t_c, t_d, tiene_zapatillas);
 
   switch (pos)
@@ -143,9 +158,11 @@ Action ComportamientoIngeniero::ComportamientoIngenieroNivel_0(Sensores sensores
   break;
   }
 
+  // Incrementamos la variable instante que será la que vaya marcando el recorrido del personaje y sobreescribimos en la matriz de tiempos el nuevo tiempo de dicha posición
   instante++;
   mtiempo[sensores.posF][sensores.posC]=instante;
   
+  // Devolvemos la acción decidida
   last_action=accion;
   return accion;
 }
@@ -164,7 +181,7 @@ bool ComportamientoIngeniero::es_camino(unsigned char c) const
  * @brief Viabilidad para Nivel 1. Muros y Agua bloquean. Resto pasa si la altura lo permite.
  */
 char ViablePorAltura1I (char casilla, int dif, bool zap) {
-  // En el nivel 1, Muro y Agua son paredes de hormigón
+  // En el nivel 1, Muro y Agua son precipicios
   if (casilla == 'M' || casilla == 'A' || casilla == 'P' || casilla == 'B') return 'P'; 
   
   if (abs(dif) <= 1 || (zap && abs(dif) <= 2)){
@@ -203,7 +220,7 @@ int VeoCasillaPulgarcitoNivel1I (char i, char c, char d, int t_i, int t_c, int t
       if (d == 'D') return 3;
   }
 
-  // Prioridad a Caminos o Senderos ('C' o 'S') que NO hayamos visitado (tiempo 0)
+  // Prioridad a Caminos o Senderos ('C' o 'S') que NO hayamos visitado
   if (min_tiempo == 0) {
       if ((c == 'C' || c == 'S') && t_c == 0) return 2;
       if ((i == 'C' || i == 'S') && t_i == 0) return 1;
@@ -223,7 +240,7 @@ int VeoCasillaPulgarcitoNivel1I (char i, char c, char d, int t_i, int t_c, int t
  * @param sensores Datos actuales de los sensores.
  * @return Acción a realizar.
  */
-Action ComportamientoIngeniero::ComportamientoIngenieroNivel_1(Sensores sensores)
+Action ComportamientoIngeniero::ComportamientoIngenieroNivel_1(Sensores sensores) // He aplicado la misma lógica que había en el nivel 0, por lo que he eliminado comentarios
 {
   Action accion = IDLE;
 
@@ -235,25 +252,23 @@ Action ComportamientoIngeniero::ComportamientoIngenieroNivel_1(Sensores sensores
   char c = ViablePorAltura1I (sensores.superficie[2], sensores.cota[2]-sensores.cota[0], tiene_zapatillas);
   char d = ViablePorAltura1I (sensores.superficie[3], sensores.cota[3]-sensores.cota[0], tiene_zapatillas);
 
-  if (sensores.agentes[1] != '_') i = 'P'; // Si hay alguien a la izq, no es transitable
+  if (sensores.agentes[1] != '_') i = 'P';
   if (sensores.agentes[2] != '_') c = 'P'; 
   if (sensores.agentes[3] != '_') d = 'P';
   
   ubicacion posActual = {sensores.posF, sensores.posC, sensores.rumbo};
-  ubicacion posC = Delante(posActual); // Frente (2)
+  ubicacion posC = Delante(posActual);
   ubicacion posI = posActual;
   posI.brujula = (Orientacion)((posI.brujula + 7) % 8);
-  posI = Delante(posI); // Izquierda (1)  
+  posI = Delante(posI);
   ubicacion posD = posActual; 
   posD.brujula = (Orientacion)((posD.brujula + 1) % 8);
-  posD = Delante(posD); // Derecha (3)
+  posD = Delante(posD);
 
-  // Extraemos los tiempos
   int t_i = (posI.f >= 0 && posI.f < mtiempo.size() && posI.c >= 0 && posI.c < mtiempo[0].size()) ? mtiempo[posI.f][posI.c] : 999999;
   int t_c = (posC.f >= 0 && posC.f < mtiempo.size() && posC.c >= 0 && posC.c < mtiempo[0].size()) ? mtiempo[posC.f][posC.c] : 999999;
   int t_d = (posD.f >= 0 && posD.f < mtiempo.size() && posD.c >= 0 && posD.c < mtiempo[0].size()) ? mtiempo[posD.f][posD.c] : 999999;
 
-  // Llamamos a la función de pulgarcito
   int pos = VeoCasillaPulgarcitoNivel1I(i, c, d, t_i, t_c, t_d, tiene_zapatillas);
 
   switch (pos)

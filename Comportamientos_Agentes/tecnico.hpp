@@ -199,6 +199,8 @@ private:
   // Como los sensores se borran en cada turno, usaremos una variable de estado para saber si tenemos o no zapatillas
   bool tiene_zapatillas;  // Usado para saber si ha obtenido las zapatillas
   Action last_action; // Usado para recordar cual fue su accion anterior
+  
+  // Implementación "Mapa de Pulgarcito" (sugerencia del profesor)
   vector<vector<int>> mtiempo; // Se usará para que se tenga un mapa de valores que representará el recorrido, de manera que intente acceder a la posición que hace más tiempo que no accedió
   int instante; // Variable que se incrementará representando el recorrido hecho por el jugador
 };
