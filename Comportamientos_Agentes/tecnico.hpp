@@ -19,7 +19,36 @@
  * El técnico colabora con el ingeniero para resolver el problema de instalación de tuberías
  */
 
+struct EstadoT {
+  ubicacion site;
+  bool zapatillas;
+  bool operator==(const EstadoT &st) const{
+    return site == st.site and zapatillas == st.zapatillas;
+  }
+  bool operator<(const EstadoT &st) const {
+    if (site.f < st.site.f) return true;
+    else if (site.f == st.site.f && site.c < st.site.c) return true;
+    else if (site.f == st.site.f && site.c == st.site.c && site.brujula < st.site.brujula) return true;
+    else if (site.f == st.site.f && site.c == st.site.c && site.brujula == st.site.brujula && zapatillas < st.zapatillas) return true;
+    else return false;
+  }
+};
 
+struct NodoT{
+  EstadoT estado;
+  list<Action> secuencia;
+  bool operator==(const NodoT &node) const{
+    return estado == node.estado;
+  }
+
+  bool operator<(const NodoT &node) const{
+    if (estado.site.f < node.estado.site.f) return true;
+    else if (estado.site.f == node.estado.site.f and estado.site.c < node.estado.site.c) return true;
+    else if (estado.site.f == node.estado.site.f and estado.site.c == node.estado.site.c and estado.site.brujula < node.estado.site.brujula) return true;
+    else if (estado.site.f == node.estado.site.f and estado.site.c == node.estado.site.c and estado.site.brujula == node.estado.site.brujula and estado.zapatillas < node.estado.zapatillas) return true;
+    else return false;
+  }
+};
 
 class ComportamientoTecnico : public Comportamiento {
 public:
@@ -51,6 +80,7 @@ public:
                        std::vector<std::vector<unsigned char>> mapaC): 
                        Comportamiento(mapaR, mapaC) {
     // Inicializar Variables de Estado
+    hayPlan = false;
     tiene_zapatillas = false;
     last_action = IDLE;
   }
@@ -90,6 +120,9 @@ public:
  */
   Action ComportamientoTecnicoNivel_1(Sensores sensores);
   
+  
+// Parte 2
+
 /**
  * @brief Comportamiento del técnico para el Nivel 2.
  * @param sensores Datos actuales de los sensores.
@@ -124,6 +157,13 @@ public:
  * @return Acción a realizar.
  */
   Action ComportamientoTecnicoNivel_6(Sensores sensores);
+  
+  /**
+  * @brief Comportamiento del técnico para el Nivel E (especial tutorial parte 2).
+  * @param sensores Datos actuales de los sensores.
+  * @return Acción a realizar.
+  */
+  Action ComportamientoTecnicoNivel_E(Sensores sensores);
 
 protected:
   // =========================================================================
@@ -203,6 +243,19 @@ private:
   // Implementación "Mapa de Pulgarcito" (sugerencia del profesor)
   vector<vector<int>> mtiempo; // Se usará para que se tenga un mapa de valores que representará el recorrido, de manera que intente acceder a la posición que hace más tiempo que no accedió
   int instante; // Variable que se incrementará representando el recorrido hecho por el jugador
+
+
+  // =========================================================================
+  // VARIABLES DELIBERATIVAS (Niveles 2, 3, 4, 5, 6)
+  // =========================================================================
+
+  bool hayPlan;        // Nos dirá si el agente ya ha pensado una ruta
+  list<Action> plan;   // La ruta maestra que el agente ejecutará ciegamente
+  
+  EstadoT NextCasillaTecnico(const EstadoT &st);
+  bool CasillaAccesibleTécnico(const EstadoT &st, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura);
+  EstadoT applyT(Action accion, const EstadoT & st, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura);
+  list<Action> B_Anchura ( const EstadoT &inicio, const EstadoT &final, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura);
 };
 
 #endif
