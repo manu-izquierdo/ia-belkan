@@ -19,6 +19,31 @@
  * El técnico colabora con el ingeniero para resolver el problema de instalación de tuberías
  */
 
+struct EstadoT {
+  ubicacion site;
+  bool zapatillas;
+  bool operator==(const EstadoT &st) const {
+    return site.f == st.site.f && site.c == st.site.c && site.brujula == st.site.brujula && zapatillas == st.zapatillas;
+  }
+};
+
+struct NodoT {
+  EstadoT estado;
+  list<Action> secuencia;
+  int g; // Coste acumulado
+  int h; // Heurística
+  int f() const {
+    return g + h;
+  }
+};
+
+// Comparador para la cola de prioridad
+struct ComparaNodos {
+  bool operator()(const NodoT& a, const NodoT& b) const {
+    return a.f() > b.f(); // Mayor f() tiene menor prioridad
+  }
+};
+
 class ComportamientoTecnico : public Comportamiento {
 public:
   // =========================================================================
@@ -204,6 +229,17 @@ private:
   // Implementación "Mapa de Pulgarcito" (sugerencia del profesor)
   vector<vector<int>> mtiempo; // Se usará para que se tenga un mapa de valores que representará el recorrido, de manera que intente acceder a la posición que hace más tiempo que no accedió
   int instante; // Variable que se incrementará representando el recorrido hecho por el jugador
+
+  // Variables A* para Nivel 3
+
+  bool hayPlan;
+   list<Action> plan;
+
+  bool CasillaAccesibleTecnico(Action accion, const EstadoT &st, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura);
+  EstadoT applyT(Action accion, const EstadoT &st, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura);
+  int CostoBateriaTecnico(Action accion, const EstadoT &st, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura);
+  int Heuristica(const EstadoT &actual, const EstadoT &objetivo);
+  list<Action> A_Estrella(const EstadoT &inicio, const EstadoT &final, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura);
 };
 
 #endif

@@ -310,6 +310,7 @@ bool ComportamientoIngeniero::esSuperficieValida(unsigned char superficie) const
     }
 }
 
+
 /**
  * @brief Toma el EstadoI st, la matriz de terreno y la de altura y devuelve si sería posible que el Técnico hiciese un WALK a esa posición.
  */
@@ -345,8 +346,9 @@ bool ComportamientoIngeniero::CasillaAccesibleIngeniero(Action accion, const Est
     return false;
 }
 
+
 /**
- * @brief Recibe una serie de parámetros y devuelve el estado resultante tras aplicarla
+ * @brief Recibe una serie de parámetros y devuelve el estado resultante tras aplicarlos
  * 
  * @param accion acción que quiere realizar
  * @param st estado actual del agente
@@ -480,7 +482,7 @@ Action ComportamientoIngeniero::ComportamientoIngenieroNivel_2(Sensores sensores
     }
   }
 
-  // Si nos quedamos sin plan (hemos llegado al final), reseteamos para futuros viajes
+  // Si nos quedamos sin plan hemos llegado al final
   if (plan.size() == 0) {
       hayPlan = false;
   }

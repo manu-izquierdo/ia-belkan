@@ -326,8 +326,168 @@ Action ComportamientoTecnico::ComportamientoTecnicoNivel_2(Sensores sensores) {
  * @return Acción a realizar.
  */
 Action ComportamientoTecnico::ComportamientoTecnicoNivel_3(Sensores sensores) {
-  return IDLE;
+  Action accion = IDLE;
+
+  if (!hayPlan) {
+      EstadoT inicio, destino;
+      inicio.site.f = sensores.posF;
+      inicio.site.c = sensores.posC;
+      inicio.site.brujula = sensores.rumbo;
+      inicio.zapatillas = tiene_zapatillas;
+
+      destino.site.f = sensores.BelPosF;
+      destino.site.c = sensores.BelPosC;
+      destino.site.brujula = norte;
+      destino.zapatillas = false;
+
+      plan = A_Estrella(inicio, destino, mapaResultado, mapaCotas);
+      VisualizaPlan(inicio.site, plan);
+      hayPlan = plan.size()!=0;
+  }
+
+  if (hayPlan && plan.size()!=0) {
+    accion = plan.front();
+
+    bool riesgo_choque = false;
+    if (accion == WALK && sensores.agentes[2] == 'i') {
+        riesgo_choque = true;
+    } else if (accion == JUMP && (sensores.agentes[2] == 'i' || sensores.agentes[6] == 'i')) {
+        riesgo_choque = true;
+    }
+
+    if (riesgo_choque) {
+        accion = IDLE; // Pausar ejecución y mantener la acción en la lista
+    } else {
+        plan.pop_front(); // Vía libre, consumir la acción
+    }
+  }
+
+  // Si nos quedamos sin plan hemos llegado al final
+  if (plan.size() == 0) {
+      hayPlan = false;
+  }
+
+  return accion;
 }
+
+bool ComportamientoTecnico::CasillaAccesibleTecnico(Action accion, const EstadoT &st, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura) {
+    if (accion != WALK) return true; // Giros siempre son viables, el técnico ni tienen JUMP
+
+    ubicacion next_site = Delante(st.site);
+    
+    if (next_site.f < 0 || next_site.f >= terreno.size() || next_site.c < 0 || next_site.c >= terreno[0].size()) return false;
+    
+    unsigned char sup = terreno[next_site.f][next_site.c];
+    if (sup == 'M' || sup == 'P' ) return false;
+    if (sup == 'B' && !st.zapatillas) return false;
+    
+    int dif = altura[next_site.f][next_site.c] - altura[st.site.f][st.site.c];
+    return (abs(dif) <= 1); // El técnico no puede escalar desniveles de 2, ni con zapatillas
+}
+
+EstadoT ComportamientoTecnico::applyT(Action accion, const EstadoT &st, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura) {
+    EstadoT next = st;
+    switch(accion) {
+        case WALK:
+          next.site = Delante(st.site);
+        break;
+        case TURN_SR:
+          next.site.brujula = (Orientacion)((next.site.brujula + 1) % 8);
+        break;
+        case TURN_SL:
+          next.site.brujula = (Orientacion)((next.site.brujula + 7) % 8);
+        break;
+    }
+    // Adquisición de zapatillas en el nuevo estado
+    if (terreno[next.site.f][next.site.c] == 'D') next.zapatillas = true;
+    return next;
+}
+
+int ComportamientoTecnico::Heuristica(const EstadoT &actual, const EstadoT &objetivo) {
+    // Distancia de Chebyshev como cota inferior admisible
+    return max(abs(actual.site.f - objetivo.site.f), abs(actual.site.c - objetivo.site.c));
+}
+
+int ComportamientoTecnico::CostoBateriaTecnico(Action accion, const EstadoT &st, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura) {
+    unsigned char sup = terreno[st.site.f][st.site.c];
+    int costo = 0;
+
+    if (accion == WALK) {
+        ubicacion destino = Delante(st.site);
+        int dif_altura = altura[destino.f][destino.c] - altura[st.site.f][st.site.c];
+        
+        if (sup == 'A') {
+            costo = 60;
+            if (dif_altura > 0) costo += 5;
+            else if (dif_altura < 0) costo -= 2;
+        } else if (sup == 'H') {
+            costo = 6;
+            if (dif_altura > 0) costo += 5;
+            else if (dif_altura < 0) costo -= 2;
+        } else if (sup == 'S') {
+            costo = 3;
+            if (dif_altura > 0) costo += 5;
+            else if (dif_altura < 0) costo -= 2;
+        } else {
+            costo = 1; // El resto de casillas tiene incremento +0/-0
+        }
+    } else if (accion == TURN_SL || accion == TURN_SR) {
+        if (sup == 'A') costo = 5;
+        else if (sup == 'H') costo = 2;
+        else if (sup == 'S') costo = 1;
+        else costo = 1;
+    }
+    
+    return costo;
+}
+
+list<Action> ComportamientoTecnico::A_Estrella(const EstadoT &inicio, const EstadoT &final, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura) {
+    priority_queue<NodoT, vector<NodoT>, ComparaNodos> frontier;
+    list<Action> path;
+    
+    vector<vector<vector<vector<bool>>>> explorados(terreno.size(), 
+        vector<vector<vector<bool>>>(terreno[0].size(), 
+        vector<vector<bool>>(8, 
+        vector<bool>(2, false))));
+
+    NodoT n_inicial;
+    n_inicial.estado = inicio;
+    n_inicial.g = 0;
+    n_inicial.h = Heuristica(inicio, final);
+    frontier.push(n_inicial);
+
+    while (!frontier.empty()) {
+        NodoT current_node = frontier.top();
+        frontier.pop();
+
+        int z_idx = current_node.estado.zapatillas ? 1 : 0;
+        
+        // Marcaje en la extracción (Clave en A*)
+        if (explorados[current_node.estado.site.f][current_node.estado.site.c][current_node.estado.site.brujula][z_idx]) continue;
+        explorados[current_node.estado.site.f][current_node.estado.site.c][current_node.estado.site.brujula][z_idx] = true;
+
+        if (current_node.estado.site.f == final.site.f && current_node.estado.site.c == final.site.c) {
+          path = current_node.secuencia;
+          break;
+        }
+
+        Action accionesPosibles[] = {WALK, TURN_SR, TURN_SL};
+        for (Action accion : accionesPosibles) {
+            if (CasillaAccesibleTecnico(accion, current_node.estado, terreno, altura)) {
+                NodoT hijo;
+                hijo.estado = applyT(accion, current_node.estado, terreno, altura);
+                hijo.secuencia = current_node.secuencia;
+                hijo.secuencia.push_back(accion);
+                hijo.g = current_node.g + CostoBateriaTecnico(accion, current_node.estado, terreno, altura);
+                hijo.h = Heuristica(hijo.estado, final);
+                
+                frontier.push(hijo);
+            }
+        }
+    }
+    return path;
+}
+
 
 /**
  * @brief Comportamiento del técnico para el Nivel 4.
