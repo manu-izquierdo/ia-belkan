@@ -297,6 +297,140 @@ Action ComportamientoIngeniero::ComportamientoIngenieroNivel_1(Sensores sensores
   return accion;
 }
 
+// Parte 2
+
+bool ComportamientoIngeniero::esSuperficieValida(unsigned char superficie) const {
+    switch(superficie) {
+        case 'M': // Muro
+        case 'P': // Precipicio
+        case 'B': // Bosque
+            return false;
+        default:
+            return true;
+    }
+}
+
+/**
+ * @brief Toma el EstadoI st, la matriz de terreno y la de altura y devuelve si sería posible que el Técnico hiciese un WALK a esa posición.
+ */
+bool ComportamientoIngeniero::CasillaAccesibleIngeniero(Action accion, const EstadoI &st, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura){
+  if (accion!=WALK && accion!=JUMP) return true;
+
+  ubicacion next_site = Delante(st.site);
+
+  // Precondiciones base de transito para el Ingeniero (Nunca Muro 'M', Precipicio 'P', ni Bosque 'B')
+  
+  if (accion == WALK) {
+    if (next_site.f < 0 || next_site.f >= terreno.size() || next_site.c < 0 || next_site.c >= terreno[0].size()) return false;
+    if (!esSuperficieValida(terreno[next_site.f][next_site.c])) return false;
+
+    int dif = altura[next_site.f][next_site.c] - altura[st.site.f][st.site.c];
+    return (abs(dif) <= 1 || (st.zapatillas && abs(dif) <= 2));
+  }
+
+  else if (accion == JUMP) {
+    ubicacion jump_site = Delante(next_site);
+
+    // Comprobación casilla intermedia
+    if (next_site.f < 0 || next_site.f >= terreno.size() || next_site.c < 0 || next_site.c >= terreno[0].size()) return false;
+      if (!esSuperficieValida(terreno[next_site.f][next_site.c])) return false;
+
+    // Comprobación casilla destino
+      if (jump_site.f < 0 || jump_site.f >= terreno.size() || jump_site.c < 0 || jump_site.c >= terreno[0].size()) return false;
+      if (!esSuperficieValida(terreno[jump_site.f][jump_site.c])) return false;
+      
+      int dif = altura[jump_site.f][jump_site.c] - altura[st.site.f][st.site.c];
+      return (abs(dif) <= 1 || (st.zapatillas && abs(dif) <= 2));
+    }
+    return false;
+}
+
+/**
+ * @brief Recibe una serie de parámetros y devuelve el estado resultante tras aplicarla
+ * 
+ * @param accion acción que quiere realizar
+ * @param st estado actual del agente
+ * @param terreno 
+ * @param altura 
+ * @return EstadoI resultante tras la accion
+ */
+EstadoI ComportamientoIngeniero::applyI(Action accion, const EstadoI &st, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura){
+  EstadoI next = st;
+  switch(accion){
+    case WALK:
+      next.site = Delante(st.site);
+    break;
+    case JUMP:
+      next.site = Delante(Delante(st.site));
+    break;
+    case TURN_SR:
+      next.site.brujula = (Orientacion) ((next.site.brujula+1)%8);
+    break;
+      case TURN_SL:
+      next.site.brujula = (Orientacion) ((next.site.brujula+7)%8);
+    break;
+  }
+  // Adquisición de zapatillas en el nuevo estado
+  if (terreno[next.site.f][next.site.c] == 'D') next.zapatillas = true;
+  return next;
+}
+
+
+/**
+* @param inicio Estado Inicial de la búsqueda.
+* @param final Estado Final de la búsqueda.
+* @param terreno Matriz que contiene la información del terreno.
+* @param altura Matriz que contiene la altura del mapa.
+* @return La secuencia de acciones para llegar al estado final.
+* @note Devuelve un plan vacío si no es posible encontrar un plan válido.
+*/
+list<Action> ComportamientoIngeniero::B_Anchura(const EstadoI &inicio, const EstadoI &final, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura) {
+  NodoI current_node;
+  list<NodoI> frontier;
+  list<Action> path;
+
+  // Matriz 4D para explorados: [Fila][Columna][Orientacion][Zapatillas]
+  // Evitamos el uso de set y reducimos la complejidad de O(log N) a O(1)
+  vector<vector<vector<vector<bool>>>> explorados(terreno.size(), 
+      vector<vector<vector<bool>>>(terreno[0].size(), 
+      vector<vector<bool>>(8, 
+      vector<bool>(2, false))));
+  
+  current_node.estado = inicio;
+  frontier.push_back(current_node);
+
+  bool SolutionFound = (current_node.estado.site.f == final.site.f and current_node.estado.site.c == final.site.c);
+
+  while (!SolutionFound and !frontier.empty()){
+    // 1. Extracción segura al inicio del bucle
+    current_node = frontier.front();
+    frontier.pop_front();
+
+    // 2. Control de nodos visitados optimizado (O(log N))
+    int z_idx = current_node.estado.zapatillas ? 1 : 0;
+    if (explorados[current_node.estado.site.f][current_node.estado.site.c][current_node.estado.site.brujula][z_idx]) continue;
+    explorados[current_node.estado.site.f][current_node.estado.site.c][current_node.estado.site.brujula][z_idx] = true; // Marcamos el estado como explorado
+
+    if (current_node.estado.site.f == final.site.f && current_node.estado.site.c == final.site.c) {
+      SolutionFound = true;
+      path = current_node.secuencia;
+    break;
+    }
+
+  Action accionesPosibles[] = {WALK, JUMP, TURN_SR, TURN_SL};
+    for (Action accion : accionesPosibles) {
+      if (CasillaAccesibleIngeniero(accion, current_node.estado, terreno, altura)) {
+        NodoI hijo = current_node;
+        hijo.estado = applyI(accion, current_node.estado, terreno, altura);
+        hijo.secuencia.push_back(accion);
+        frontier.push_back(hijo);
+      }
+    }
+  }
+  return path;
+}
+
+
 // Niveles avanzados (Uso de búsqueda)
 /**
  * @brief Comportamiento del ingeniero para el Nivel 2 (búsqueda).
@@ -305,8 +439,53 @@ Action ComportamientoIngeniero::ComportamientoIngenieroNivel_1(Sensores sensores
  */
 Action ComportamientoIngeniero::ComportamientoIngenieroNivel_2(Sensores sensores)
 {
-  // TODO: Implementar búsqueda para el Nivel 2.
-  return IDLE;
+  Action accion = IDLE;
+
+  // 1. Si no hay plan, lo calculamos invocando nuestro método de búsqueda
+  if (!hayPlan) {
+      // Estado inicial (nuestra posición actual)
+      EstadoI inicio, destino;
+      inicio.site.f = sensores.posF;
+      inicio.site.c = sensores.posC;
+      inicio.site.brujula = sensores.rumbo;
+      inicio.zapatillas = tiene_zapatillas;
+
+      // Estado final (la posición de destino proporcionada por los sensores)
+      destino.site.f = sensores.BelPosF;
+      destino.site.c = sensores.BelPosC;
+      destino.site.brujula = norte; // La orientación de llegada da igual
+      destino.zapatillas = false;   // Da igual con qué zapatillas lleguemos
+
+      // Llamamos a nuestro algoritmo BFS
+      plan = B_Anchura(inicio, destino, mapaResultado, mapaCotas);
+      VisualizaPlan(inicio.site,plan);
+      hayPlan = plan.size()!=0;
+  }
+  // 2. Si hay plan, lo ejecutamos paso a paso
+  if (hayPlan && plan.size() > 0) {
+    accion = plan.front();
+    
+    // Control de colisiones dinámicas con el Técnico
+    bool riesgo_choque = false;
+    if (accion == WALK && sensores.agentes[2] == 't') {
+        riesgo_choque = true;
+    } else if (accion == JUMP && (sensores.agentes[2] == 't' || sensores.agentes[6] == 't')) {
+        riesgo_choque = true;
+    }
+
+    if (riesgo_choque) {
+        accion = IDLE; // Pausar ejecución y mantener la acción en la lista
+    } else {
+        plan.pop_front(); // Vía libre, consumir la acción
+    }
+  }
+
+  // Si nos quedamos sin plan (hemos llegado al final), reseteamos para futuros viajes
+  if (plan.size() == 0) {
+      hayPlan = false;
+  }
+
+  return accion;
 }
 
 /**

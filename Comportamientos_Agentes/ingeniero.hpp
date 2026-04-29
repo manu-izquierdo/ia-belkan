@@ -10,6 +10,24 @@
 
 #include "comportamientos/comportamiento.hpp"
 
+
+struct EstadoI {
+  ubicacion site;
+  bool zapatillas;
+  bool operator==(const EstadoI &st) const{
+    return site.f == st.site.f && site.c == st.site.c && site.brujula == st.site.brujula && zapatillas == st.zapatillas;
+  }
+};
+
+struct NodoI{
+  EstadoI estado;
+  list<Action> secuencia;
+  bool operator==(const NodoI &node) const{
+    return estado == node.estado;
+  }
+};
+
+
 class ComportamientoIngeniero : public Comportamiento {
 public:
   // =========================================================================
@@ -199,6 +217,17 @@ private:
   // Implementación "Mapa de Pulgarcito" (sugerencia del profesor)
   vector<vector<int>> mtiempo; // Se usará para que se tenga un mapa de valores que representará el recorrido, de manera que intente acceder a la posición que hace más tiempo que no accedió
   int instante; // Variable que se incrementará representando el recorrido hecho por el jugador
+
+  // =========================================================================
+  // VARIABLES DELIBERATIVAS (Niveles 2, 3, 4, 5, 6)
+  // =========================================================================
+
+  bool hayPlan;        // Nos dirá si el agente ya ha pensado una ruta
+  list<Action> plan;   // La ruta maestra que el agente ejecutará ciegamente
+  EstadoI applyI(Action accion, const EstadoI &st, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura);
+  bool CasillaAccesibleIngeniero(Action accion, const EstadoI &st, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura);
+  list<Action> B_Anchura(const EstadoI &inicio, const EstadoI &final, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura);
+  bool esSuperficieValida(unsigned char superficie) const;
 };
 
 #endif
