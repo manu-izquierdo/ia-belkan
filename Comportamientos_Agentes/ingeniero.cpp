@@ -309,7 +309,7 @@ bool ComportamientoIngeniero::esSuperficieValida(unsigned char superficie) const
 
 
 /**
- * @brief Toma el EstadoI st, la matriz de terreno y la de altura y devuelve si sería posible que el Técnico hiciese un WALK a esa posición.
+ * @brief Toma el EstadoI st, la matriz de terreno y la de altura y devuelve si sería posible que el Ingeniero hiciese un WALK o JUMP a esa posición.
  */
 bool ComportamientoIngeniero::CasillaAccesibleIngeniero(Action accion, const EstadoI &st, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura){
   // Si no avanzamos, la acción es válida

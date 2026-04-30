@@ -290,6 +290,21 @@ Action ComportamientoTecnico::ComportamientoTecnicoNivel_1(Sensores sensores) //
   return accion;
 }
 
+// Parte 2
+
+bool ComportamientoTecnico::esSuperficieValida(unsigned char superficie, unsigned char agente, const bool zap) const {
+  // El técnico no pisa muros, precipicios ni otros agentes. 
+  // Evita chocar con otros agentes.
+  if (superficie == 'M' || superficie == 'P' || agente != '_') {
+    return false;
+  }
+  // Restricción del bosque para el Técnico
+  if (superficie == 'B') {
+    return zap;
+  }
+  return true;
+}
+
 /**
  * @brief Comportamiento del técnico para el Nivel 2.
  * @param sensores Datos actuales de los sensores.
@@ -297,75 +312,207 @@ Action ComportamientoTecnico::ComportamientoTecnicoNivel_1(Sensores sensores) //
  */
 Action ComportamientoTecnico::ComportamientoTecnicoNivel_2(Sensores sensores) {
   int dif = sensores.cota[2] - sensores.cota[0];
-  bool transitable = false;
-  
-  // El técnico no pisa muros, precipicios ni agua. 
-  // Evita chocar con otros agentes.
-  if (sensores.superficie[2] != 'M' && sensores.superficie[2] != 'P' && 
-      sensores.superficie[2] != 'A' && sensores.agentes[2] == '_') {
-
-    // Restricción del bosque para el Técnico
-    if (sensores.superficie[2] == 'B') {
-      if(tiene_zapatillas){
-        transitable = true;
-      }
-      transitable = false;
-    } else {
-      transitable = true;
-    }
-  }
+  bool transitable = esSuperficieValida(sensores.superficie[2], sensores.agentes[2] ,tiene_zapatillas);
 
   // El Técnico no es capaz de subir 2 alturas ni con zapatillas
   if (transitable && abs(dif) <= 1) {
-      return WALK; // Evasión activa hacia adelante
+    return WALK; // Evasión activa hacia adelante
   }
   
   return TURN_SR; // Gira para buscar una ruta alternativa, se ha encontrado con un obstáculo
 }
 
 /**
+ * @brief Toma el EstadoT st, la matriz de terreno y la de altura y devuelve si sería posible que el Técnico hiciese un WALK a esa posición.
+ */
+bool ComportamientoTecnico::CasillaAccesibleTecnico(Action accion, const EstadoT &st, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura) {
+    if (accion != WALK) return true; // Giros siempre son viables, el técnico no tiene JUMP
+
+    ubicacion casilla_delante = Delante(st.site);
+    
+    if (casilla_delante.f < 0 || casilla_delante.f >= terreno.size() || casilla_delante.c < 0 || casilla_delante.c >= terreno[0].size()) return false;
+    if (!esSuperficieValida(terreno[casilla_delante.f][casilla_delante.c],'_',st.zapatillas)) return false;
+
+    int dif = altura[casilla_delante.f][casilla_delante.c] - altura[st.site.f][st.site.c];
+    return (abs(dif) <= 1); // El técnico no puede escalar desniveles de 2, ni con zapatillas
+}
+
+
+/**
+ * @brief Recibe una serie de parámetros y devuelve el estado resultante tras aplicarlos
+ * 
+ * @param accion acción que quiere realizar
+ * @param st estado actual del agente
+ * @param terreno 
+ * @param altura 
+ * @return EstadoT resultante tras la accion
+ */
+EstadoT ComportamientoTecnico::applyT(Action accion, const EstadoT &st, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura) {
+  EstadoT next = st;
+  switch(accion) {
+    case WALK:
+    next.site = Delante(st.site);
+    break;
+    case TURN_SR:
+    next.site.brujula = (Orientacion)((next.site.brujula + 1) % 8);
+    break;
+    case TURN_SL:
+    next.site.brujula = (Orientacion)((next.site.brujula + 7) % 8);
+    break;
+  }
+  // Adquisición de zapatillas en el nuevo estado
+  if (terreno[next.site.f][next.site.c] == 'D') next.zapatillas = true;
+  return next;
+}
+
+
+int ComportamientoTecnico::Heuristica(const EstadoT &actual, const EstadoT &objetivo) {
+  return max(abs(actual.site.f - objetivo.site.f), abs(actual.site.c - objetivo.site.c));
+}
+
+
+int ComportamientoTecnico::CostoEnergiaTecnico(Action accion, const EstadoT &st, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura) {
+  unsigned char sup = terreno[st.site.f][st.site.c];
+  int costo = 0;
+  
+  if (accion == WALK) {
+    ubicacion destino = Delante(st.site);
+    int dif_altura = altura[destino.f][destino.c] - altura[st.site.f][st.site.c];
+    
+    if (sup == 'A') {
+      costo = 60;
+      if (dif_altura > 0) costo += 5;
+      else if (dif_altura < 0) costo -= 2;
+    } else if (sup == 'H') {
+      costo = 6;
+      if (dif_altura > 0) costo += 5;
+      else if (dif_altura < 0) costo -= 2;
+    } else if (sup == 'S') {
+      costo = 3;
+      if (dif_altura > 0) costo += 5;
+      else if (dif_altura < 0) costo -= 2;
+    } else {
+      costo = 1; // El resto de casillas tienen incremento +0/-0
+    }
+  } else if (accion == TURN_SL || accion == TURN_SR) {
+    if (sup == 'A') costo = 5;
+    else if (sup == 'H') costo = 2;
+    else costo = 1;
+  }
+  return costo;
+}
+    
+list<Action> ComportamientoTecnico::A_Estrella(const EstadoT &inicio, const EstadoT &final, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura) {
+  priority_queue<NodoT, vector<NodoT>, ComparaNodos> frontier;
+  list<Action> camino_solucion;
+  
+  // Matriz 4D para visitados: [Fila][Columna][Orientacion][Zapatillas]
+  // Evito el uso de set y reduzco la complejidad de O(log N) a O(1)
+  vector<vector<vector<vector<bool>>>> visitados(terreno.size(), 
+      vector<vector<vector<bool>>>(terreno[0].size(), 
+      vector<vector<bool>>(8, 
+      vector<bool>(2, false))));
+  
+  NodoT n_inicial;
+  n_inicial.estado = inicio;
+  n_inicial.g = 0;
+  n_inicial.h = Heuristica(inicio, final);
+  frontier.push(n_inicial);
+  
+  while (!frontier.empty()) {
+    NodoT nodo_actual = frontier.top();
+    frontier.pop();
+
+    int zapatillas = nodo_actual.estado.zapatillas ? 1 : 0;
+    
+    // Marcaje en la extracción (Clave en A*)
+    if (visitados[nodo_actual.estado.site.f][nodo_actual.estado.site.c][nodo_actual.estado.site.brujula][zapatillas]) continue;
+    visitados[nodo_actual.estado.site.f][nodo_actual.estado.site.c][nodo_actual.estado.site.brujula][zapatillas] = true;
+    
+    if (nodo_actual.estado.site.f == final.site.f && nodo_actual.estado.site.c == final.site.c) {
+      camino_solucion = nodo_actual.secuencia;
+      break;
+    }
+    
+    Action accionesPosibles[] = {WALK, TURN_SR, TURN_SL};
+    for (Action accion : accionesPosibles) {
+      if (CasillaAccesibleTecnico(accion, nodo_actual.estado, terreno, altura)) {
+        NodoT hijo;
+        hijo.estado = applyT(accion, nodo_actual.estado, terreno, altura);
+        hijo.secuencia = nodo_actual.secuencia;
+        hijo.secuencia.push_back(accion);
+        hijo.g = nodo_actual.g + CostoEnergiaTecnico(accion, nodo_actual.estado, terreno, altura);
+        hijo.h = Heuristica(hijo.estado, final);
+        
+        frontier.push(hijo);
+      }
+    }
+  }
+return camino_solucion;
+}
+  
+/**
+ * @brief Determina si la ejecución de una acción conlleva un riesgo de colisión con el ingeniero
+ * 
+ * @param sensores Referencia constante al objeto de sensores actual.
+ * @param accion Acción que el agente pretende realizar.
+ * @return true si hay riesgo de choque, false en caso contrario.
+ */
+bool ComportamientoTecnico::RiesgoChoqueIngeniero(const Sensores &sensores, Action accion) {
+    switch (accion) {
+        case WALK:
+            // True si el ingeniero se encuentra justo en la casilla de delante
+            return (sensores.agentes[2] == 'i');
+        default:
+            // Para el resto de acciones no hay riesgo de choque
+            return false;
+    }
+}
+  
+  
+/**
  * @brief Comportamiento del técnico para el Nivel 3.
  * @param sensores Datos actuales de los sensores.
  * @return Acción a realizar.
  */
-Action ComportamientoTecnico::ComportamientoTecnicoNivel_3(Sensores sensores) {
+Action ComportamientoTecnico::ComportamientoTecnicoNivel_3(Sensores sensores)
+{
   Action accion = IDLE;
 
+  // 1. Si no hay plan, lo calculamos invocando nuestro método de búsqueda
   if (!hayPlan) {
+      // Estado inicial (nuestra posición actual)
       EstadoT inicio, destino;
       inicio.site.f = sensores.posF;
       inicio.site.c = sensores.posC;
       inicio.site.brujula = sensores.rumbo;
       inicio.zapatillas = tiene_zapatillas;
 
+      // Estado final (la posición de destino proporcionada por los sensores)
       destino.site.f = sensores.BelPosF;
       destino.site.c = sensores.BelPosC;
-      destino.site.brujula = norte;
+      destino.site.brujula = norte; // La orientación de llegada y las zapatillas dan igual
       destino.zapatillas = false;
 
+      // Llamamos a nuestro algoritmo BFS
       plan = A_Estrella(inicio, destino, mapaResultado, mapaCotas);
-      VisualizaPlan(inicio.site, plan);
+      VisualizaPlan(inicio.site,plan);
       hayPlan = plan.size()!=0;
   }
 
-  if (hayPlan && plan.size()!=0) {
+  // 2. Si hay plan, lo ejecutamos paso a paso
+  if (hayPlan && plan.size() > 0) {
+    
     accion = plan.front();
 
-    bool riesgo_choque = false;
-    if (accion == WALK && sensores.agentes[2] == 'i') {
-        riesgo_choque = true;
-    } else if (accion == JUMP && (sensores.agentes[2] == 'i' || sensores.agentes[6] == 'i')) {
-        riesgo_choque = true;
-    }
-
-    if (riesgo_choque) {
-        accion = IDLE; // Pausar ejecución y mantener la acción en la lista
+    if(RiesgoChoqueIngeniero(sensores, accion)){
+      accion = IDLE; // Pausar ejecución, esperamos que el técnico se aparte y no consumimos energía
     } else {
-        plan.pop_front(); // Vía libre, consumir la acción
+        plan.pop_front(); // No hay riesgo de choque, hacemos la accion y la eliminamos del plan
     }
   }
 
-  // Si nos quedamos sin plan hemos llegado al final
+  // 3. Si el plan se queda a 0 es porque hemos terminado de ejecutarlo, habríamos llegado a la Belkanita
   if (plan.size() == 0) {
       hayPlan = false;
   }
@@ -373,128 +520,10 @@ Action ComportamientoTecnico::ComportamientoTecnicoNivel_3(Sensores sensores) {
   return accion;
 }
 
-bool ComportamientoTecnico::CasillaAccesibleTecnico(Action accion, const EstadoT &st, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura) {
-    if (accion != WALK) return true; // Giros siempre son viables, el técnico ni tienen JUMP
-
-    ubicacion next_site = Delante(st.site);
-    
-    if (next_site.f < 0 || next_site.f >= terreno.size() || next_site.c < 0 || next_site.c >= terreno[0].size()) return false;
-    
-    unsigned char sup = terreno[next_site.f][next_site.c];
-    if (sup == 'M' || sup == 'P' ) return false;
-    if (sup == 'B' && !st.zapatillas) return false;
-    
-    int dif = altura[next_site.f][next_site.c] - altura[st.site.f][st.site.c];
-    return (abs(dif) <= 1); // El técnico no puede escalar desniveles de 2, ni con zapatillas
-}
-
-EstadoT ComportamientoTecnico::applyT(Action accion, const EstadoT &st, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura) {
-    EstadoT next = st;
-    switch(accion) {
-        case WALK:
-          next.site = Delante(st.site);
-        break;
-        case TURN_SR:
-          next.site.brujula = (Orientacion)((next.site.brujula + 1) % 8);
-        break;
-        case TURN_SL:
-          next.site.brujula = (Orientacion)((next.site.brujula + 7) % 8);
-        break;
-    }
-    // Adquisición de zapatillas en el nuevo estado
-    if (terreno[next.site.f][next.site.c] == 'D') next.zapatillas = true;
-    return next;
-}
-
-int ComportamientoTecnico::Heuristica(const EstadoT &actual, const EstadoT &objetivo) {
-    // Distancia de Chebyshev como cota inferior admisible
-    return max(abs(actual.site.f - objetivo.site.f), abs(actual.site.c - objetivo.site.c));
-}
-
-int ComportamientoTecnico::CostoBateriaTecnico(Action accion, const EstadoT &st, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura) {
-    unsigned char sup = terreno[st.site.f][st.site.c];
-    int costo = 0;
-
-    if (accion == WALK) {
-        ubicacion destino = Delante(st.site);
-        int dif_altura = altura[destino.f][destino.c] - altura[st.site.f][st.site.c];
-        
-        if (sup == 'A') {
-            costo = 60;
-            if (dif_altura > 0) costo += 5;
-            else if (dif_altura < 0) costo -= 2;
-        } else if (sup == 'H') {
-            costo = 6;
-            if (dif_altura > 0) costo += 5;
-            else if (dif_altura < 0) costo -= 2;
-        } else if (sup == 'S') {
-            costo = 3;
-            if (dif_altura > 0) costo += 5;
-            else if (dif_altura < 0) costo -= 2;
-        } else {
-            costo = 1; // El resto de casillas tiene incremento +0/-0
-        }
-    } else if (accion == TURN_SL || accion == TURN_SR) {
-        if (sup == 'A') costo = 5;
-        else if (sup == 'H') costo = 2;
-        else if (sup == 'S') costo = 1;
-        else costo = 1;
-    }
-    
-    return costo;
-}
-
-list<Action> ComportamientoTecnico::A_Estrella(const EstadoT &inicio, const EstadoT &final, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura) {
-    priority_queue<NodoT, vector<NodoT>, ComparaNodos> frontier;
-    list<Action> path;
-    
-    vector<vector<vector<vector<bool>>>> explorados(terreno.size(), 
-        vector<vector<vector<bool>>>(terreno[0].size(), 
-        vector<vector<bool>>(8, 
-        vector<bool>(2, false))));
-
-    NodoT n_inicial;
-    n_inicial.estado = inicio;
-    n_inicial.g = 0;
-    n_inicial.h = Heuristica(inicio, final);
-    frontier.push(n_inicial);
-
-    while (!frontier.empty()) {
-        NodoT current_node = frontier.top();
-        frontier.pop();
-
-        int z_idx = current_node.estado.zapatillas ? 1 : 0;
-        
-        // Marcaje en la extracción (Clave en A*)
-        if (explorados[current_node.estado.site.f][current_node.estado.site.c][current_node.estado.site.brujula][z_idx]) continue;
-        explorados[current_node.estado.site.f][current_node.estado.site.c][current_node.estado.site.brujula][z_idx] = true;
-
-        if (current_node.estado.site.f == final.site.f && current_node.estado.site.c == final.site.c) {
-          path = current_node.secuencia;
-          break;
-        }
-
-        Action accionesPosibles[] = {WALK, TURN_SR, TURN_SL};
-        for (Action accion : accionesPosibles) {
-            if (CasillaAccesibleTecnico(accion, current_node.estado, terreno, altura)) {
-                NodoT hijo;
-                hijo.estado = applyT(accion, current_node.estado, terreno, altura);
-                hijo.secuencia = current_node.secuencia;
-                hijo.secuencia.push_back(accion);
-                hijo.g = current_node.g + CostoBateriaTecnico(accion, current_node.estado, terreno, altura);
-                hijo.h = Heuristica(hijo.estado, final);
-                
-                frontier.push(hijo);
-            }
-        }
-    }
-    return path;
-}
-
-
-/**
- * @brief Comportamiento del técnico para el Nivel 4.
- * @param sensores Datos actuales de los sensores.
+  
+  /**
+   * @brief Comportamiento del técnico para el Nivel 4.
+   * @param sensores Datos actuales de los sensores.
  * @return Acción a realizar.
  */
 Action ComportamientoTecnico::ComportamientoTecnicoNivel_4(Sensores sensores) {

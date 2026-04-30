@@ -237,10 +237,12 @@ private:
   list<Action> plan;
 
   // Nivel 3
+  bool esSuperficieValida(unsigned char superficie, unsigned char agente ,const bool zap) const;
+  int CostoEnergiaTecnico(Action accion, const EstadoT &st, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura);
   bool CasillaAccesibleTecnico(Action accion, const EstadoT &st, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura);
   EstadoT applyT(Action accion, const EstadoT &st, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura);
-  int CostoBateriaTecnico(Action accion, const EstadoT &st, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura);
   int Heuristica(const EstadoT &actual, const EstadoT &objetivo);
+  bool RiesgoChoqueIngeniero(const Sensores &sensores, Action accion);
   list<Action> A_Estrella(const EstadoT &inicio, const EstadoT &final, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura);
 };
 
