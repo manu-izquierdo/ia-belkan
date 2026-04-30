@@ -76,7 +76,6 @@ public:
     // Inicializar Variables de Estado
     tiene_zapatillas = false;
     last_action = IDLE;
-    hayPlan = false;
   }
 
   ComportamientoTecnico(const ComportamientoTecnico &comport): Comportamiento(comport) {}

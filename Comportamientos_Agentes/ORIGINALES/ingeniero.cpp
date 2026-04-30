@@ -300,11 +300,14 @@ Action ComportamientoIngeniero::ComportamientoIngenieroNivel_1(Sensores sensores
 // Parte 2
 
 bool ComportamientoIngeniero::esSuperficieValida(unsigned char superficie) const {
-  if (superficie == 'M' || superficie == 'P' || superficie == 'B') {
-    return false;
-  } else {
-    return true;
-  }
+    switch(superficie) {
+        case 'M': // Muro
+        case 'P': // Precipicio
+        case 'B': // Bosque
+            return false;
+        default:
+            return true;
+    }
 }
 
 
@@ -312,35 +315,35 @@ bool ComportamientoIngeniero::esSuperficieValida(unsigned char superficie) const
  * @brief Toma el EstadoI st, la matriz de terreno y la de altura y devuelve si sería posible que el Técnico hiciese un WALK a esa posición.
  */
 bool ComportamientoIngeniero::CasillaAccesibleIngeniero(Action accion, const EstadoI &st, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura){
-  // Si no avanzamos, la acción es válida
   if (accion!=WALK && accion!=JUMP) return true;
 
-  ubicacion casilla_delante = Delante(st.site);
+  ubicacion next_site = Delante(st.site);
 
-  // Ingeniero tiene como casillas intransitables Muro 'M', Precipicio 'P' y Bosque 'B'
+  // Precondiciones base de transito para el Ingeniero (Nunca Muro 'M', Precipicio 'P', ni Bosque 'B')
+  
   if (accion == WALK) {
-    if (casilla_delante.f < 0 || casilla_delante.f >= terreno.size() || casilla_delante.c < 0 || casilla_delante.c >= terreno[0].size()) return false;
-    if (!esSuperficieValida(terreno[casilla_delante.f][casilla_delante.c])) return false;
+    if (next_site.f < 0 || next_site.f >= terreno.size() || next_site.c < 0 || next_site.c >= terreno[0].size()) return false;
+    if (!esSuperficieValida(terreno[next_site.f][next_site.c])) return false;
 
-    int dif_altura = altura[casilla_delante.f][casilla_delante.c] - altura[st.site.f][st.site.c];
-    return (abs(dif_altura) <= 1 || (st.zapatillas && abs(dif_altura) <= 2));
+    int dif = altura[next_site.f][next_site.c] - altura[st.site.f][st.site.c];
+    return (abs(dif) <= 1 || (st.zapatillas && abs(dif) <= 2));
   }
 
   else if (accion == JUMP) {
-    ubicacion casilla_jump = Delante(casilla_delante);
+    ubicacion jump_site = Delante(next_site);
 
     // Comprobación casilla intermedia
-    if (casilla_delante.f < 0 || casilla_delante.f >= terreno.size() || casilla_delante.c < 0 || casilla_delante.c >= terreno[0].size()) return false;
-    if (!esSuperficieValida(terreno[casilla_delante.f][casilla_delante.c])) return false;
+    if (next_site.f < 0 || next_site.f >= terreno.size() || next_site.c < 0 || next_site.c >= terreno[0].size()) return false;
+      if (!esSuperficieValida(terreno[next_site.f][next_site.c])) return false;
 
     // Comprobación casilla destino
-    if (casilla_jump.f < 0 || casilla_jump.f >= terreno.size() || casilla_jump.c < 0 || casilla_jump.c >= terreno[0].size()) return false;
-    if (!esSuperficieValida(terreno[casilla_jump.f][casilla_jump.c])) return false;
-    
-    int dif_altura = altura[casilla_jump.f][casilla_jump.c] - altura[st.site.f][st.site.c];
-    return (abs(dif_altura) <= 1 || (st.zapatillas && abs(dif_altura) <= 2));
-  }
-  return false;
+      if (jump_site.f < 0 || jump_site.f >= terreno.size() || jump_site.c < 0 || jump_site.c >= terreno[0].size()) return false;
+      if (!esSuperficieValida(terreno[jump_site.f][jump_site.c])) return false;
+      
+      int dif = altura[jump_site.f][jump_site.c] - altura[st.site.f][st.site.c];
+      return (abs(dif) <= 1 || (st.zapatillas && abs(dif) <= 2));
+    }
+    return false;
 }
 
 
@@ -354,29 +357,28 @@ bool ComportamientoIngeniero::CasillaAccesibleIngeniero(Action accion, const Est
  * @return EstadoI resultante tras la accion
  */
 EstadoI ComportamientoIngeniero::applyI(Action accion, const EstadoI &st, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura){
-  EstadoI nuevo_st = st;
+  EstadoI next = st;
   switch(accion){
     case WALK:
-      nuevo_st.site = Delante(st.site);
+      next.site = Delante(st.site);
     break;
     case JUMP:
-      nuevo_st.site = Delante(Delante(st.site));
+      next.site = Delante(Delante(st.site));
     break;
     case TURN_SR:
-      nuevo_st.site.brujula = (Orientacion) ((nuevo_st.site.brujula+1)%8);
+      next.site.brujula = (Orientacion) ((next.site.brujula+1)%8);
     break;
       case TURN_SL:
-      nuevo_st.site.brujula = (Orientacion) ((nuevo_st.site.brujula+7)%8);
+      next.site.brujula = (Orientacion) ((next.site.brujula+7)%8);
     break;
   }
   // Adquisición de zapatillas en el nuevo estado
-  if (terreno[nuevo_st.site.f][nuevo_st.site.c] == 'D') nuevo_st.zapatillas = true;
-  return nuevo_st;
+  if (terreno[next.site.f][next.site.c] == 'D') next.zapatillas = true;
+  return next;
 }
 
 
 /**
-* @brief Va almacenando los nodos de menor a mayor distancia y va buscando la solucion, cada nodo generará tantos nodos como acciones tenga válidas desde su posición, comprobando que son transitables y se pueden ejecutar
 * @param inicio Estado Inicial de la búsqueda.
 * @param final Estado Final de la búsqueda.
 * @param terreno Matriz que contiene la información del terreno.
@@ -385,74 +387,49 @@ EstadoI ComportamientoIngeniero::applyI(Action accion, const EstadoI &st, const 
 * @note Devuelve un plan vacío si no es posible encontrar un plan válido.
 */
 list<Action> ComportamientoIngeniero::B_Anchura(const EstadoI &inicio, const EstadoI &final, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura) {
-  NodoI nodo_actual;
-  list<NodoI> frontier; // Actuará como si fuese una cola FIFO, nodos abiertos pero no explorados
-  list<Action> camino_solucion;
+  NodoI current_node;
+  list<NodoI> frontier;
+  list<Action> path;
 
-  // Matriz 4D para visitados: [Fila][Columna][Orientacion][Zapatillas]
-  // Evito el uso de set y reduzco la complejidad de O(log N) a O(1)
-  vector<vector<vector<vector<bool>>>> visitados(terreno.size(),
-      vector<vector<vector<bool>>>(terreno[0].size(),
-      vector<vector<bool>>(8,
+  // Matriz 4D para explorados: [Fila][Columna][Orientacion][Zapatillas]
+  // Evitamos el uso de set y reducimos la complejidad de O(log N) a O(1)
+  vector<vector<vector<vector<bool>>>> explorados(terreno.size(), 
+      vector<vector<vector<bool>>>(terreno[0].size(), 
+      vector<vector<bool>>(8, 
       vector<bool>(2, false))));
   
-  nodo_actual.estado = inicio;
-  frontier.push_back(nodo_actual); //Insertamos el Nodo Raíz en la frontera (distancia 0)
+  current_node.estado = inicio;
+  frontier.push_back(current_node);
 
-  // Si la fila y columna del nodo inicio y destino coinciden ya se ha llegado a la Belkanita
-  bool solucion_encontrada = (nodo_actual.estado.site.f == final.site.f and nodo_actual.estado.site.c == final.site.c);
+  bool SolutionFound = (current_node.estado.site.f == final.site.f and current_node.estado.site.c == final.site.c);
 
-  while (!solucion_encontrada and !frontier.empty()){
-    // 1. Extraemos los nodos usando FIFO para que haga primero los de distancias menores y luego mayores
-    nodo_actual = frontier.front();
+  while (!SolutionFound and !frontier.empty()){
+    // 1. Extracción segura al inicio del bucle
+    current_node = frontier.front();
     frontier.pop_front();
 
     // 2. Control de nodos visitados optimizado (O(log N))
-    int zapatillas = nodo_actual.estado.zapatillas ? 1 : 0;
-    if (visitados[nodo_actual.estado.site.f][nodo_actual.estado.site.c][nodo_actual.estado.site.brujula][zapatillas]) continue; //Si ya ha sido visitado, se continua
-    visitados[nodo_actual.estado.site.f][nodo_actual.estado.site.c][nodo_actual.estado.site.brujula][zapatillas] = true; // Marcamos el estado como explorado
+    int z_idx = current_node.estado.zapatillas ? 1 : 0;
+    if (explorados[current_node.estado.site.f][current_node.estado.site.c][current_node.estado.site.brujula][z_idx]) continue;
+    explorados[current_node.estado.site.f][current_node.estado.site.c][current_node.estado.site.brujula][z_idx] = true; // Marcamos el estado como explorado
 
-    // Si llegmaos a la solucion sale del while y devuelve camino_solucion
-    if (nodo_actual.estado.site.f == final.site.f && nodo_actual.estado.site.c == final.site.c) {
-      solucion_encontrada = true;
-      camino_solucion = nodo_actual.secuencia;
+    if (current_node.estado.site.f == final.site.f && current_node.estado.site.c == final.site.c) {
+      SolutionFound = true;
+      path = current_node.secuencia;
     break;
     }
 
-    //Añadimos a la cola una copia de lo que ya llevaba mas lo que pasaría si hace cada una de sus acciones
-    Action accionesPosibles[] = {WALK, JUMP, TURN_SR, TURN_SL};
+  Action accionesPosibles[] = {WALK, JUMP, TURN_SR, TURN_SL};
     for (Action accion : accionesPosibles) {
-      if (CasillaAccesibleIngeniero(accion, nodo_actual.estado, terreno, altura)) {
-        NodoI hijo = nodo_actual;
-        hijo.estado = applyI(accion, nodo_actual.estado, terreno, altura);
+      if (CasillaAccesibleIngeniero(accion, current_node.estado, terreno, altura)) {
+        NodoI hijo = current_node;
+        hijo.estado = applyI(accion, current_node.estado, terreno, altura);
         hijo.secuencia.push_back(accion);
         frontier.push_back(hijo);
       }
     }
   }
-  return camino_solucion;
-}
-
-
-/**
- * @brief Determina si la ejecución de una acción conlleva un riesgo de colisión con el técnico
- * 
- * @param sensores Referencia constante al objeto de sensores actual.
- * @param accion Acción que el agente pretende realizar.
- * @return true si hay riesgo de choque, false en caso contrario.
- */
-bool ComportamientoIngeniero::RiesgoChoqueTecnico(const Sensores &sensores, Action accion) {
-    switch (accion) {
-        case WALK:
-            // True si el técnico se encuentra justo en la casilla de delante
-            return (sensores.agentes[2] == 't');
-        case JUMP:
-            // True si el técnico se encuentra en la casilla intermedia o en la de salto
-            return (sensores.agentes[2] == 't' || sensores.agentes[6] == 't');
-        default:
-            // Para el resto de acciones no hay riesgo de choque
-            return false;
-    }
+  return path;
 }
 
 
@@ -478,28 +455,34 @@ Action ComportamientoIngeniero::ComportamientoIngenieroNivel_2(Sensores sensores
       // Estado final (la posición de destino proporcionada por los sensores)
       destino.site.f = sensores.BelPosF;
       destino.site.c = sensores.BelPosC;
-      destino.site.brujula = norte; // La orientación de llegada y las zapatillas dan igual
-      destino.zapatillas = false;
+      destino.site.brujula = norte; // La orientación de llegada da igual
+      destino.zapatillas = false;   // Da igual con qué zapatillas lleguemos
 
       // Llamamos a nuestro algoritmo BFS
       plan = B_Anchura(inicio, destino, mapaResultado, mapaCotas);
       VisualizaPlan(inicio.site,plan);
       hayPlan = plan.size()!=0;
   }
-
   // 2. Si hay plan, lo ejecutamos paso a paso
   if (hayPlan && plan.size() > 0) {
-    
     accion = plan.front();
+    
+    // Control de colisiones dinámicas con el Técnico
+    bool riesgo_choque = false;
+    if (accion == WALK && sensores.agentes[2] == 't') {
+        riesgo_choque = true;
+    } else if (accion == JUMP && (sensores.agentes[2] == 't' || sensores.agentes[6] == 't')) {
+        riesgo_choque = true;
+    }
 
-    if(RiesgoChoqueTecnico(sensores, accion)){
-      accion = IDLE; // Pausar ejecución, esperamos que el técnico se aparte y no consumimos energía
+    if (riesgo_choque) {
+        accion = IDLE; // Pausar ejecución y mantener la acción en la lista
     } else {
-        plan.pop_front(); // No hay riesgo de choque, hacemos la accion y la eliminamos del plan
+        plan.pop_front(); // Vía libre, consumir la acción
     }
   }
 
-  // 3. Si el plan se queda a 0 es porque hemos terminado de ejecutarlo, habríamos llegado a la Belkanita
+  // Si nos quedamos sin plan hemos llegado al final
   if (plan.size() == 0) {
       hayPlan = false;
   }
@@ -522,8 +505,7 @@ Action ComportamientoIngeniero::ComportamientoIngenieroNivel_3(Sensores sensores
  * @param sensores Datos actuales de los sensores.
  * @return Acción a realizar.
  */
-Action ComportamientoIngeniero::ComportamientoIngenieroNivel_4(Sensores sensores)
-{
+Action ComportamientoIngeniero::ComportamientoIngenieroNivel_4(Sensores sensores) {
   return IDLE;
 }
 

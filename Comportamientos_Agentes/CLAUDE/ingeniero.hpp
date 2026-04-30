@@ -28,6 +28,38 @@ struct NodoI{
 };
 
 
+// Nodo del Dijkstra del Nivel 4. El estado lógico es (f, c, delta), donde
+// delta in {-1, 0, +1} indica si en esta casilla se aplica DIG (-1),
+// no se modifica (0) o se aplica RAISE (+1). La altura efectiva de la casilla
+// es altura_original + delta.
+//
+// Llevamos dos costes acumulados:
+//   - longitud: numero de tramos del plan parcial (= profundidad).
+//   - impacto:  impacto ecologico acumulado (INSTALL + DIG/RAISE).
+//
+// Ordenamos lexicograficamente por (longitud, impacto): primero plan mas corto;
+// a igualdad de longitud, plan con menos impacto. Esto cumple el guion al pie
+// de la letra (minimo numero de tramos sin superar el limite ecologico).
+struct NodoTuberia {
+  int f;
+  int c;
+  int delta;            // -1 = DIG, 0 = sin op, +1 = RAISE
+  int longitud;         // numero de Pasos acumulado
+  int impacto;          // impacto ecologico acumulado
+  list<Paso> camino;    // secuencia de Pasos desde la Belkanita hasta aquí
+};
+
+// Comparador para la priority_queue: la prioridad mas alta es la (longitud,
+// impacto) mas pequeña en orden lexicografico, asi que devolvemos true cuando
+// 'a' debe ir DESPUES que 'b' (priority_queue ordena de mayor a menor).
+struct ComparaTuberia {
+  bool operator()(const NodoTuberia &a, const NodoTuberia &b) const {
+    if (a.longitud != b.longitud) return a.longitud > b.longitud;
+    return a.impacto > b.impacto;
+  }
+};
+
+
 class ComportamientoIngeniero : public Comportamiento {
 public:
   // =========================================================================
@@ -60,7 +92,7 @@ public:
     // Inicializar Variables de Estado
     tiene_zapatillas = false;
     last_action = IDLE;
-    hayPlan = false;
+    hayPlan = false;          // Aun no hay plan calculado
   }
 
   ComportamientoIngeniero(const ComportamientoIngeniero &comport)
@@ -227,11 +259,21 @@ private:
   list<Action> plan;   // La ruta maestra que el agente ejecutará ciegamente
   
   // Nivel 2
-  bool esSuperficieValida(unsigned char superficie) const;  
-  bool CasillaAccesibleIngeniero(Action accion, const EstadoI &st, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura);
   EstadoI applyI(Action accion, const EstadoI &st, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura);
-  bool RiesgoChoqueTecnico(const Sensores &sensores, Action accion);
+  bool CasillaAccesibleIngeniero(Action accion, const EstadoI &st, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura);
   list<Action> B_Anchura(const EstadoI &inicio, const EstadoI &final, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura);
+  bool esSuperficieValida(unsigned char superficie) const;
+
+  // Nivel 4
+  // Devuelve el plan de tuberías (lista de Pasos) que va desde la Belkanita
+  // hasta la 'U' más cercana usando el menor número de tramos posible,
+  // respetando la regla de gravedad (h(n) >= h(n+1) y h(n) - h(n+1) <= 1)
+  // y permitiendo modificar cada casilla como mucho una unidad de altura.
+  // Si no encuentra plan, devuelve una lista vacía.
+  list<Paso> PlanificarRedTuberias(int fInicio, int cInicio,
+      const vector<vector<unsigned char>> &terreno,
+      const vector<vector<unsigned char>> &altura);
+  
 };
 
 #endif

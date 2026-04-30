@@ -300,11 +300,14 @@ Action ComportamientoIngeniero::ComportamientoIngenieroNivel_1(Sensores sensores
 // Parte 2
 
 bool ComportamientoIngeniero::esSuperficieValida(unsigned char superficie) const {
-  if (superficie == 'M' || superficie == 'P' || superficie == 'B') {
-    return false;
-  } else {
-    return true;
-  }
+    switch(superficie) {
+        case 'M': // Muro
+        case 'P': // Precipicio
+        case 'B': // Bosque
+            return false;
+        default:
+            return true;
+    }
 }
 
 
@@ -312,35 +315,35 @@ bool ComportamientoIngeniero::esSuperficieValida(unsigned char superficie) const
  * @brief Toma el EstadoI st, la matriz de terreno y la de altura y devuelve si sería posible que el Técnico hiciese un WALK a esa posición.
  */
 bool ComportamientoIngeniero::CasillaAccesibleIngeniero(Action accion, const EstadoI &st, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura){
-  // Si no avanzamos, la acción es válida
   if (accion!=WALK && accion!=JUMP) return true;
 
-  ubicacion casilla_delante = Delante(st.site);
+  ubicacion next_site = Delante(st.site);
 
-  // Ingeniero tiene como casillas intransitables Muro 'M', Precipicio 'P' y Bosque 'B'
+  // Precondiciones base de transito para el Ingeniero (Nunca Muro 'M', Precipicio 'P', ni Bosque 'B')
+  
   if (accion == WALK) {
-    if (casilla_delante.f < 0 || casilla_delante.f >= terreno.size() || casilla_delante.c < 0 || casilla_delante.c >= terreno[0].size()) return false;
-    if (!esSuperficieValida(terreno[casilla_delante.f][casilla_delante.c])) return false;
+    if (next_site.f < 0 || next_site.f >= terreno.size() || next_site.c < 0 || next_site.c >= terreno[0].size()) return false;
+    if (!esSuperficieValida(terreno[next_site.f][next_site.c])) return false;
 
-    int dif_altura = altura[casilla_delante.f][casilla_delante.c] - altura[st.site.f][st.site.c];
-    return (abs(dif_altura) <= 1 || (st.zapatillas && abs(dif_altura) <= 2));
+    int dif = altura[next_site.f][next_site.c] - altura[st.site.f][st.site.c];
+    return (abs(dif) <= 1 || (st.zapatillas && abs(dif) <= 2));
   }
 
   else if (accion == JUMP) {
-    ubicacion casilla_jump = Delante(casilla_delante);
+    ubicacion jump_site = Delante(next_site);
 
     // Comprobación casilla intermedia
-    if (casilla_delante.f < 0 || casilla_delante.f >= terreno.size() || casilla_delante.c < 0 || casilla_delante.c >= terreno[0].size()) return false;
-    if (!esSuperficieValida(terreno[casilla_delante.f][casilla_delante.c])) return false;
+    if (next_site.f < 0 || next_site.f >= terreno.size() || next_site.c < 0 || next_site.c >= terreno[0].size()) return false;
+      if (!esSuperficieValida(terreno[next_site.f][next_site.c])) return false;
 
     // Comprobación casilla destino
-    if (casilla_jump.f < 0 || casilla_jump.f >= terreno.size() || casilla_jump.c < 0 || casilla_jump.c >= terreno[0].size()) return false;
-    if (!esSuperficieValida(terreno[casilla_jump.f][casilla_jump.c])) return false;
-    
-    int dif_altura = altura[casilla_jump.f][casilla_jump.c] - altura[st.site.f][st.site.c];
-    return (abs(dif_altura) <= 1 || (st.zapatillas && abs(dif_altura) <= 2));
-  }
-  return false;
+      if (jump_site.f < 0 || jump_site.f >= terreno.size() || jump_site.c < 0 || jump_site.c >= terreno[0].size()) return false;
+      if (!esSuperficieValida(terreno[jump_site.f][jump_site.c])) return false;
+      
+      int dif = altura[jump_site.f][jump_site.c] - altura[st.site.f][st.site.c];
+      return (abs(dif) <= 1 || (st.zapatillas && abs(dif) <= 2));
+    }
+    return false;
 }
 
 
@@ -354,29 +357,28 @@ bool ComportamientoIngeniero::CasillaAccesibleIngeniero(Action accion, const Est
  * @return EstadoI resultante tras la accion
  */
 EstadoI ComportamientoIngeniero::applyI(Action accion, const EstadoI &st, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura){
-  EstadoI nuevo_st = st;
+  EstadoI next = st;
   switch(accion){
     case WALK:
-      nuevo_st.site = Delante(st.site);
+      next.site = Delante(st.site);
     break;
     case JUMP:
-      nuevo_st.site = Delante(Delante(st.site));
+      next.site = Delante(Delante(st.site));
     break;
     case TURN_SR:
-      nuevo_st.site.brujula = (Orientacion) ((nuevo_st.site.brujula+1)%8);
+      next.site.brujula = (Orientacion) ((next.site.brujula+1)%8);
     break;
       case TURN_SL:
-      nuevo_st.site.brujula = (Orientacion) ((nuevo_st.site.brujula+7)%8);
+      next.site.brujula = (Orientacion) ((next.site.brujula+7)%8);
     break;
   }
   // Adquisición de zapatillas en el nuevo estado
-  if (terreno[nuevo_st.site.f][nuevo_st.site.c] == 'D') nuevo_st.zapatillas = true;
-  return nuevo_st;
+  if (terreno[next.site.f][next.site.c] == 'D') next.zapatillas = true;
+  return next;
 }
 
 
 /**
-* @brief Va almacenando los nodos de menor a mayor distancia y va buscando la solucion, cada nodo generará tantos nodos como acciones tenga válidas desde su posición, comprobando que son transitables y se pueden ejecutar
 * @param inicio Estado Inicial de la búsqueda.
 * @param final Estado Final de la búsqueda.
 * @param terreno Matriz que contiene la información del terreno.
@@ -385,74 +387,49 @@ EstadoI ComportamientoIngeniero::applyI(Action accion, const EstadoI &st, const 
 * @note Devuelve un plan vacío si no es posible encontrar un plan válido.
 */
 list<Action> ComportamientoIngeniero::B_Anchura(const EstadoI &inicio, const EstadoI &final, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura) {
-  NodoI nodo_actual;
-  list<NodoI> frontier; // Actuará como si fuese una cola FIFO, nodos abiertos pero no explorados
-  list<Action> camino_solucion;
+  NodoI current_node;
+  list<NodoI> frontier;
+  list<Action> path;
 
-  // Matriz 4D para visitados: [Fila][Columna][Orientacion][Zapatillas]
-  // Evito el uso de set y reduzco la complejidad de O(log N) a O(1)
-  vector<vector<vector<vector<bool>>>> visitados(terreno.size(),
-      vector<vector<vector<bool>>>(terreno[0].size(),
-      vector<vector<bool>>(8,
+  // Matriz 4D para explorados: [Fila][Columna][Orientacion][Zapatillas]
+  // Evitamos el uso de set y reducimos la complejidad de O(log N) a O(1)
+  vector<vector<vector<vector<bool>>>> explorados(terreno.size(), 
+      vector<vector<vector<bool>>>(terreno[0].size(), 
+      vector<vector<bool>>(8, 
       vector<bool>(2, false))));
   
-  nodo_actual.estado = inicio;
-  frontier.push_back(nodo_actual); //Insertamos el Nodo Raíz en la frontera (distancia 0)
+  current_node.estado = inicio;
+  frontier.push_back(current_node);
 
-  // Si la fila y columna del nodo inicio y destino coinciden ya se ha llegado a la Belkanita
-  bool solucion_encontrada = (nodo_actual.estado.site.f == final.site.f and nodo_actual.estado.site.c == final.site.c);
+  bool SolutionFound = (current_node.estado.site.f == final.site.f and current_node.estado.site.c == final.site.c);
 
-  while (!solucion_encontrada and !frontier.empty()){
-    // 1. Extraemos los nodos usando FIFO para que haga primero los de distancias menores y luego mayores
-    nodo_actual = frontier.front();
+  while (!SolutionFound and !frontier.empty()){
+    // 1. Extracción segura al inicio del bucle
+    current_node = frontier.front();
     frontier.pop_front();
 
     // 2. Control de nodos visitados optimizado (O(log N))
-    int zapatillas = nodo_actual.estado.zapatillas ? 1 : 0;
-    if (visitados[nodo_actual.estado.site.f][nodo_actual.estado.site.c][nodo_actual.estado.site.brujula][zapatillas]) continue; //Si ya ha sido visitado, se continua
-    visitados[nodo_actual.estado.site.f][nodo_actual.estado.site.c][nodo_actual.estado.site.brujula][zapatillas] = true; // Marcamos el estado como explorado
+    int z_idx = current_node.estado.zapatillas ? 1 : 0;
+    if (explorados[current_node.estado.site.f][current_node.estado.site.c][current_node.estado.site.brujula][z_idx]) continue;
+    explorados[current_node.estado.site.f][current_node.estado.site.c][current_node.estado.site.brujula][z_idx] = true; // Marcamos el estado como explorado
 
-    // Si llegmaos a la solucion sale del while y devuelve camino_solucion
-    if (nodo_actual.estado.site.f == final.site.f && nodo_actual.estado.site.c == final.site.c) {
-      solucion_encontrada = true;
-      camino_solucion = nodo_actual.secuencia;
+    if (current_node.estado.site.f == final.site.f && current_node.estado.site.c == final.site.c) {
+      SolutionFound = true;
+      path = current_node.secuencia;
     break;
     }
 
-    //Añadimos a la cola una copia de lo que ya llevaba mas lo que pasaría si hace cada una de sus acciones
-    Action accionesPosibles[] = {WALK, JUMP, TURN_SR, TURN_SL};
+  Action accionesPosibles[] = {WALK, JUMP, TURN_SR, TURN_SL};
     for (Action accion : accionesPosibles) {
-      if (CasillaAccesibleIngeniero(accion, nodo_actual.estado, terreno, altura)) {
-        NodoI hijo = nodo_actual;
-        hijo.estado = applyI(accion, nodo_actual.estado, terreno, altura);
+      if (CasillaAccesibleIngeniero(accion, current_node.estado, terreno, altura)) {
+        NodoI hijo = current_node;
+        hijo.estado = applyI(accion, current_node.estado, terreno, altura);
         hijo.secuencia.push_back(accion);
         frontier.push_back(hijo);
       }
     }
   }
-  return camino_solucion;
-}
-
-
-/**
- * @brief Determina si la ejecución de una acción conlleva un riesgo de colisión con el técnico
- * 
- * @param sensores Referencia constante al objeto de sensores actual.
- * @param accion Acción que el agente pretende realizar.
- * @return true si hay riesgo de choque, false en caso contrario.
- */
-bool ComportamientoIngeniero::RiesgoChoqueTecnico(const Sensores &sensores, Action accion) {
-    switch (accion) {
-        case WALK:
-            // True si el técnico se encuentra justo en la casilla de delante
-            return (sensores.agentes[2] == 't');
-        case JUMP:
-            // True si el técnico se encuentra en la casilla intermedia o en la de salto
-            return (sensores.agentes[2] == 't' || sensores.agentes[6] == 't');
-        default:
-            // Para el resto de acciones no hay riesgo de choque
-            return false;
-    }
+  return path;
 }
 
 
@@ -478,28 +455,34 @@ Action ComportamientoIngeniero::ComportamientoIngenieroNivel_2(Sensores sensores
       // Estado final (la posición de destino proporcionada por los sensores)
       destino.site.f = sensores.BelPosF;
       destino.site.c = sensores.BelPosC;
-      destino.site.brujula = norte; // La orientación de llegada y las zapatillas dan igual
-      destino.zapatillas = false;
+      destino.site.brujula = norte; // La orientación de llegada da igual
+      destino.zapatillas = false;   // Da igual con qué zapatillas lleguemos
 
       // Llamamos a nuestro algoritmo BFS
       plan = B_Anchura(inicio, destino, mapaResultado, mapaCotas);
       VisualizaPlan(inicio.site,plan);
       hayPlan = plan.size()!=0;
   }
-
   // 2. Si hay plan, lo ejecutamos paso a paso
   if (hayPlan && plan.size() > 0) {
-    
     accion = plan.front();
+    
+    // Control de colisiones dinámicas con el Técnico
+    bool riesgo_choque = false;
+    if (accion == WALK && sensores.agentes[2] == 't') {
+        riesgo_choque = true;
+    } else if (accion == JUMP && (sensores.agentes[2] == 't' || sensores.agentes[6] == 't')) {
+        riesgo_choque = true;
+    }
 
-    if(RiesgoChoqueTecnico(sensores, accion)){
-      accion = IDLE; // Pausar ejecución, esperamos que el técnico se aparte y no consumimos energía
+    if (riesgo_choque) {
+        accion = IDLE; // Pausar ejecución y mantener la acción en la lista
     } else {
-        plan.pop_front(); // No hay riesgo de choque, hacemos la accion y la eliminamos del plan
+        plan.pop_front(); // Vía libre, consumir la acción
     }
   }
 
-  // 3. Si el plan se queda a 0 es porque hemos terminado de ejecutarlo, habríamos llegado a la Belkanita
+  // Si nos quedamos sin plan hemos llegado al final
   if (plan.size() == 0) {
       hayPlan = false;
   }
@@ -518,12 +501,213 @@ Action ComportamientoIngeniero::ComportamientoIngenieroNivel_3(Sensores sensores
 }
 
 /**
+ * @brief Dijkstra para planificar la red de tuberías del Nivel 4.
+ *
+ * Estado del algoritmo: (f, c, delta). Con delta in {-1, 0, +1} representamos si
+ * a la casilla (f,c) se le aplica DIG (-1), nada (0) o RAISE (+1). La altura
+ * efectiva de la casilla es altura_original[f][c] + delta.
+ *
+ * Coste de cada arco: (longitud=+1, impacto=+coste_ecologico_de_la_casilla).
+ * Ordenamos la priority_queue lexicograficamente por (longitud, impacto), de
+ * forma que devolvemos el plan con el menor numero de tramos posible (lo que
+ * pide el guion) y, entre los empatados en longitud, el de menor impacto
+ * ecologico (lo que evita exceder el umbral ambiental).
+ *
+ * Si igualaramos los costes a 1 y prescindieramos de impacto, esto degeneraria
+ * en un BFS clasico. La diferencia es justamente el desempate por impacto.
+ *
+ * En Dijkstra, el chequeo de visitados se hace AL EXTRAER el nodo de la cola,
+ * no al insertarlo: solo cuando un estado se extrae sabemos que su coste ya
+ * es optimo (porque la priority_queue siempre saca el mejor). Si lo
+ * marcaramos al insertar, podriamos cerrar un estado por una ruta peor y
+ * dejar fuera la mejor.
+ *
+ * Sucesores: las 4 casillas ortogonalmente adyacentes (N, S, E, O), cada
+ * una con sus 3 deltas posibles, filtradas por:
+ *   - La casilla destino existe y no es 'M', 'P', 'B' ni '?'.
+ *     ('B' se excluye porque el seminario lo lista como intransitable
+ *     permanente, igual que muros y precipicios.)
+ *   - El delta es legal: en agua 'A' solo delta=0; DIG (-1) solo si h>1;
+ *     RAISE (+1) solo si h<9.
+ *   - Gravedad: alt_efectiva_actual - alt_efectiva_destino in {0, 1}.
+ *
+ * @param fInicio fila de la Belkanita
+ * @param cInicio columna de la Belkanita
+ * @param terreno mapaResultado (matriz de tipos de casilla)
+ * @param altura  mapaCotas (matriz de alturas originales)
+ * @return Plan como list<Paso>, vacio si no hay solucion.
+ */
+list<Paso> ComportamientoIngeniero::PlanificarRedTuberias(
+    int fInicio, int cInicio,
+    const vector<vector<unsigned char>> &terreno,
+    const vector<vector<unsigned char>> &altura)
+{
+  int filas = terreno.size();
+  int cols  = terreno[0].size();
+
+  // Matriz 3D de visitados: [f][c][delta+1] (delta+1 in {0,1,2}).
+  vector<vector<vector<bool>>> visitados(filas,
+      vector<vector<bool>>(cols, vector<bool>(3, false)));
+
+  // Frontera ordenada por (longitud, impacto) crecientes.
+  priority_queue<NodoTuberia, vector<NodoTuberia>, ComparaTuberia> frontera;
+
+  // ---------------- Helpers locales ----------------
+  // 1) deltaValido: precondiciones de DIG/RAISE en la casilla.
+  auto deltaValido = [&](int f, int c, int delta) -> bool {
+    unsigned char terr = terreno[f][c];
+    int h_orig = altura[f][c];
+    if (terr == 'A' && delta != 0) return false;        // Sin DIG/RAISE en agua
+    if (delta ==  1 && h_orig >= 9) return false;       // RAISE solo si h<9
+    if (delta == -1 && h_orig <= 1) return false;       // DIG   solo si h>1
+    return true;
+  };
+  // 2) casillaValida: dentro del mapa y no es intransitable permanente.
+  //    'B' (bosque) se excluye: el seminario lo cataloga como IP igual que
+  //    muros y precipicios, asi que no se puede tender tuberia por bosque.
+  auto casillaValida = [&](int f, int c) -> bool {
+    if (f < 0 || f >= filas || c < 0 || c >= cols) return false;
+    unsigned char terr = terreno[f][c];
+    if (terr == 'M' || terr == 'P' || terr == 'B' || terr == '?') return false;
+    return true;
+  };
+  // 3) impactoCasilla: impacto ecologico que aporta poner tuberia en una
+  //    casilla con un delta dado. Suma el impacto del INSTALL (siempre) y,
+  //    si delta != 0, el impacto del RAISE/DIG. Tabla del guion.
+  auto impactoCasilla = [&](unsigned char terr, int delta) -> int {
+    int total = 0;
+    // INSTALL siempre (cada Paso del plan es un tramo a instalar).
+    if      (terr == 'A')                  total += 50;
+    else if (terr == 'H')                  total += 45;
+    else if (terr == 'S')                  total += 25;
+    else if (terr == 'C' || terr == 'U')   total += 15;
+    else                                   total += 30;   // 'D', 'X', resto
+    // RAISE / DIG segun delta.
+    if (delta == 1) {
+      if      (terr == 'H')                total += 55;
+      else if (terr == 'S')                total += 30;
+      else if (terr == 'C' || terr == 'U') total += 10;
+      else                                 total += 40;
+    } else if (delta == -1) {
+      if      (terr == 'H')                total += 65;
+      else if (terr == 'S')                total += 40;
+      else if (terr == 'C' || terr == 'U') total += 25;
+      else                                 total += 50;
+    }
+    return total;
+  };
+
+  // Caso degenerado: la Belkanita esta fuera de mapa o en M/P/B/?.
+  if (!casillaValida(fInicio, cInicio)) return list<Paso>();
+
+  // ---------------- Inicializacion ----------------
+  // Encolamos los hasta 3 estados de partida posibles (uno por cada delta
+  // legal en la casilla de la Belkanita), con su impacto inicial.
+  for (int delta = -1; delta <= 1; delta++) {
+    if (!deltaValido(fInicio, cInicio, delta)) continue;
+
+    NodoTuberia inicio;
+    inicio.f = fInicio;
+    inicio.c = cInicio;
+    inicio.delta = delta;
+    inicio.longitud = 1;
+    inicio.impacto  = impactoCasilla(terreno[fInicio][cInicio], delta);
+    Paso primero;
+    primero.fil = fInicio;
+    primero.col = cInicio;
+    primero.op  = delta;
+    inicio.camino.push_back(primero);
+
+    frontera.push(inicio);
+  }
+
+  // Direcciones ortogonales: Norte, Sur, Oeste, Este.
+  const int df[] = {-1, 1, 0, 0};
+  const int dc[] = { 0, 0,-1, 1};
+
+  // ---------------- Bucle principal ----------------
+  while (!frontera.empty()) {
+    NodoTuberia actual = frontera.top();
+    frontera.pop();
+
+    // Marcamos visitado AL EXTRAER (Dijkstra). En este punto sabemos que
+    // el coste lex (longitud, impacto) con el que llegamos es optimo.
+    if (visitados[actual.f][actual.c][actual.delta + 1]) continue;
+    visitados[actual.f][actual.c][actual.delta + 1] = true;
+
+    // Test de objetivo: he llegado a una planta de tratamiento 'U'.
+    if (terreno[actual.f][actual.c] == 'U') {
+      return actual.camino;
+    }
+
+    int alt_actual = altura[actual.f][actual.c] + actual.delta;
+
+    // Generar sucesores: 4 vecinos ortogonales x 3 deltas posibles.
+    for (int dir = 0; dir < 4; dir++) {
+      int nf = actual.f + df[dir];
+      int nc = actual.c + dc[dir];
+
+      if (!casillaValida(nf, nc)) continue;
+
+      int h_orig_v = altura[nf][nc];
+      unsigned char terr_v = terreno[nf][nc];
+
+      for (int delta_v = -1; delta_v <= 1; delta_v++) {
+        if (!deltaValido(nf, nc, delta_v)) continue;
+        if (visitados[nf][nc][delta_v + 1]) continue;
+
+        int alt_v = h_orig_v + delta_v;
+        int diff  = alt_actual - alt_v;
+        // Gravedad: solo se permite mantener (diff=0) o caer 1 (diff=1).
+        if (diff != 0 && diff != 1) continue;
+
+        NodoTuberia hijo = actual;
+        hijo.f = nf;
+        hijo.c = nc;
+        hijo.delta = delta_v;
+        hijo.longitud++;
+        hijo.impacto += impactoCasilla(terr_v, delta_v);
+        Paso paso;
+        paso.fil = nf;
+        paso.col = nc;
+        paso.op  = delta_v;
+        hijo.camino.push_back(paso);
+
+        frontera.push(hijo);
+      }
+    }
+  }
+
+  // Si la cola se vacia sin alcanzar 'U', no hay plan viable.
+  return list<Paso>();
+}
+
+
+/**
  * @brief Comportamiento del ingeniero para el Nivel 4.
  * @param sensores Datos actuales de los sensores.
  * @return Acción a realizar.
+ *
+ * NOTA DE IMPLEMENTACIÓN: El nivel 4 es pura planificación. Una única vez
+ * calculamos la red de tuberías con Dijkstra (longitud, impacto), la pasamos
+ * a VisualizaRedTuberias para que el entorno la valide, y a partir de ahí
+ * devolvemos siempre IDLE (no se ejecuta ninguna acción en este nivel).
  */
-Action ComportamientoIngeniero::ComportamientoIngenieroNivel_4(Sensores sensores)
-{
+Action ComportamientoIngeniero::ComportamientoIngenieroNivel_4(Sensores sensores) {
+  if (!hayPlan) {
+    list<Paso> planTuberias = PlanificarRedTuberias(
+        sensores.BelPosF, sensores.BelPosC, mapaResultado, mapaCotas);
+
+    if (!planTuberias.empty()) {
+      VisualizaRedTuberias(planTuberias);
+      cout << "Nivel 4: plan generado con " << planTuberias.size()
+           << " tramos." << endl;
+      PintaPlan(planTuberias);   // Util para depurar tests fallidos
+    } else {
+      cout << "Nivel 4: NO se ha podido generar un plan valido." << endl;
+    }
+    hayPlan = true; // Solo planificamos una vez (no reintentar)
+  }
   return IDLE;
 }
 

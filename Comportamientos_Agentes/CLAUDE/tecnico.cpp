@@ -303,16 +303,13 @@ Action ComportamientoTecnico::ComportamientoTecnicoNivel_2(Sensores sensores) {
   // Evita chocar con otros agentes.
   if (sensores.superficie[2] != 'M' && sensores.superficie[2] != 'P' && 
       sensores.superficie[2] != 'A' && sensores.agentes[2] == '_') {
-
-    // Restricción del bosque para el Técnico
-    if (sensores.superficie[2] == 'B') {
-      if(tiene_zapatillas){
-        transitable = true;
+      
+      // Restricción del bosque para el Técnico
+      if (sensores.superficie[2] == 'B') {
+          if (tiene_zapatillas) transitable = true;
+      } else {
+          transitable = true;
       }
-      transitable = false;
-    } else {
-      transitable = true;
-    }
   }
 
   // El Técnico no es capaz de subir 2 alturas ni con zapatillas
@@ -320,7 +317,7 @@ Action ComportamientoTecnico::ComportamientoTecnicoNivel_2(Sensores sensores) {
       return WALK; // Evasión activa hacia adelante
   }
   
-  return TURN_SR; // Gira para buscar una ruta alternativa, se ha encontrado con un obstáculo
+  return TURN_SR; // Gira para buscar una ruta alternativa
 }
 
 /**
