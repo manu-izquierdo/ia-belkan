@@ -270,6 +270,9 @@ private:
   int installIdx;         // Tramo que el Ingeniero está instalando ahora (empieza en 1)
   bool opDone;            // true si ya hicimos el RAISE/DIG de este tramo
 
+  int faseN5;  // 0=POSICIONAR, 1=COME, 2=MOVER, 3=GIRAR, 4=ESPERAR
+
+  
   Orientacion OrientacionHacia(int f1, int c1, int f2, int c2);
   Action GiroHacia(Orientacion actual, Orientacion objetivo);
 };

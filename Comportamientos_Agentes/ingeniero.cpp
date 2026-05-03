@@ -723,82 +723,190 @@ Action ComportamientoIngeniero::GiroHacia(Orientacion actual, Orientacion objeti
  * @param sensores Datos actuales de los sensores.
  * @return Acción a realizar.
  */
-Action ComportamientoIngeniero::ComportamientoIngenieroNivel_5(Sensores sensores)
-{
+Action ComportamientoIngeniero::ComportamientoIngenieroNivel_5(Sensores sensores) {
+  // 1. PLANIFICACIÓN
+  if (!hayPlan) {
+    list<Paso> plan5 = PlanificarRedTuberias(
+        sensores.BelPosF, sensores.BelPosC,
+        mapaResultado, mapaCotas, sensores.max_ecologico);
 
-    // ── FASE 1: Planificar una sola vez ──────────────────────────────────
-    if (!hayPlan) {
-      
-        list<Paso> plan5 = PlanificarRedTuberias(
-            sensores.BelPosF, sensores.BelPosC,
-            mapaResultado, mapaCotas, sensores.max_ecologico);
-
-        if (!plan5.empty()) {
-          
-            VisualizaRedTuberias(plan5);
-            // Convertimos a vector para poder indexar: planVec[3] en O(1)
-            // Con list tendríamos que recorrer desde el inicio cada vez
-            planVec = vector<Paso>(plan5.begin(), plan5.end());
-            installIdx = 1;   // El Ingeniero empieza en el tramo 1 (no en el 0)
-            opDone = false;
-        }
-        hayPlan = true;
-        return IDLE;
+    if (!plan5.empty()) {
+      VisualizaRedTuberias(plan5);
+      planVec    = vector<Paso>(plan5.begin(), plan5.end());
+      installIdx = 1;
+      opDone     = false;
+      faseN5     = 0;
     }
+    hayPlan = true;
+    return IDLE;
+  }
 
-    // Si el plan está vacío o ya terminamos, no hacer nada
-    if (planVec.empty() || installIdx >= (int)planVec.size()) return IDLE;
+  if (planVec.empty() || installIdx >= (int)planVec.size()) return IDLE;
 
-    const Paso &tramo    = planVec[installIdx];      // Casilla del Ingeniero
-    const Paso &anterior = planVec[installIdx - 1];  // Casilla del Técnico
+  const Paso &tramoTec = planVec[installIdx - 1]; // Casilla donde irá el Técnico
+  const Paso &tramoIng = planVec[installIdx];     // Casilla donde irá el Ingeniero
 
-    // ── FASE 2: Navegar hasta planVec[installIdx] ─────────────────────────
-    // Si no estamos en la casilla del tramo, calculamos ruta con BFS y ejecutamos
-    if (sensores.posF != tramo.fil || sensores.posC != tramo.col) {
-        if (plan.empty()) {  // 'plan' es la list<Action> que ya tienes del nivel 2
-            EstadoI ini, dest;
-            ini.site  = {sensores.posF, sensores.posC, sensores.rumbo};
-            ini.zapatillas = tiene_zapatillas;
-            dest.site = {tramo.fil, tramo.col, norte};  // orientación de llegada irrelevante
-            dest.zapatillas = false;
-            plan = B_Anchura(ini, dest, mapaResultado, mapaCotas);
+  switch (faseN5) {
+    // FASE 0: Ir a la casilla del Técnico (plan[k-1])
+    case 0: {
+      if (sensores.posF != tramoTec.fil || sensores.posC != tramoTec.col) {
+        if (plan.empty()) {
+          EstadoI ini, dest;
+          ini.site        = {sensores.posF, sensores.posC, sensores.rumbo};
+          ini.zapatillas  = tiene_zapatillas;
+          dest.site       = {tramoTec.fil, tramoTec.col, norte};
+          dest.zapatillas = false;
+          plan = B_Anchura(ini, dest, mapaResultado, mapaCotas);
         }
         if (!plan.empty()) {
-            Action sig = plan.front();
-            plan.pop_front();
-            return sig;
+          Action sig = plan.front();
+          
+          // Evasión de colisiones con replanificación dinámica
+          if (RiesgoChoqueTecnico(sensores, sig)) {
+              ubicacion posTec = Delante({sensores.posF, sensores.posC, sensores.rumbo});
+              if (sig == JUMP && sensores.agentes[2] != 't') {
+                  posTec = Delante(posTec); 
+              }
+              
+              unsigned char terrenoOriginal = mapaResultado[posTec.f][posTec.c];
+              mapaResultado[posTec.f][posTec.c] = 'M'; // Inyección de obstáculo dinámico
+              
+              EstadoI ini, dest;
+              ini.site        = {sensores.posF, sensores.posC, sensores.rumbo};
+              ini.zapatillas  = tiene_zapatillas;
+              dest.site       = {tramoTec.fil, tramoTec.col, norte};
+              dest.zapatillas = false;
+              
+              plan = B_Anchura(ini, dest, mapaResultado, mapaCotas);
+              
+              mapaResultado[posTec.f][posTec.c] = terrenoOriginal; // Restauración
+              
+              if (!plan.empty()) {
+                  sig = plan.front();
+                  plan.pop_front();
+                  return sig;
+              } else {
+                  return IDLE;
+              }
+          }
+          
+          plan.pop_front();
+          return sig;
         }
         return IDLE;
+      }
+      
+      plan.clear();
+      
+      // Ajuste de cota en el nodo origen (solo se ejecuta en el primer tramo)
+      if (installIdx == 1 && tramoTec.op != 0 && !opDone) {
+          opDone = true;
+          return (tramoTec.op == 1) ? RAISE : DIG;
+      }
+      
+      faseN5 = 1;
+      return IDLE;
     }
 
-    // Ya estamos en el tramo: la ruta de navegación ya no sirve, la limpiamos
-    plan.clear();
-
-    // ── FASE 3: RAISE o DIG si el plan lo requiere ───────────────────────
-    // tramo.op: -1=DIG, 0=nada, 1=RAISE
-    // opDone evita repetir la acción en ticks siguientes
-    if (tramo.op != 0 && !opDone) {
-        opDone = true;
-        return (tramo.op == 1) ? RAISE : DIG;
-    }
-
-    // ── FASE 4: Orientarse mirando hacia la casilla del Técnico ──────────
-    Orientacion orientDeseada = OrientacionHacia(
-        tramo.fil, tramo.col, anterior.fil, anterior.col);
-    if (sensores.rumbo != orientDeseada) {
+    // FASE 1: Orientarse hacia plan[k] y enviar COME
+    case 1: {
+      opDone = false; // Reset indispensable para evaluar la cota de tramoIng en Fase 2
+      
+      Orientacion orientDeseada = OrientacionHacia(
+          tramoTec.fil, tramoTec.col, tramoIng.fil, tramoIng.col);
+      
+      if (sensores.rumbo != orientDeseada) {
         return GiroHacia(sensores.rumbo, orientDeseada);
+      }
+
+      faseN5 = 2;
+      return COME; 
     }
 
-    // ── FASE 5: Esperar al Técnico y ejecutar INSTALL ────────────────────
-    // sensores.agentes[2] = lo que hay justo delante de nosotros
-    // 't' = Técnico presente en esa casilla
-    if (sensores.agentes[2] == 't') {
-        installIdx++;    // Avanzar al siguiente tramo
-        opDone = false;  // Resetear para el nuevo tramo
+    // FASE 2: Moverse a plan[k] y hacer RAISE/DIG
+    case 2: {
+      if (sensores.posF == tramoIng.fil && sensores.posC == tramoIng.col) {
+        plan.clear();
+        if (tramoIng.op != 0 && !opDone) {
+          opDone = true;
+          return (tramoIng.op == 1) ? RAISE : DIG;
+        }
+        faseN5 = 3;
+        return IDLE;
+      }
+      
+      if (plan.empty()) {
+        EstadoI ini, dest;
+        ini.site        = {sensores.posF, sensores.posC, sensores.rumbo};
+        ini.zapatillas  = tiene_zapatillas;
+        dest.site       = {tramoIng.fil, tramoIng.col, norte};
+        dest.zapatillas = false;
+        plan = B_Anchura(ini, dest, mapaResultado, mapaCotas);
+      }
+      if (!plan.empty()) {
+        Action sig = plan.front();
+        
+        // Evasión de colisiones con replanificación dinámica
+        if (RiesgoChoqueTecnico(sensores, sig)) {
+            ubicacion posTec = Delante({sensores.posF, sensores.posC, sensores.rumbo});
+            if (sig == JUMP && sensores.agentes[2] != 't') {
+                posTec = Delante(posTec); 
+            }
+            
+            unsigned char terrenoOriginal = mapaResultado[posTec.f][posTec.c];
+            mapaResultado[posTec.f][posTec.c] = 'M'; // Inyección de obstáculo dinámico
+            
+            EstadoI ini, dest;
+            ini.site        = {sensores.posF, sensores.posC, sensores.rumbo};
+            ini.zapatillas  = tiene_zapatillas;
+            dest.site       = {tramoIng.fil, tramoIng.col, norte};
+            dest.zapatillas = false;
+            
+            plan = B_Anchura(ini, dest, mapaResultado, mapaCotas);
+            
+            mapaResultado[posTec.f][posTec.c] = terrenoOriginal; // Restauración
+            
+            if (!plan.empty()) {
+                sig = plan.front();
+                plan.pop_front();
+                return sig;
+            } else {
+                return IDLE;
+            }
+        }
+        
+        plan.pop_front();
+        return sig;
+      }
+      return IDLE;
+    }
+
+    // FASE 3: Girarse mirando hacia la casilla del Técnico
+    case 3: {
+      Orientacion orientDeseada = OrientacionHacia(
+          tramoIng.fil, tramoIng.col, tramoTec.fil, tramoTec.col);
+      
+      if (sensores.rumbo != orientDeseada) {
+        return GiroHacia(sensores.rumbo, orientDeseada);
+      }
+
+      faseN5 = 4;
+      [[fallthrough]];
+    }
+
+    // FASE 4: Sincronizar INSTALL
+    case 4: {
+      if (sensores.enfrente && sensores.agentes[2] == 't') {
+        installIdx++;
+        opDone = false;
+        faseN5 = 0; 
         return INSTALL;
+      }
+      return IDLE; 
     }
+  }
 
-    return IDLE;  // Técnico aún no está en posición, esperamos
+  return IDLE;
 }
 
 /**

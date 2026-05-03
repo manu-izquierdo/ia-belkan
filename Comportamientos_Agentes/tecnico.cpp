@@ -521,9 +521,9 @@ Action ComportamientoTecnico::ComportamientoTecnicoNivel_3(Sensores sensores)
 }
 
   
-  /**
-   * @brief Comportamiento del técnico para el Nivel 4.
-   * @param sensores Datos actuales de los sensores.
+/**
+ * @brief Comportamiento del técnico para el Nivel 4.
+ * @param sensores Datos actuales de los sensores.
  * @return Acción a realizar.
  */
 Action ComportamientoTecnico::ComportamientoTecnicoNivel_4(Sensores sensores) {
@@ -531,81 +531,86 @@ Action ComportamientoTecnico::ComportamientoTecnicoNivel_4(Sensores sensores) {
 }
 
 
-Orientacion ComportamientoTecnico::OrientacionHacia(int f1, int c1, int f2, int c2) {
-    if (f2 < f1) return norte;
-    if (f2 > f1) return sur;
-    if (c2 < c1) return oeste;
-    return este;
-}
-
-Action ComportamientoTecnico::GiroHacia(Orientacion actual, Orientacion objetivo) {
-    if (actual == objetivo) return IDLE;
-    int girosD = (objetivo - actual + 8) % 8;  // pasos girando a la derecha
-    int girosI = (actual - objetivo + 8) % 8;  // pasos girando a la izquierda
-    return (girosD <= girosI) ? TURN_SR : TURN_SL;
-}
-
 /**
  * @brief Comportamiento del técnico para el Nivel 5.
  * @param sensores Datos actuales de los sensores.
  * @return Acción a realizar.
  */
 Action ComportamientoTecnico::ComportamientoTecnicoNivel_5(Sensores sensores) {
+  // 1. Recibe el COME
+  if (sensores.venpaca) {
+    destF = sensores.GotoF;
+    destC = sensores.GotoC;
+    tieneDestino = true;
+    plan.clear(); 
+  }
 
-    // ── FASE 1: Esperar a que el Ingeniero genere el plan ────────────────
-    // El simulador rellena listaCanalizacionTuberias en AMBOS agentes
-    // automáticamente cuando el Ingeniero llama a VisualizaRedTuberias
-    if (listaCanalizacionTuberias.empty()) return IDLE;
+  if (!tieneDestino) return IDLE;
 
-    // Primera vez que vemos el plan: construir vector de acceso rápido
-    if (planVec.empty()) {
-        planVec = vector<Paso>(
-            listaCanalizacionTuberias.begin(),
-            listaCanalizacionTuberias.end());
-        installIdxT = 0;  // Técnico empieza en la primera casilla del plan
-        hayPlan = true;
-    }
-
-    // Si ya instalamos todos los arcos, terminamos
-    if (installIdxT >= (int)planVec.size() - 1) return IDLE;
-
-    const Paso &tramo    = planVec[installIdxT];      // Casilla del Técnico
-    const Paso &siguiente = planVec[installIdxT + 1]; // Casilla del Ingeniero
-
-    // ── FASE 2: Navegar hasta planVec[installIdxT] ───────────────────────
-    if (sensores.posF != tramo.fil || sensores.posC != tramo.col) {
-        if (plan.empty()) {
-            EstadoT ini, dest;
-            ini.site  = {sensores.posF, sensores.posC, sensores.rumbo};
-            ini.zapatillas = tiene_zapatillas;
-            dest.site = {tramo.fil, tramo.col, norte};
-            dest.zapatillas = false;
-            plan = A_Estrella(ini, dest, mapaResultado, mapaCotas);
-        }
-        if (!plan.empty()) {
-            Action sig = plan.front();
-            plan.pop_front();
-            return sig;
-        }
-        return IDLE;
-    }
-
+  // 2. Comprobación de llegada al destino
+  if (sensores.posF == destF && sensores.posC == destC) {
     plan.clear();
 
-    // ── FASE 3: Orientarse mirando hacia la casilla del Ingeniero ────────
-    Orientacion orientDeseada = OrientacionHacia(
-        tramo.fil, tramo.col, siguiente.fil, siguiente.col);
-    if (sensores.rumbo != orientDeseada) {
-        return GiroHacia(sensores.rumbo, orientDeseada);
+    // Buscar al Ingeniero rotando sobre sí mismo
+    if (sensores.agentes[2] != 'i') {
+        return TURN_SR;
     }
 
-    // ── FASE 4: Esperar al Ingeniero y ejecutar INSTALL ──────────────────
-    if (sensores.agentes[2] == 'i') {
-        installIdxT++;
-        return INSTALL;
+    // Lo hemos encontrado de frente. Esperar confirmación de alineamiento.
+    if (sensores.enfrente) {
+      tieneDestino = false; 
+      return INSTALL;
     }
+    
+    return IDLE; 
+  }
 
-    return IDLE;
+  // 3. Navegación hacia destF / destC
+  if (plan.empty()) {
+    EstadoT ini, dest;
+    ini.site        = {sensores.posF, sensores.posC, sensores.rumbo};
+    ini.zapatillas  = tiene_zapatillas;
+    dest.site       = {destF, destC, norte};
+    dest.zapatillas = false;
+    plan = A_Estrella(ini, dest, mapaResultado, mapaCotas);
+  }
+
+  if (!plan.empty()) {
+    Action sig = plan.front();
+    
+    // Si hay riesgo, inyectamos obstáculo dinámico y replanificamos
+    if (RiesgoChoqueIngeniero(sensores, sig)) {
+        ubicacion posIng = Delante({sensores.posF, sensores.posC, sensores.rumbo});
+        unsigned char terrenoOriginal = mapaResultado[posIng.f][posIng.c];
+        
+        // Marcaje temporal
+        mapaResultado[posIng.f][posIng.c] = 'M'; 
+        
+        EstadoT ini, dest;
+        ini.site        = {sensores.posF, sensores.posC, sensores.rumbo};
+        ini.zapatillas  = tiene_zapatillas;
+        dest.site       = {destF, destC, norte};
+        dest.zapatillas = false;
+        
+        plan = A_Estrella(ini, dest, mapaResultado, mapaCotas);
+        
+        // Restauración estricta de la matriz
+        mapaResultado[posIng.f][posIng.c] = terrenoOriginal;
+        
+        if (!plan.empty()) {
+            sig = plan.front();
+            plan.pop_front();
+            return sig;
+        } else {
+            return IDLE; // Espera activa si no existe alternativa topológica
+        }
+    }
+    
+    plan.pop_front();
+    return sig;
+  }
+
+  return IDLE;
 }
 
 /**

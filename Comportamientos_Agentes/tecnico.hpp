@@ -251,6 +251,11 @@ private:
   //Nivel 5
   vector<Paso> planVec;
   int installIdxT;        // Tramo que el Técnico está cubriendo (empieza en 0)
+  int estado_instalacion_t;
+  list<Action> plan_actual_t;
+
+  int destF, destC;    // Destino enviado por el último COME del Ingeniero
+  bool tieneDestino;   // True si tenemos un destino activo
 
   Orientacion OrientacionHacia(int f1, int c1, int f2, int c2);
   Action GiroHacia(Orientacion actual, Orientacion objetivo);
