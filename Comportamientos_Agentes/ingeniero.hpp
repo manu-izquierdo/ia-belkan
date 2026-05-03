@@ -50,6 +50,10 @@ struct ComparaTuberia {
 };
 
 
+// Nivel 5
+
+
+
 class ComportamientoIngeniero : public Comportamiento {
 public:
   // =========================================================================
@@ -83,8 +87,6 @@ public:
     tiene_zapatillas = false;
     last_action = IDLE;
     hayPlan = false;
-    installIdx = 0;
-    instante = 0;
   }
 
   ComportamientoIngeniero(const ComportamientoIngeniero &comport)
@@ -266,15 +268,16 @@ private:
   list<Paso> PlanificarRedTuberias(int fInicio, int cInicio, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura, int limiteAmbiental);
 
   // Nivel 5
-  vector<Paso> planVec;  // Plan como vector (acceso por índice, no como lista)
-  int installIdx;         // Tramo que el Ingeniero está instalando ahora (empieza en 1)
-  bool opDone;            // true si ya hicimos el RAISE/DIG de este tramo
+  int fase = 0;             // Controla el estado del Nivel 5 (0=Planificar, 1=Ir Belkanita, 2=Avanzar nodo, etc.)
+  list<Paso> plan_tuberias;   // Guarda el plan generado por PlanificarRedTuberias 
+  int prev_f = -1; // Almacena la fila del nodo anterior
+  int prev_c = -1; // Almacena la columna del nodo anterior
 
-  int faseN5;  // 0=POSICIONAR, 1=COME, 2=MOVER, 3=GIRAR, 4=ESPERAR
-
-  
-  Orientacion OrientacionHacia(int f1, int c1, int f2, int c2);
-  Action GiroHacia(Orientacion actual, Orientacion objetivo);
+  // Funciones auxiliares Nivel 5
+  void GenerarRuta(int dest_f, int dest_c, const Sensores &sensores);
+  Action AvanzarCasilla(const Sensores &sensores);
+  Action AdecuarTerreno(Paso &tramo_actual);
+  Action OrientarHacia(int dest_f, int dest_c, const Sensores &sensores);
 };
 
 #endif

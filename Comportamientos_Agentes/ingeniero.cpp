@@ -703,19 +703,89 @@ Action ComportamientoIngeniero::ComportamientoIngenieroNivel_4(Sensores sensores
   return IDLE;
 }
 
+/**
+ * @brief Genera una ruta óptima de navegación desde la posición actual hasta un destino.
+ * @param dest_f Fila de la casilla de destino.
+ * @param dest_c Columna de la casilla de destino.
+ * @param sensores Referencia a los sensores actuales del agente.
+ * @note Utiliza el algoritmo de búsqueda en anchura (B_Anchura) y almacena el resultado en la variable global 'plan'.
+ */
+void ComportamientoIngeniero::GenerarRuta(int dest_f, int dest_c, const Sensores &sensores) {
+    EstadoI inicio;
+    inicio.site.f = sensores.posF;
+    inicio.site.c = sensores.posC;
+    inicio.site.brujula = sensores.rumbo;
+    inicio.zapatillas = tiene_zapatillas;
 
-Orientacion ComportamientoIngeniero::OrientacionHacia(int f1, int c1, int f2, int c2) {
-    if (f2 < f1) return norte;
-    if (f2 > f1) return sur;
-    if (c2 < c1) return oeste;
-    return este;
+    EstadoI destino;
+    destino.site.f = dest_f;
+    destino.site.c = dest_c;
+    destino.site.brujula = norte; // Irrelevante para la búsqueda
+    destino.zapatillas = false;
+
+    plan = B_Anchura(inicio, destino, mapaResultado, mapaCotas);
+    hayPlan = !plan.empty();
 }
 
-Action ComportamientoIngeniero::GiroHacia(Orientacion actual, Orientacion objetivo) {
-    if (actual == objetivo) return IDLE;
-    int girosD = (objetivo - actual + 8) % 8;  // pasos girando a la derecha
-    int girosI = (actual - objetivo + 8) % 8;  // pasos girando a la izquierda
-    return (girosD <= girosI) ? TURN_SR : TURN_SL;
+/**
+ * @brief Extrae y ejecuta la siguiente acción del plan de navegación.
+ * @param sensores Referencia a los sensores actuales del agente.
+ * @return Acción a ejecutar (WALK, JUMP, TURN_SL, TURN_SR) o IDLE si hay riesgo de choque o no hay plan.
+ * @note Gestiona las colisiones pausando el avance si el Técnico se encuentra en la trayectoria.
+ */
+Action ComportamientoIngeniero::AvanzarCasilla(const Sensores &sensores) {
+    if (!hayPlan || plan.empty()) return IDLE;
+
+    Action accion = plan.front();
+    if (RiesgoChoqueTecnico(sensores, accion)) {
+        return IDLE; // Pausa sin consumir acción del plan
+    } 
+    
+    plan.pop_front();
+    if (plan.empty()) hayPlan = false;
+    
+    return accion;
+}
+
+/**
+ * @brief Ejecuta las operaciones de adecuación del terreno (DIG o RAISE).
+ * @param tramo_actual Referencia al paso actual del plan de tuberías.
+ * @return Acción a ejecutar, o IDLE si la adecuación ya se ha realizado.
+ */
+Action ComportamientoIngeniero::AdecuarTerreno(Paso &tramo_actual) {
+    if (tramo_actual.op == 1) {
+        tramo_actual.op = 0; // Marcar como procesado
+        return RAISE;
+    } else if (tramo_actual.op == -1) {
+        tramo_actual.op = 0; // Marcar como procesado
+        return DIG;
+    }
+    return IDLE;
+}
+
+/**
+ * @brief Calcula y ejecuta el giro necesario para mirar hacia una casilla ortogonal.
+ * @param dest_f Fila de la casilla objetivo.
+ * @param dest_c Columna de la casilla objetivo.
+ * @param sensores Datos actuales de los sensores.
+ * @return TURN_SR o TURN_SL si necesita girar, IDLE si ya está encarado.
+ */
+Action ComportamientoIngeniero::OrientarHacia(int dest_f, int dest_c, const Sensores &sensores) {
+    Orientacion deseada;
+    
+    // Calcular orientación ortogonal (asumiendo adyacencia)
+    if (dest_f < sensores.posF && dest_c == sensores.posC) deseada = norte;
+    else if (dest_f > sensores.posF && dest_c == sensores.posC) deseada = sur;
+    else if (dest_f == sensores.posF && dest_c > sensores.posC) deseada = este;
+    else if (dest_f == sensores.posF && dest_c < sensores.posC) deseada = oeste;
+    else return IDLE; 
+
+    if (sensores.rumbo == deseada) return IDLE;
+    
+    // Seleccionar el giro más corto
+    int diff = (deseada - sensores.rumbo + 8) % 8;
+    if (diff <= 4) return TURN_SR;
+    else return TURN_SL;
 }
 
 /**
@@ -724,189 +794,104 @@ Action ComportamientoIngeniero::GiroHacia(Orientacion actual, Orientacion objeti
  * @return Acción a realizar.
  */
 Action ComportamientoIngeniero::ComportamientoIngenieroNivel_5(Sensores sensores) {
-  // 1. PLANIFICACIÓN
-  if (!hayPlan) {
-    list<Paso> plan5 = PlanificarRedTuberias(
-        sensores.BelPosF, sensores.BelPosC,
-        mapaResultado, mapaCotas, sensores.max_ecologico);
-
-    if (!plan5.empty()) {
-      VisualizaRedTuberias(plan5);
-      planVec    = vector<Paso>(plan5.begin(), plan5.end());
-      installIdx = 1;
-      opDone     = false;
-      faseN5     = 0;
-    }
-    hayPlan = true;
-    return IDLE;
-  }
-
-  if (planVec.empty() || installIdx >= (int)planVec.size()) return IDLE;
-
-  const Paso &tramoTec = planVec[installIdx - 1]; // Casilla donde irá el Técnico
-  const Paso &tramoIng = planVec[installIdx];     // Casilla donde irá el Ingeniero
-
-  switch (faseN5) {
-    // FASE 0: Ir a la casilla del Técnico (plan[k-1])
+  Action accion = IDLE;
+  cout << "[ING] Fase actual: " << fase 
+     << " | Pos: (" << sensores.posF << ", " << sensores.posC << ")" << endl;
+  switch (fase) {
     case 0: {
-      if (sensores.posF != tramoTec.fil || sensores.posC != tramoTec.col) {
-        if (plan.empty()) {
-          EstadoI ini, dest;
-          ini.site        = {sensores.posF, sensores.posC, sensores.rumbo};
-          ini.zapatillas  = tiene_zapatillas;
-          dest.site       = {tramoTec.fil, tramoTec.col, norte};
-          dest.zapatillas = false;
-          plan = B_Anchura(ini, dest, mapaResultado, mapaCotas);
-        }
-        if (!plan.empty()) {
-          Action sig = plan.front();
-          
-          // Evasión de colisiones con replanificación dinámica
-          if (RiesgoChoqueTecnico(sensores, sig)) {
-              ubicacion posTec = Delante({sensores.posF, sensores.posC, sensores.rumbo});
-              if (sig == JUMP && sensores.agentes[2] != 't') {
-                  posTec = Delante(posTec); 
-              }
-              
-              unsigned char terrenoOriginal = mapaResultado[posTec.f][posTec.c];
-              mapaResultado[posTec.f][posTec.c] = 'M'; // Inyección de obstáculo dinámico
-              
-              EstadoI ini, dest;
-              ini.site        = {sensores.posF, sensores.posC, sensores.rumbo};
-              ini.zapatillas  = tiene_zapatillas;
-              dest.site       = {tramoTec.fil, tramoTec.col, norte};
-              dest.zapatillas = false;
-              
-              plan = B_Anchura(ini, dest, mapaResultado, mapaCotas);
-              
-              mapaResultado[posTec.f][posTec.c] = terrenoOriginal; // Restauración
-              
-              if (!plan.empty()) {
-                  sig = plan.front();
-                  plan.pop_front();
-                  return sig;
-              } else {
-                  return IDLE;
-              }
-          }
-          
-          plan.pop_front();
-          return sig;
-        }
-        return IDLE;
+      // Planificación de la red
+      plan_tuberias = PlanificarRedTuberias(sensores.BelPosF, sensores.BelPosC, mapaResultado, mapaCotas, sensores.max_ecologico);
+      if (!plan_tuberias.empty()) {
+        VisualizaRedTuberias(plan_tuberias);
+        fase = 1;
       }
-      
-      plan.clear();
-      
-      // Ajuste de cota en el nodo origen (solo se ejecuta en el primer tramo)
-      if (installIdx == 1 && tramoTec.op != 0 && !opDone) {
-          opDone = true;
-          return (tramoTec.op == 1) ? RAISE : DIG;
-      }
-      
-      faseN5 = 1;
-      return IDLE;
+      break;
     }
 
-    // FASE 1: Orientarse hacia plan[k] y enviar COME
     case 1: {
-      opDone = false; // Reset indispensable para evaluar la cota de tramoIng en Fase 2
+      // Navegación hacia el nodo actual (inicialmente la Belkanita)
+      int dest_f = plan_tuberias.front().fil;
+      int dest_c = plan_tuberias.front().col;
       
-      Orientacion orientDeseada = OrientacionHacia(
-          tramoTec.fil, tramoTec.col, tramoIng.fil, tramoIng.col);
-      
-      if (sensores.rumbo != orientDeseada) {
-        return GiroHacia(sensores.rumbo, orientDeseada);
-      }
-
-      faseN5 = 2;
-      return COME; 
-    }
-
-    // FASE 2: Moverse a plan[k] y hacer RAISE/DIG
-    case 2: {
-      if (sensores.posF == tramoIng.fil && sensores.posC == tramoIng.col) {
-        plan.clear();
-        if (tramoIng.op != 0 && !opDone) {
-          opDone = true;
-          return (tramoIng.op == 1) ? RAISE : DIG;
-        }
-        faseN5 = 3;
+      if (sensores.posF == dest_f && sensores.posC == dest_c) {
+        fase = 2;
         return IDLE;
       }
       
-      if (plan.empty()) {
-        EstadoI ini, dest;
-        ini.site        = {sensores.posF, sensores.posC, sensores.rumbo};
-        ini.zapatillas  = tiene_zapatillas;
-        dest.site       = {tramoIng.fil, tramoIng.col, norte};
-        dest.zapatillas = false;
-        plan = B_Anchura(ini, dest, mapaResultado, mapaCotas);
-      }
-      if (!plan.empty()) {
-        Action sig = plan.front();
-        
-        // Evasión de colisiones con replanificación dinámica
-        if (RiesgoChoqueTecnico(sensores, sig)) {
-            ubicacion posTec = Delante({sensores.posF, sensores.posC, sensores.rumbo});
-            if (sig == JUMP && sensores.agentes[2] != 't') {
-                posTec = Delante(posTec); 
-            }
-            
-            unsigned char terrenoOriginal = mapaResultado[posTec.f][posTec.c];
-            mapaResultado[posTec.f][posTec.c] = 'M'; // Inyección de obstáculo dinámico
-            
-            EstadoI ini, dest;
-            ini.site        = {sensores.posF, sensores.posC, sensores.rumbo};
-            ini.zapatillas  = tiene_zapatillas;
-            dest.site       = {tramoIng.fil, tramoIng.col, norte};
-            dest.zapatillas = false;
-            
-            plan = B_Anchura(ini, dest, mapaResultado, mapaCotas);
-            
-            mapaResultado[posTec.f][posTec.c] = terrenoOriginal; // Restauración
-            
-            if (!plan.empty()) {
-                sig = plan.front();
-                plan.pop_front();
-                return sig;
-            } else {
-                return IDLE;
-            }
-        }
-        
-        plan.pop_front();
-        return sig;
-      }
-      return IDLE;
+      if (!hayPlan) GenerarRuta(dest_f, dest_c, sensores);
+      accion = AvanzarCasilla(sensores);
+      break;
     }
 
-    // FASE 3: Girarse mirando hacia la casilla del Técnico
+    case 2: {
+      // Adecuación topológica del nodo actual (aplica al inicial y sucesivos)
+      accion = AdecuarTerreno(plan_tuberias.front());
+      if (accion == IDLE) {
+        fase = 3;
+      }
+      break;
+    }
+
     case 3: {
-      Orientacion orientDeseada = OrientacionHacia(
-          tramoIng.fil, tramoIng.col, tramoTec.fil, tramoTec.col);
-      
-      if (sensores.rumbo != orientDeseada) {
-        return GiroHacia(sensores.rumbo, orientDeseada);
+      // Condición de parada: Si no quedan más nodos, la red está finalizada
+      if (plan_tuberias.size() <= 1) {
+        return IDLE;
       }
-
-      faseN5 = 4;
-      [[fallthrough]];
+      
+      // Registrar coordenadas para la invocación del Técnico
+      prev_f = sensores.posF;
+      prev_c = sensores.posC;
+      
+      fase = 4;
+      return COME; // Transmisión de GotoF y GotoC al Técnico[cite: 4]
     }
 
-    // FASE 4: Sincronizar INSTALL
     case 4: {
-      if (sensores.enfrente && sensores.agentes[2] == 't') {
-        installIdx++;
-        opDone = false;
-        faseN5 = 0; 
-        return INSTALL;
+      // Extracción del nodo completado y transición
+      plan_tuberias.pop_front(); 
+      fase = 5;
+      return IDLE; // Consumo de instante para salto de fase lógico
+    }
+
+    case 5: {
+      // Navegación hacia el siguiente nodo de la tubería
+      int dest_f = plan_tuberias.front().fil;
+      int dest_c = plan_tuberias.front().col;
+      
+      if (sensores.posF == dest_f && sensores.posC == dest_c) {
+        fase = 6;
+        return IDLE;
       }
-      return IDLE; 
+      
+      if (!hayPlan) GenerarRuta(dest_f, dest_c, sensores);
+      accion = AvanzarCasilla(sensores);
+      break;
+    }
+
+    case 6: {
+      // Adecuación topológica del nuevo nodo
+      accion = AdecuarTerreno(plan_tuberias.front());
+      if (accion == IDLE) {
+        fase = 7;
+      }
+      break;
+    }
+
+    case 7: {
+      // Sincronización estricta e Instalación
+      accion = OrientarHacia(prev_f, prev_c, sensores);
+      
+      if (accion == IDLE) {
+        if (sensores.enfrente) {
+          accion = INSTALL; // Ejecución simultánea[cite: 4]
+          fase = 3;       // Retorno a la fase 3 para invocar al Técnico a este nuevo nodo
+        }
+      }
+      break;
     }
   }
 
-  return IDLE;
+  return accion;
 }
 
 /**

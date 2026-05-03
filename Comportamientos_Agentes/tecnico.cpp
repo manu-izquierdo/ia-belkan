@@ -90,7 +90,7 @@ Action ComportamientoTecnico::ComportamientoTecnicoNivel_0(Sensores sensores)
     // Poner el valor de los sensores de visión sobre los mapas
   ActualizarMapa(sensores);
   
-  // Primero comprobamos si la casilla en la que nos situamos es la de las Zapatillas ('D') actualizando su variable de estado
+  // Primero comprobamos si la casilla en la que nos situamos es la de las Zapatillas ('D') actualizando su variable de estadoT
   if (sensores.superficie[0] == 'D') tiene_zapatillas = true;
 
   // Comprobamos si la casilla en la que nos situamos es la Planta de Residuos ('U'), en cuyo caso habríamos terminado
@@ -339,10 +339,10 @@ bool ComportamientoTecnico::CasillaAccesibleTecnico(Action accion, const EstadoT
 
 
 /**
- * @brief Recibe una serie de parámetros y devuelve el estado resultante tras aplicarlos
+ * @brief Recibe una serie de parámetros y devuelve el estadoT resultante tras aplicarlos
  * 
  * @param accion acción que quiere realizar
- * @param st estado actual del agente
+ * @param st estadoT actual del agente
  * @param terreno 
  * @param altura 
  * @return EstadoT resultante tras la accion
@@ -360,7 +360,7 @@ EstadoT ComportamientoTecnico::applyT(Action accion, const EstadoT &st, const ve
     next.site.brujula = (Orientacion)((next.site.brujula + 7) % 8);
     break;
   }
-  // Adquisición de zapatillas en el nuevo estado
+  // Adquisición de zapatillas en el nuevo estadoT
   if (terreno[next.site.f][next.site.c] == 'D') next.zapatillas = true;
   return next;
 }
@@ -481,14 +481,14 @@ Action ComportamientoTecnico::ComportamientoTecnicoNivel_3(Sensores sensores)
 
   // 1. Si no hay plan, lo calculamos invocando nuestro método de búsqueda
   if (!hayPlan) {
-      // Estado inicial (nuestra posición actual)
+      // EstadoT inicial (nuestra posición actual)
       EstadoT inicio, destino;
       inicio.site.f = sensores.posF;
       inicio.site.c = sensores.posC;
       inicio.site.brujula = sensores.rumbo;
       inicio.zapatillas = tiene_zapatillas;
 
-      // Estado final (la posición de destino proporcionada por los sensores)
+      // EstadoT final (la posición de destino proporcionada por los sensores)
       destino.site.f = sensores.BelPosF;
       destino.site.c = sensores.BelPosC;
       destino.site.brujula = norte; // La orientación de llegada y las zapatillas dan igual
@@ -532,85 +532,157 @@ Action ComportamientoTecnico::ComportamientoTecnicoNivel_4(Sensores sensores) {
 
 
 /**
+ * @brief Genera una ruta óptima de navegación para el Técnico hacia el destino indicado.
+ * @param dest_f Fila de la casilla objetivo.
+ * @param dest_c Columna de la casilla objetivo.
+ * @param sensores Datos actuales de los sensores.
+ * @note Utiliza el algoritmo de búsqueda correspondiente al Técnico y almacena el resultado en 'plan'.
+ */
+void ComportamientoTecnico::GenerarRuta(int dest_f, int dest_c, const Sensores &sensores) {
+    EstadoT inicio;
+    inicio.site.f = sensores.posF;
+    inicio.site.c = sensores.posC;
+    inicio.site.brujula = sensores.rumbo;
+    inicio.zapatillas = tiene_zapatillas;
+
+    EstadoT destino;
+    destino.site.f = dest_f;
+    destino.site.c = dest_c;
+    // La orientación final no es restrictiva en la búsqueda
+    plan = A_Estrella(inicio, destino, mapaResultado, mapaCotas);
+    hayPlan = !plan.empty();
+}
+
+/**
+ * @brief Extrae y ejecuta la siguiente acción del plan de navegación.
+ * @param sensores Referencia a los sensores actuales del agente.
+ * @return Acción a ejecutar o IDLE en caso de colisión inminente.
+ */
+Action ComportamientoTecnico::AvanzarCasilla(const Sensores &sensores) {
+    if (!hayPlan || plan.empty()) return IDLE;
+
+    Action accion = plan.front();
+    
+    // Evitar colisiones ortogonales. Asume una función homóloga a la del Ingeniero.
+    if ((accion == WALK) && (sensores.agentes[2] != '_')) {
+      // Si detecta al Ingeniero bloqueando el paso
+        if (sensores.agentes[2] == 'i') {
+            
+            // 1. Determinar coordenadas de la casilla frontal ocupada
+            int f_ing = sensores.posF;
+            int c_ing = sensores.posC;
+            switch (sensores.rumbo) {
+                case norte: f_ing--; break;
+                case noreste: f_ing--; c_ing++; break;
+                case este: c_ing++; break;
+                case sureste: f_ing++; c_ing++; break;
+                case sur: f_ing++; break;
+                case suroeste: f_ing++; c_ing--; break;
+                case oeste: c_ing--; break;
+                case noroeste: f_ing--; c_ing--; break;
+            }
+
+            if (f_ing == destino_f && c_ing == destino_c) {
+                return IDLE; 
+            }
+
+            // 2. Aplicar tu lógica: hacer que A* vea al Ingeniero como intransitable
+            unsigned char original = mapaResultado[f_ing][c_ing];
+            mapaResultado[f_ing][c_ing] = 'M';
+
+            plan.clear();
+            // 3. Recalcular la ruta (el A* le dará de lado)
+            GenerarRuta(destino_f, destino_c, sensores);
+
+            // 4. Restaurar el mapa a su estado real
+            mapaResultado[f_ing][c_ing] = original;
+
+            // 5. Extraer y ejecutar la nueva acción evasiva (ej. girar hacia la hierba)
+            if (hayPlan && !plan.empty()) {
+                Action accion_evasiva = plan.front();
+                
+                // Evitar una colisión recursiva si la ruta alternativa también está bloqueada
+                if (accion_evasiva == WALK && sensores.agentes[2] != '_') return IDLE;
+                
+                plan.pop_front();
+                if (plan.empty()) hayPlan = false;
+                return accion_evasiva;
+            }
+            return IDLE; // Sin ruta alternativa posible
+        }  
+      return IDLE; 
+    }
+    
+    plan.pop_front();
+    if (plan.empty()) hayPlan = false;
+    
+    return accion;
+}
+
+/**
  * @brief Comportamiento del técnico para el Nivel 5.
  * @param sensores Datos actuales de los sensores.
  * @return Acción a realizar.
  */
 Action ComportamientoTecnico::ComportamientoTecnicoNivel_5(Sensores sensores) {
-  // 1. Recibe el COME
-  if (sensores.venpaca) {
-    destF = sensores.GotoF;
-    destC = sensores.GotoC;
-    tieneDestino = true;
-    plan.clear(); 
-  }
+    Action accion = IDLE;
 
-  if (!tieneDestino) return IDLE;
+    cout << "[TEC] Fase actual: " << fase 
+     << " | Pos: (" << sensores.posF << ", " << sensores.posC << ")"
+     << " | Goto: (" << sensores.GotoF << ", " << sensores.GotoC << ")"
+     << " | venpaca: " << sensores.venpaca 
+     << " | Destino: (" << destino_f << ", " << destino_c  << ")" << endl;
 
-  // 2. Comprobación de llegada al destino
-  if (sensores.posF == destF && sensores.posC == destC) {
-    plan.clear();
+    switch (fase) {
+        case 0: {
+            // Esperar la invocación del Ingeniero
+            if (sensores.venpaca) {
+                destino_f = sensores.GotoF;
+                destino_c = sensores.GotoC;
 
-    // Buscar al Ingeniero rotando sobre sí mismo
-    if (sensores.agentes[2] != 'i') {
-        return TURN_SR;
-    }
+                GenerarRuta(sensores.GotoF, sensores.GotoC, sensores);
+                fase = 1;
+            }
+            break;
+        }
 
-    // Lo hemos encontrado de frente. Esperar confirmación de alineamiento.
-    if (sensores.enfrente) {
-      tieneDestino = false; 
-      return INSTALL;
-    }
-    
-    return IDLE; 
-  }
+        case 1: {
+            if (sensores.posF == destino_f && sensores.posC == destino_c) {
+                fase = 2;
+                // Se omite el 'return IDLE' y el 'break'. 
+                // Esto fuerza la evaluación inmediata de la Fase 2 en este mismo instante.
+            } else {
+                if (!hayPlan) GenerarRuta(destino_f, destino_c, sensores);
+                accion = AvanzarCasilla(sensores);
+                break; // El break se ejecuta únicamente si el agente sigue en movimiento
+            }
+        }
 
-  // 3. Navegación hacia destF / destC
-  if (plan.empty()) {
-    EstadoT ini, dest;
-    ini.site        = {sensores.posF, sensores.posC, sensores.rumbo};
-    ini.zapatillas  = tiene_zapatillas;
-    dest.site       = {destF, destC, norte};
-    dest.zapatillas = false;
-    plan = A_Estrella(ini, dest, mapaResultado, mapaCotas);
-  }
-
-  if (!plan.empty()) {
-    Action sig = plan.front();
-    
-    // Si hay riesgo, inyectamos obstáculo dinámico y replanificamos
-    if (RiesgoChoqueIngeniero(sensores, sig)) {
-        ubicacion posIng = Delante({sensores.posF, sensores.posC, sensores.rumbo});
-        unsigned char terrenoOriginal = mapaResultado[posIng.f][posIng.c];
-        
-        // Marcaje temporal
-        mapaResultado[posIng.f][posIng.c] = 'M'; 
-        
-        EstadoT ini, dest;
-        ini.site        = {sensores.posF, sensores.posC, sensores.rumbo};
-        ini.zapatillas  = tiene_zapatillas;
-        dest.site       = {destF, destC, norte};
-        dest.zapatillas = false;
-        
-        plan = A_Estrella(ini, dest, mapaResultado, mapaCotas);
-        
-        // Restauración estricta de la matriz
-        mapaResultado[posIng.f][posIng.c] = terrenoOriginal;
-        
-        if (!plan.empty()) {
-            sig = plan.front();
-            plan.pop_front();
-            return sig;
-        } else {
-            return IDLE; // Espera activa si no existe alternativa topológica
+        case 2: {
+            // Debug pruebas
+            cout << "[TEC-Fase2] enfrente: " << sensores.enfrente 
+              << " | agentes[2]: '" << sensores.agentes[2] << "'" << endl;
+            // Sincronización e Instalación
+            if (sensores.enfrente) {
+                // Condición óptima: el Ingeniero también ve al Técnico
+                accion = INSTALL; 
+                fase = 0; // Reiniciar el ciclo para esperar el siguiente tramo
+            } 
+            else if (sensores.agentes[2] == 'i') {
+                // El Técnico está mirando al Ingeniero, pero el Ingeniero 
+                // aún está realizando adecuaciones (DIG/RAISE) o girándose.
+                accion = IDLE; 
+            } 
+            else {
+                // El Técnico no está mirando al Ingeniero. Debe rotar sobre sí mismo
+                // para encontrarlo en las casillas adyacentes.
+                accion = TURN_SR; 
+            }
+            break;
         }
     }
-    
-    plan.pop_front();
-    return sig;
-  }
 
-  return IDLE;
+    return accion;
 }
 
 /**
@@ -816,7 +888,7 @@ bool ComportamientoTecnico::EsCasillaTransitableLevel0(int f, int c, bool tieneZ
 /**
  * @brief Comprueba si la casilla de delante es accesible por diferencia de altura.
  * Para el técnico: desnivel máximo siempre 1.
- * @param actual Estado actual del agente (fila, columna, orientacion).
+ * @param actual EstadoT actual del agente (fila, columna, orientacion).
  * @return true si el desnivel con la casilla de delante es admisible.
  */
 bool ComportamientoTecnico::EsAccesiblePorAltura(const ubicacion &actual) {
@@ -830,8 +902,8 @@ bool ComportamientoTecnico::EsAccesiblePorAltura(const ubicacion &actual) {
 /**
  * @brief Devuelve la posición (fila, columna) de la casilla que hay delante del agente.
  * Calcula la casilla frontal según la orientación actual (8 direcciones).
- * @param actual Estado actual del agente (fila, columna, orientacion).
- * @return Estado con la fila y columna de la casilla de enfrente.
+ * @param actual EstadoT actual del agente (fila, columna, orientacion).
+ * @return EstadoT con la fila y columna de la casilla de enfrente.
  */
 ubicacion ComportamientoTecnico::Delante(const ubicacion &actual) const {
   ubicacion delante = actual;
@@ -898,7 +970,7 @@ void ComportamientoTecnico::PintaPlan(const list<Action> &plan)
  * @brief Convierte un plan de acciones en una lista de casillas para
  *        su visualización en el mapa 2D.
  *
- * @param st    Estado de partida.
+ * @param st    EstadoT de partida.
  * @param plan  Lista de acciones del plan.
  */
 void ComportamientoTecnico::VisualizaPlan(const ubicacion &st,

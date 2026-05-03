@@ -11,14 +11,8 @@
 // =========================================================================
 // DOCUMENTACIÓN PARA ESTUDIANTES
 // =========================================================================
-/*
- * CLASE: ComportamientoTecnico
- * 
- * DESCRIPCIÓN:
- * Esta clase implementa el comportamiento del agente Técnico en el mundo Belkan.
- * El técnico colabora con el ingeniero para resolver el problema de instalación de tuberías
- */
 
+// Nivel 3
 struct EstadoT {
   ubicacion site;
   bool zapatillas;
@@ -30,17 +24,14 @@ struct EstadoT {
 struct NodoT {
   EstadoT estado;
   list<Action> secuencia;
-  int g; // Coste acumulado
-  int h; // Heurística
-  int f() const {
-    return g + h;
-  }
+  int g;
+  int h;
+  int f() const { return g + h; }
 };
 
-// Comparador para la cola de prioridad
 struct ComparaNodos {
   bool operator()(const NodoT& a, const NodoT& b) const {
-    return a.f() > b.f(); // Mayor f() tiene menor prioridad
+    return a.f() > b.f();
   }
 };
 
@@ -50,45 +41,34 @@ public:
   // CONSTRUCTORES
   // =========================================================================
   
-  /**
-   * @brief Constructor para niveles 0, 1 y 6 (sin mapa completo)
-   * @param size Tamaño del mapa (si es 0, se inicializa más tarde)
-   */
   ComportamientoTecnico(unsigned int size = 0) : Comportamiento(size) {
-    // Inicializar Variables de Estado
-    tiene_zapatillas = false; // Nada mas empezar el jugador no tiene zapatillas
-    last_action = IDLE;       // La última acción no fue ninguna
-    
-    instante=0;               // Comenzará en el instante 0
-    vector<int> aux(size,0);  // Creamos un vector del tamaño el tamaño del mapa relleno de ceros
+    tiene_zapatillas = false;
+    last_action = IDLE;
+    instante=0;
+    vector<int> aux(size,0);
     for(int i=0;i<size;i++)
-      mtiempo.push_back(aux); // Hacemos un push back sobre el vector de vectores llamado mtiempo de manera que la matriz comience llena de ceros
+      mtiempo.push_back(aux);
   }
 
-  /**
-   * @brief Constructor para niveles 2, 3, 4 y 5 (con mapa completo conocido)
-   * @param mapaR Mapa de terreno conocido
-   * @param mapaC Mapa de cotas conocido
-   */
+  // [CAMBIO] Se inicializan correctamente todas las variables de Nivel 5.
+  // Antes: tieneDestino, ingExpF, ingExpC quedaban sin inicializar (undefined behavior).
   ComportamientoTecnico(std::vector<std::vector<unsigned char>> mapaR, 
                        std::vector<std::vector<unsigned char>> mapaC): 
                        Comportamiento(mapaR, mapaC) {
-    // Inicializar Variables de Estado
     tiene_zapatillas = false;
     last_action = IDLE;
+    hayPlan = false;
+    installIdxT = 0;
+    instante = 0;
+    // Variables Nivel 5
+    tieneDestino = false;
+    destF = 0; destC = 0;
+    ingExpF = -1; ingExpC = -1; // [NUEVO] -1 = ingeniero no localizado aún
   }
 
   ComportamientoTecnico(const ComportamientoTecnico &comport): Comportamiento(comport) {}
   ~ComportamientoTecnico() {}
 
-  /**
-   * @brief Bucle principal de decisión del técnico.
-   * Estudia los sensores y decide la siguiente acción.
-   * 
-   * EJEMPLO DE USO:
-   * Action accion = think(sensores);
-   * return accion; // El motor ejecutará esta acción
-   */
   Action think(Sensores sensores);
 
   ComportamientoTecnico *clone() {
@@ -99,56 +79,12 @@ public:
   // ÁREA DE IMPLEMENTACIÓN DEL ESTUDIANTE
   // =========================================================================
   
-/**
- * @brief Comportamiento del técnico para el Nivel 0.
- * @param sensores Datos actuales de los sensores.
- * @return Acción a realizar.
- */
   Action ComportamientoTecnicoNivel_0(Sensores sensores);
-  
-/**
- * @brief Comportamiento del técnico para el Nivel 1.
- * @param sensores Datos actuales de los sensores.
- * @return Acción a realizar.
- */
   Action ComportamientoTecnicoNivel_1(Sensores sensores);
-  
-  
-// Parte 2
-
-/**
- * @brief Comportamiento del técnico para el Nivel 2.
- * @param sensores Datos actuales de los sensores.
- * @return Acción a realizar.
- */
   Action ComportamientoTecnicoNivel_2(Sensores sensores);
-  
-/**
- * @brief Comportamiento del técnico para el Nivel 3.
- * @param sensores Datos actuales de los sensores.
- * @return Acción a realizar.
- */
   Action ComportamientoTecnicoNivel_3(Sensores sensores);
-  
-/**
- * @brief Comportamiento del técnico para el Nivel 4.
- * @param sensores Datos actuales de los sensores.
- * @return Acción a realizar.
- */
   Action ComportamientoTecnicoNivel_4(Sensores sensores);
-  
-/**
- * @brief Comportamiento del técnico para el Nivel 5.
- * @param sensores Datos actuales de los sensores.
- * @return Acción a realizar.
- */
   Action ComportamientoTecnicoNivel_5(Sensores sensores);
-  
-/**
- * @brief Comportamiento del técnico para el Nivel 6.
- * @param sensores Datos actuales de los sensores.
- * @return Acción a realizar.
- */
   Action ComportamientoTecnicoNivel_6(Sensores sensores);
 
 protected:
@@ -156,91 +92,61 @@ protected:
   // FUNCIONES PROPORCIONADAS
   // =========================================================================
 
-  /**
-   * @brief Actualiza el mapaResultado y mapaCotas con la información de los sensores.
-   * IMPORTANTE: Esta función ya está implementada. Actualiza mapaResultado y mapaCotas
-   * con la información de los 16 sensores.
-   */
   void ActualizarMapa(Sensores sensores);
-
-  /**
-   * @brief Determina si una casilla es transitable para el técnico.
-   * NOTA: El técnico puede tener reglas de transitabilidad diferentes al ingeniero.
-   * @param f Fila de la casilla.
-   * @param c Columna de la casilla.
-   * @param tieneZapatillas Indica si el agente posee las zapatillas.
-   * @return true si la casilla es transitable.
-   */
   bool EsCasillaTransitableLevel0(int f, int c, bool tieneZapatillas);
-
-  /**
-   * @brief Comprueba si la casilla de delante es accesible por diferencia de altura.
-   * REGLA PARA TÉCNICO: Desnivel máximo siempre 1 (independiente de zapatillas).
-   * @param actual Estado actual del agente (fila, columna, orientacion).
-   * @return true si el desnivel con la casilla de delante es admisible.
-   */
   bool EsAccesiblePorAltura(const ubicacion &actual);
-
-  /**
-   * @brief Devuelve la posición (fila, columna) de la casilla que hay delante del agente.
-   * @param actual Estado actual del agente (fila, columna, orientacion).
-   * @return Estado con la fila y columna de la casilla de enfrente.
-   */
   ubicacion Delante(const ubicacion &actual) const;
-
-  /**
-   * @brief Comprueba si una celda es de tipo transitable por defecto.
-   * @param c Carácter que representa el tipo de superficie.
-   * @return true si es camino ('C'), zapatillas ('D') o meta ('U').
-   */
   bool es_camino(unsigned char c) const;
-
-    /**
- * @brief Imprime por consola la secuencia de acciones de un plan para un agente.
- * @param plan  Lista de acciones del plan.
- */
   void PintaPlan(const list<Action> &plan);
-
-
-/**
- * @brief Imprime las coordenadas y operaciones de un plan de tubería.
- * @param plan  Lista de pasos (fila, columna, operación).
- */
   void PintaPlan(const list<Paso> &plan);
-
-
-  /**
- * @brief Convierte un plan de acciones en una lista de casillas para
- *        su visualización en el mapa gráfico.
- * @param st    Estado de partida.
- * @param plan  Lista de acciones del plan.
- */
   void VisualizaPlan(const ubicacion &st, const list<Action> &plan);
 
 private:
   // =========================================================================
-  // VARIABLES DE ESTADO (PUEDEN SER EXTENDIDAS POR EL ALUMNO)
+  // VARIABLES DE ESTADO
   // =========================================================================
 
-  // Como los sensores se borran en cada turno, usaremos una variable de estado para saber si tenemos o no zapatillas
-  bool tiene_zapatillas;  // Usado para saber si ha obtenido las zapatillas
-  Action last_action; // Usado para recordar cual fue su accion anterior
-  
-  // Implementación "Mapa de Pulgarcito" (sugerencia del profesor)
-  vector<vector<int>> mtiempo; // Se usará para que se tenga un mapa de valores que representará el recorrido, de manera que intente acceder a la posición que hace más tiempo que no accedió
-  int instante; // Variable que se incrementará representando el recorrido hecho por el jugador
-
-  // Variables A* para Nivel 3
+  bool tiene_zapatillas;
+  Action last_action;
+  vector<vector<int>> mtiempo;
+  int instante;
 
   bool hayPlan;
   list<Action> plan;
 
   // Nivel 3
+  bool esSuperficieValida(unsigned char superficie, unsigned char agente, const bool zap) const;
+  int CostoEnergiaTecnico(Action accion, const EstadoT &st, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura);
   bool CasillaAccesibleTecnico(Action accion, const EstadoT &st, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura);
   EstadoT applyT(Action accion, const EstadoT &st, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura);
-  int CostoBateriaTecnico(Action accion, const EstadoT &st, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura);
   int Heuristica(const EstadoT &actual, const EstadoT &objetivo);
+  bool RiesgoChoqueIngeniero(const Sensores &sensores, Action accion);
   list<Action> A_Estrella(const EstadoT &inicio, const EstadoT &final, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura);
+
+  // Variable Nivel 5
+  vector<Paso> planVec;
+  int installIdxT;
+  int estado_instalacion_t;
+  list<Action> plan_actual_t;
+
+  int destF, destC;       // Destino del último COME del Ingeniero (= tramoTec)
+  bool tieneDestino;      // true si tenemos un destino activo
+
+  // [NUEVO] Posición del ingeniero detectada durante la navegación.
+  // Se usa en EjecutarInstalacionOEspera para orientarse directamente
+  // hacia el ingeniero sin necesidad de hacer TURN_SR ciego.
+  // Valor -1 indica "no detectado aún".
+  int ingExpF, ingExpC;
+
+  // Helpers de Nivel 5
+  void ProcesarLlamadaIngeniero(const Sensores &sensores);
+  Action NavegacionSeguraTecnico(const Sensores &sensores);
+  Action EjecutarInstalacionOEspera(const Sensores &sensores);
+
+  // [NUEVO] Utilidades de orientación (equivalentes a las del Ingeniero).
+  // Necesarias para que EjecutarInstalacionOEspera haga GiroHacia directo.
+  Orientacion OrientacionHacia(int f1, int c1, int f2, int c2);
+  Action GiroHacia(Orientacion actual, Orientacion objetivo);
 };
 
 #endif

@@ -78,8 +78,6 @@ public:
     tiene_zapatillas = false;
     last_action = IDLE;
     hayPlan = false;
-    installIdxT = 0;
-    instante = 0;
   }
 
   ComportamientoTecnico(const ComportamientoTecnico &comport): Comportamiento(comport) {}
@@ -234,6 +232,7 @@ private:
   vector<vector<int>> mtiempo; // Se usará para que se tenga un mapa de valores que representará el recorrido, de manera que intente acceder a la posición que hace más tiempo que no accedió
   int instante; // Variable que se incrementará representando el recorrido hecho por el jugador
 
+
   // Variables A* para Nivel 3
 
   bool hayPlan;
@@ -248,17 +247,15 @@ private:
   bool RiesgoChoqueIngeniero(const Sensores &sensores, Action accion);
   list<Action> A_Estrella(const EstadoT &inicio, const EstadoT &final, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura);
 
-  //Nivel 5
-  vector<Paso> planVec;
-  int installIdxT;        // Tramo que el Técnico está cubriendo (empieza en 0)
-  int estado_instalacion_t;
-  list<Action> plan_actual_t;
 
-  int destF, destC;    // Destino enviado por el último COME del Ingeniero
-  bool tieneDestino;   // True si tenemos un destino activo
-
-  Orientacion OrientacionHacia(int f1, int c1, int f2, int c2);
-  Action GiroHacia(Orientacion actual, Orientacion objetivo);
+  // Variable Nivel 5
+  int fase = 0;             
+  int destino_f = -1;
+  int destino_c = -1;
+  
+  // Nivel 5
+  void GenerarRuta(int dest_f, int dest_c, const Sensores &sensores);
+  Action AvanzarCasilla(const Sensores &sensores);
 };
 
 #endif
