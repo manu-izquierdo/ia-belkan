@@ -19,6 +19,7 @@
  * El técnico colabora con el ingeniero para resolver el problema de instalación de tuberías
  */
 
+// Nivel 3
 struct EstadoT {
   ubicacion site;
   bool zapatillas;
@@ -77,6 +78,8 @@ public:
     tiene_zapatillas = false;
     last_action = IDLE;
     hayPlan = false;
+    installIdxT = 0;
+    instante = 0;
   }
 
   ComportamientoTecnico(const ComportamientoTecnico &comport): Comportamiento(comport) {}
@@ -244,6 +247,13 @@ private:
   int Heuristica(const EstadoT &actual, const EstadoT &objetivo);
   bool RiesgoChoqueIngeniero(const Sensores &sensores, Action accion);
   list<Action> A_Estrella(const EstadoT &inicio, const EstadoT &final, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura);
+
+  //Nivel 5
+  vector<Paso> planVec;
+  int installIdxT;        // Tramo que el Técnico está cubriendo (empieza en 0)
+
+  Orientacion OrientacionHacia(int f1, int c1, int f2, int c2);
+  Action GiroHacia(Orientacion actual, Orientacion objetivo);
 };
 
 #endif

@@ -7,10 +7,11 @@
 #include <set>
 #include <thread>
 #include <time.h>
+#include <climits>
 
 #include "comportamientos/comportamiento.hpp"
 
-
+// Nivel 2
 struct EstadoI {
   ubicacion site;
   bool zapatillas;
@@ -24,6 +25,27 @@ struct NodoI{
   list<Action> secuencia;
   bool operator==(const NodoI &node) const{
     return estado == node.estado;
+  }
+};
+
+
+// Nivel 4
+struct NodoTuberia {
+  int f, c; // Fila y Columna
+  int delta; // Indica si si tiene modificación de altura {-1,0,+1}
+  int longitud; // Número de pasos hasta aquí
+  int impacto; // Impacto ecológico
+  list<Paso> camino; // Secuencia de pasos de la tubería {f, c, op}
+};
+
+// Comparador para la priority_queue:
+// La prioridad mas alta es la (longitud, impacto) mas pequeña, asi que devolvemos true cuando
+// 'a' debe ir DESPUES que 'b' (ya que la priority_queue ordena de mayor a menor).
+struct ComparaTuberia {
+  bool operator()(const NodoTuberia& a, const NodoTuberia& b) const {
+    // Lex: primero longitud, luego impacto
+    if (a.longitud != b.longitud) return a.longitud > b.longitud;
+    return a.impacto > b.impacto;
   }
 };
 
@@ -61,6 +83,8 @@ public:
     tiene_zapatillas = false;
     last_action = IDLE;
     hayPlan = false;
+    installIdx = 0;
+    instante = 0;
   }
 
   ComportamientoIngeniero(const ComportamientoIngeniero &comport)
@@ -232,6 +256,22 @@ private:
   EstadoI applyI(Action accion, const EstadoI &st, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura);
   bool RiesgoChoqueTecnico(const Sensores &sensores, Action accion);
   list<Action> B_Anchura(const EstadoI &inicio, const EstadoI &final, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura);
+  
+  // Nivel 4
+  bool DeltaValido(int f, int c, int delta, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura);
+  bool CasillaValidaTuberia(int f, int c, const vector<vector<unsigned char>> &terreno);
+  int getCosteEcoINSTALL(unsigned char terr);
+  int getCosteEcoRAISE(unsigned char terr);
+  int getCosteEcoDIG(unsigned char terr);
+  list<Paso> PlanificarRedTuberias(int fInicio, int cInicio, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura, int limiteAmbiental);
+
+  // Nivel 5
+  vector<Paso> planVec;  // Plan como vector (acceso por índice, no como lista)
+  int installIdx;         // Tramo que el Ingeniero está instalando ahora (empieza en 1)
+  bool opDone;            // true si ya hicimos el RAISE/DIG de este tramo
+
+  Orientacion OrientacionHacia(int f1, int c1, int f2, int c2);
+  Action GiroHacia(Orientacion actual, Orientacion objetivo);
 };
 
 #endif

@@ -518,13 +518,204 @@ Action ComportamientoIngeniero::ComportamientoIngenieroNivel_3(Sensores sensores
 }
 
 /**
+ * @brief Comprueba si el cambio de altura es o no es válido en esa casilla
+ * 
+ * @param f fila
+ * @param c columna
+ * @param delta movimiento a hacer (-1 = DIG, 1 = RAISE)
+ */
+bool ComportamientoIngeniero::DeltaValido(int f, int c, int delta, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura){
+  unsigned char terr = terreno[f][c];
+  int h = altura[f][c];
+  
+  if (terr == 'A' && delta != 0) return false;  // Agua el agua no puede tener DIG ni RAISE
+  if (delta == 1 && h >= 9)     return false;   // RAISE: solo si h < 9
+  if (delta == -1 && h <= 1)    return false;   // DIG: solo si h > 1
+  return true;
+}
+
+/**
+ * @brief Comprueba si la casilla permite instalar un tramo de tubería
+ */
+bool ComportamientoIngeniero::CasillaValidaTuberia(int f, int c, const vector<vector<unsigned char>> &terreno) {
+  unsigned char t = terreno[f][c];
+  if (t == 'M' || t == 'P' || t == 'B' || t == '?') return false;
+  return true;  // A, H, S, C, D, U son válidas
+}
+
+/**
+ * @brief Impacto Ecológico de instalar una tubería en ese tipo de terreno
+ */
+int ComportamientoIngeniero::getCosteEcoINSTALL(unsigned char terr) {
+  if (terr == 'A') return 50;
+  if (terr == 'H') return 45;
+  if (terr == 'S') return 25;
+  if (terr == 'C' || terr == 'U') return 15;
+  return 30;
+}
+
+/**
+ * @brief Impacto Ecológico de subir una casilla en ese tipo de terreno
+ */
+int ComportamientoIngeniero::getCosteEcoRAISE(unsigned char terr) {
+  if (terr == 'H') return 55;
+  if (terr == 'S') return 30;
+  if (terr == 'C' || terr == 'U') return 10;
+  return 40;
+}
+
+/**
+ * @brief Impacto Ecológico de bajar una casilla en ese tipo de terreno
+ */
+int ComportamientoIngeniero::getCosteEcoDIG(unsigned char terr) {
+  if (terr == 'H') return 65;
+  if (terr == 'S') return 40;
+  if (terr == 'C' || terr == 'U') return 25;
+  return 50;
+}
+
+/**
+ * @brief 
+ * 
+ * @param fInicio 
+ * @param cInicio 
+ * @param terreno 
+ * @param altura 
+ * @param limiteAmbiental 
+ * @return list<Paso> 
+ */
+list<Paso> ComportamientoIngeniero::PlanificarRedTuberias(int fInicio, int cInicio, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura, int limiteAmbiental){
+priority_queue<NodoTuberia, vector<NodoTuberia>, ComparaTuberia> frontera;
+/* Matriz 3D: [f][c][delta] 
+Con bool, marcabas un estado como visitado la primera vez que lo extraías. 
+Esto daba error porque usamos dos criterios de coste: longitud e impacto, esto quería decir que 
+una ruta más corta puede sobrepasar el impacto, y marcar x nodo como visitado 
+bloqueando una ruta más larga pero más barata en impacto que pasa por ese mismo nodo x.
+*/
+vector<vector<vector<int>>> min_imp(
+    terreno.size(),
+    vector<vector<int>>(terreno[0].size(),
+    vector<int>(3, INT_MAX)));
+
+// Inicializar con los 3 deltas posibles en la Belkanita (-1,0,1), el primer impacto es solo DIG o RAISE, no suma INSTALL
+for (int delta = -1; delta <= 1; delta++) {
+  if (DeltaValido(fInicio, cInicio, delta, terreno, altura)) {
+    NodoTuberia inicio;
+    inicio.f = fInicio;
+    inicio.c = cInicio;
+    inicio.delta = delta;
+    inicio.longitud = 1;
+    // Solo DIG/RAISE del primer punto, sin INSTALL
+    int imp = 0;
+    if (delta == -1) imp = getCosteEcoDIG(terreno[fInicio][cInicio]);
+    if (delta ==  1) imp = getCosteEcoRAISE(terreno[fInicio][cInicio]);
+    inicio.impacto = imp;
+    Paso p0{fInicio, cInicio, delta};
+    inicio.camino.push_back(p0);
+    frontera.push(inicio);
+  }
+}
+
+// Bucle similar a A*
+while (!frontera.empty()) {
+  NodoTuberia actual = frontera.top();
+  frontera.pop(); // Extraemos el nodo más prometedor según ComparaTuberia, extrae siempre el de menor longitud y en caso de empate, el de menor impacto
+  
+  // Visitados AL EXTRAER
+  int &mi = min_imp[actual.f][actual.c][actual.delta + 1]; // mi será una referencia a min_imp
+  if (mi <= actual.impacto) continue;
+
+  // Test objetivo
+  if (terreno[actual.f][actual.c] == 'U') {
+    if (actual.impacto <= limiteAmbiental) {
+      return actual.camino;  // Primera 'U' válida = óptima en longitud y dentro del límite
+    }
+    continue;  // Supera el límite, no actualizamos min_imp, seguimos buscando
+  }
+
+  // Actualizamos mínimo solo para nodos que NO son 'U'
+  mi = actual.impacto;
+
+  int h_actual = altura[actual.f][actual.c] + actual.delta;
+
+  // Generamos los 4 vecinos ortogonales (N,S,E,O)
+  const int df[] = {-1, 1, 0, 0};
+  const int dc[] = { 0, 0,-1, 1};
+
+  for (int dir = 0; dir < 4; dir++) {
+    int nf = actual.f + df[dir];
+    int nc = actual.c + dc[dir];
+
+    if (!CasillaValidaTuberia(nf, nc, terreno)) continue;
+
+    // Por cada vecino probamos los 3 deltas posibles
+    for (int dv = -1; dv <= 1; dv++) {
+      if (!DeltaValido(nf, nc, dv, terreno, altura)) continue;
+
+      int h_v = altura[nf][nc] + dv;
+      int diff = h_actual - h_v; // La diferencia de altura entre el nodo y su hijo no puede ser mayor de 1 ni menor a 0
+      if (diff != 0 && diff != 1) continue;
+
+      NodoTuberia hijo = actual;
+      hijo.f = nf; hijo.c = nc; hijo.delta = dv;
+      hijo.longitud++;
+
+      unsigned char terr_actual = terreno[actual.f][actual.c];
+      unsigned char terr_vecino = terreno[nf][nc];
+
+      // Calculamos la fórmula para cada conexión entre dos casillas:
+      // INSTALL(casilla_anterior) + INSTALL(casilla_nueva) + DIG/RAISE(casilla_nueva si aplica)
+      int imp_conexion = 0;
+      imp_conexion += getCosteEcoINSTALL(terr_actual);
+      imp_conexion += getCosteEcoINSTALL(terr_vecino);
+      if (dv == -1) imp_conexion += getCosteEcoDIG(terr_vecino);
+      if (dv ==  1) imp_conexion += getCosteEcoRAISE(terr_vecino);
+
+      hijo.impacto += imp_conexion;
+      Paso p{nf, nc, dv};
+      hijo.camino.push_back(p);
+      frontera.push(hijo);
+    }
+  }
+}
+
+return list<Paso>();
+}
+
+/**
  * @brief Comportamiento del ingeniero para el Nivel 4.
  * @param sensores Datos actuales de los sensores.
  * @return Acción a realizar.
  */
 Action ComportamientoIngeniero::ComportamientoIngenieroNivel_4(Sensores sensores)
 {
+  if (!hayPlan) {
+    list<Paso> plan = PlanificarRedTuberias(
+      sensores.BelPosF, sensores.BelPosC,
+      mapaResultado, mapaCotas, sensores.max_ecologico);
+    
+    if (!plan.empty()) {
+      VisualizaRedTuberias(plan);
+      cout << "Nivel 4: plan de " << plan.size() << " tramos" << endl;
+    }
+    hayPlan = true;
+  }
   return IDLE;
+}
+
+
+Orientacion ComportamientoIngeniero::OrientacionHacia(int f1, int c1, int f2, int c2) {
+    if (f2 < f1) return norte;
+    if (f2 > f1) return sur;
+    if (c2 < c1) return oeste;
+    return este;
+}
+
+Action ComportamientoIngeniero::GiroHacia(Orientacion actual, Orientacion objetivo) {
+    if (actual == objetivo) return IDLE;
+    int girosD = (objetivo - actual + 8) % 8;  // pasos girando a la derecha
+    int girosI = (actual - objetivo + 8) % 8;  // pasos girando a la izquierda
+    return (girosD <= girosI) ? TURN_SR : TURN_SL;
 }
 
 /**
@@ -534,7 +725,80 @@ Action ComportamientoIngeniero::ComportamientoIngenieroNivel_4(Sensores sensores
  */
 Action ComportamientoIngeniero::ComportamientoIngenieroNivel_5(Sensores sensores)
 {
-  return IDLE;
+
+    // ── FASE 1: Planificar una sola vez ──────────────────────────────────
+    if (!hayPlan) {
+      
+        list<Paso> plan5 = PlanificarRedTuberias(
+            sensores.BelPosF, sensores.BelPosC,
+            mapaResultado, mapaCotas, sensores.max_ecologico);
+
+        if (!plan5.empty()) {
+          
+            VisualizaRedTuberias(plan5);
+            // Convertimos a vector para poder indexar: planVec[3] en O(1)
+            // Con list tendríamos que recorrer desde el inicio cada vez
+            planVec = vector<Paso>(plan5.begin(), plan5.end());
+            installIdx = 1;   // El Ingeniero empieza en el tramo 1 (no en el 0)
+            opDone = false;
+        }
+        hayPlan = true;
+        return IDLE;
+    }
+
+    // Si el plan está vacío o ya terminamos, no hacer nada
+    if (planVec.empty() || installIdx >= (int)planVec.size()) return IDLE;
+
+    const Paso &tramo    = planVec[installIdx];      // Casilla del Ingeniero
+    const Paso &anterior = planVec[installIdx - 1];  // Casilla del Técnico
+
+    // ── FASE 2: Navegar hasta planVec[installIdx] ─────────────────────────
+    // Si no estamos en la casilla del tramo, calculamos ruta con BFS y ejecutamos
+    if (sensores.posF != tramo.fil || sensores.posC != tramo.col) {
+        if (plan.empty()) {  // 'plan' es la list<Action> que ya tienes del nivel 2
+            EstadoI ini, dest;
+            ini.site  = {sensores.posF, sensores.posC, sensores.rumbo};
+            ini.zapatillas = tiene_zapatillas;
+            dest.site = {tramo.fil, tramo.col, norte};  // orientación de llegada irrelevante
+            dest.zapatillas = false;
+            plan = B_Anchura(ini, dest, mapaResultado, mapaCotas);
+        }
+        if (!plan.empty()) {
+            Action sig = plan.front();
+            plan.pop_front();
+            return sig;
+        }
+        return IDLE;
+    }
+
+    // Ya estamos en el tramo: la ruta de navegación ya no sirve, la limpiamos
+    plan.clear();
+
+    // ── FASE 3: RAISE o DIG si el plan lo requiere ───────────────────────
+    // tramo.op: -1=DIG, 0=nada, 1=RAISE
+    // opDone evita repetir la acción en ticks siguientes
+    if (tramo.op != 0 && !opDone) {
+        opDone = true;
+        return (tramo.op == 1) ? RAISE : DIG;
+    }
+
+    // ── FASE 4: Orientarse mirando hacia la casilla del Técnico ──────────
+    Orientacion orientDeseada = OrientacionHacia(
+        tramo.fil, tramo.col, anterior.fil, anterior.col);
+    if (sensores.rumbo != orientDeseada) {
+        return GiroHacia(sensores.rumbo, orientDeseada);
+    }
+
+    // ── FASE 5: Esperar al Técnico y ejecutar INSTALL ────────────────────
+    // sensores.agentes[2] = lo que hay justo delante de nosotros
+    // 't' = Técnico presente en esa casilla
+    if (sensores.agentes[2] == 't') {
+        installIdx++;    // Avanzar al siguiente tramo
+        opDone = false;  // Resetear para el nuevo tramo
+        return INSTALL;
+    }
+
+    return IDLE;  // Técnico aún no está en posición, esperamos
 }
 
 /**
