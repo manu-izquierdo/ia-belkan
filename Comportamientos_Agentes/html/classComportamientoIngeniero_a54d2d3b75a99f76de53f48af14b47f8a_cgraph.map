@@ -1,0 +1,18 @@
+<map id="ComportamientoIngeniero::ComportamientoIngenieroNivel_2" name="ComportamientoIngeniero::ComportamientoIngenieroNivel_2">
+<area shape="rect" id="Node000001" title="Implementación del Nivel 2." alt="" coords="5,101,256,141"/>
+<area shape="rect" id="Node000002" href="$classComportamientoIngeniero.html#a27b5b0ee0c9589d25adf3575545d612d" title="Busca el camino de menor número de pasos desde inicio hasta final usando Búsqueda en Anchura (BFS)." alt="" coords="304,37,497,77"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="215,99,302,78,303,83,216,104"/>
+<area shape="rect" id="Node000007" href="$classComportamientoIngeniero.html#a553029cffd77fd6da5dbc8b136a4eeee" title="Detecta si ejecutar una acción provocaría una colisión con el Técnico." alt="" coords="304,101,497,141"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="256,119,290,119,290,124,256,124"/>
+<area shape="rect" id="Node000008" href="$classComportamientoIngeniero.html#a0e77a094d36932ed0f7705d7290c0eb7" title="Convierte un plan de acciones en una lista de casillas para su visualización en el mapa gráfico." alt="" coords="304,165,497,205"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="216,139,303,160,302,165,215,144"/>
+<area shape="rect" id="Node000003" href="$classComportamientoIngeniero.html#a1a867dcef57caf4ab68c56dd07d17bdc" title="Aplica una acción al estado actual y devuelve el estado resultante." alt="" coords="547,5,741,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="497,42,533,37,534,42,498,47"/>
+<area shape="rect" id="Node000005" href="$classComportamientoIngeniero.html#aeb73a06ebdb6b76e0d918952dec474a7" title="Comprueba si el Ingeniero puede ejecutar una acción de movimiento desde su estado actual." alt="" coords="545,69,743,109"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="498,67,532,72,531,77,497,73"/>
+<area shape="rect" id="Node000004" href="$classComportamientoIngeniero.html#a023e97d3be98a08682faae40a7213dfe" title="Devuelve la posición (fila, columna) de la casilla que hay delante del agente." alt="" coords="791,5,984,45"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="741,23,777,23,777,28,741,28"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="720,67,797,46,798,51,722,72"/>
+<area shape="rect" id="Node000006" href="$classComportamientoIngeniero.html#acaca9e933b50a3250837e5872175a8cc" title="Indica si el tipo de superficie es transitable para el Ingeniero en modo deliberativo (mapa conocido)..." alt="" coords="791,69,984,109"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="743,87,777,87,777,92,743,92"/>
+</map>

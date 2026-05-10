@@ -1,0 +1,14 @@
+<map id="ComportamientoIngeniero::GenerarRuta" name="ComportamientoIngeniero::GenerarRuta">
+<area shape="rect" id="Node000001" title="Genera una ruta BFS desde la posición actual hasta un destino y la almacena en plan,..." alt="" coords="5,37,199,77"/>
+<area shape="rect" id="Node000002" href="$classComportamientoIngeniero.html#a27b5b0ee0c9589d25adf3575545d612d" title="Busca el camino de menor número de pasos desde inicio hasta final usando Búsqueda en Anchura (BFS)." alt="" coords="247,37,440,77"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="199,55,233,55,233,60,199,60"/>
+<area shape="rect" id="Node000003" href="$classComportamientoIngeniero.html#a1a867dcef57caf4ab68c56dd07d17bdc" title="Aplica una acción al estado actual y devuelve el estado resultante." alt="" coords="490,5,683,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="440,42,476,37,477,42,440,47"/>
+<area shape="rect" id="Node000005" href="$classComportamientoIngeniero.html#aeb73a06ebdb6b76e0d918952dec474a7" title="Comprueba si el Ingeniero puede ejecutar una acción de movimiento desde su estado actual." alt="" coords="488,69,685,109"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="440,67,475,72,474,77,440,73"/>
+<area shape="rect" id="Node000004" href="$classComportamientoIngeniero.html#a023e97d3be98a08682faae40a7213dfe" title="Devuelve la posición (fila, columna) de la casilla que hay delante del agente." alt="" coords="733,5,927,45"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="683,23,720,23,720,28,683,28"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="663,67,740,46,741,51,664,72"/>
+<area shape="rect" id="Node000006" href="$classComportamientoIngeniero.html#acaca9e933b50a3250837e5872175a8cc" title="Indica si el tipo de superficie es transitable para el Ingeniero en modo deliberativo (mapa conocido)..." alt="" coords="733,69,927,109"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="686,87,720,87,720,92,686,92"/>
+</map>

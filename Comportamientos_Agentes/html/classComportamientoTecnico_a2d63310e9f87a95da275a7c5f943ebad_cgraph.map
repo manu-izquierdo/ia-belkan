@@ -1,0 +1,22 @@
+<map id="ComportamientoTecnico::AvanzarCasilla" name="ComportamientoTecnico::AvanzarCasilla">
+<area shape="rect" id="Node000001" title="Extrae y devuelve la siguiente acción del plan de navegación." alt="" coords="5,48,185,88"/>
+<area shape="rect" id="Node000002" href="$classComportamientoTecnico.html#abf7aa70f7bb7973ae6ef181a53d044ed" title="Devuelve la posición (fila, columna) de la casilla que hay delante del agente." alt="" coords="921,76,1101,116"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="185,46,320,24,493,7,587,3,684,5,780,13,874,29,923,45,967,67,965,71,921,50,873,34,779,18,683,10,587,8,493,12,321,29,186,51"/>
+<area shape="rect" id="Node000003" href="$classComportamientoTecnico.html#a829bc5ec1050106d8e7103637af5c280" title="Genera una ruta A* desde la posición actual del Técnico hasta el destino." alt="" coords="233,76,413,116"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="186,76,220,80,220,86,185,81"/>
+<area shape="rect" id="Node000004" href="$classComportamientoTecnico.html#adea944835b197bdbff93a86c96b1cae8" title="Encuentra el camino de mínimo coste energético mediante A*." alt="" coords="461,108,641,148"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="414,106,448,110,448,116,413,111"/>
+<area shape="rect" id="Node000005" href="$classComportamientoTecnico.html#a0c28bb39cb4af9759f7ae2fb6e0e828f" title="Aplica una acción al estado del Técnico y devuelve el estado resultante." alt="" coords="691,44,871,84"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="623,105,695,85,697,90,625,110"/>
+<area shape="rect" id="Node000006" href="$classComportamientoTecnico.html#ac345cdb018fca8d96eb7f17cfffde5e6" title="Comprueba si el Técnico puede ejecutar una acción de movimiento desde su estado actual." alt="" coords="689,172,873,212"/>
+<area shape="poly" id="edge6_Node000004_Node000006" title=" " alt="" coords="625,145,697,165,695,171,623,150"/>
+<area shape="rect" id="Node000008" href="$classComportamientoTecnico.html#a80cd6874f3f6ab7c580ba6d35484d130" title="Calcula el coste energético de ejecutar una acción desde el estado actual." alt="" coords="691,108,871,148"/>
+<area shape="poly" id="edge9_Node000004_Node000008" title=" " alt="" coords="642,125,678,125,678,130,642,130"/>
+<area shape="rect" id="Node000009" href="$classComportamientoTecnico.html#aa6fc2ac8a764ce5566bd6a29f5940993" title="Heurística admisible para A*: distancia al objetivo." alt="" coords="691,236,871,276"/>
+<area shape="poly" id="edge11_Node000004_Node000009" title=" " alt="" coords="579,146,629,183,691,221,705,228,703,233,688,226,626,188,575,150"/>
+<area shape="poly" id="edge5_Node000005_Node000002" title=" " alt="" coords="872,74,908,79,907,84,871,79"/>
+<area shape="poly" id="edge7_Node000006_Node000002" title=" " alt="" coords="842,169,872,157,956,119,959,124,874,162,843,174"/>
+<area shape="rect" id="Node000007" href="$classComportamientoTecnico.html#ac095673a41784098a0fc1ac39ba6b537" title="Indica si el tipo de superficie es transitable para el Técnico en modo deliberativo (mapa conocido)." alt="" coords="921,172,1101,212"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="874,189,907,189,907,194,874,194"/>
+<area shape="poly" id="edge10_Node000008_Node000002" title=" " alt="" coords="871,112,907,107,908,113,872,118"/>
+</map>

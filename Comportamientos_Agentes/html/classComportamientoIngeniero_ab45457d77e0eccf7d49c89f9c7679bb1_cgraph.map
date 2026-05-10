@@ -1,0 +1,9 @@
+<map id="ComportamientoIngeniero::PlanificarRedTuberias" name="ComportamientoIngeniero::PlanificarRedTuberias">
+<area shape="rect" id="Node000001" title="Planifica la red de tuberías de mínima longitud con impacto ecológico dentro del límite dado,..." alt="" coords="5,69,199,109"/>
+<area shape="rect" id="Node000002" href="$classComportamientoIngeniero.html#ab4ac007b9e4a710d91b0fbafc6481a7c" title="Indica si una casilla puede formar parte de la red de tuberías." alt="" coords="247,5,440,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="178,67,254,46,255,51,179,72"/>
+<area shape="rect" id="Node000003" href="$classComportamientoIngeniero.html#ad856801c50124740db4c70ae78fc62b9" title="Comprueba si aplicar un delta de altura es válido en una casilla." alt="" coords="247,69,440,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="199,87,233,87,233,92,199,92"/>
+<area shape="rect" id="Node000004" href="$classComportamientoIngeniero.html#a2cf60f4c977d826ae1c48b604a7e7383" title="Devuelve el impacto ecológico de una acción sobre un tipo de terreno." alt="" coords="247,133,440,173"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="179,107,255,127,254,132,178,112"/>
+</map>

@@ -1,0 +1,13 @@
+<map id="ComportamientoIngeniero::ComportamientoIngenieroNivel_4" name="ComportamientoIngeniero::ComportamientoIngenieroNivel_4">
+<area shape="rect" id="Node000001" title="Implementación del Nivel 4." alt="" coords="5,101,256,141"/>
+<area shape="rect" id="Node000002" href="$classComportamientoIngeniero.html#ab45457d77e0eccf7d49c89f9c7679bb1" title="Planifica la red de tuberías de mínima longitud con impacto ecológico dentro del límite dado,..." alt="" coords="304,69,497,109"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="256,104,290,100,291,105,257,109"/>
+<area shape="rect" id="Node000006" href="$classComportamientoIngeniero.html#a1b4efebd2b460489ac0fb43b70f29d9f" title="Convierte un plan de tubería en la lista de casillas usada por el sistema de visualización." alt="" coords="304,133,497,173"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="257,134,291,138,290,143,256,139"/>
+<area shape="rect" id="Node000003" href="$classComportamientoIngeniero.html#ab4ac007b9e4a710d91b0fbafc6481a7c" title="Indica si una casilla puede formar parte de la red de tuberías." alt="" coords="545,5,739,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="476,67,552,46,554,51,478,72"/>
+<area shape="rect" id="Node000004" href="$classComportamientoIngeniero.html#ad856801c50124740db4c70ae78fc62b9" title="Comprueba si aplicar un delta de altura es válido en una casilla." alt="" coords="545,69,739,109"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="497,87,532,87,532,92,497,92"/>
+<area shape="rect" id="Node000005" href="$classComportamientoIngeniero.html#a2cf60f4c977d826ae1c48b604a7e7383" title="Devuelve el impacto ecológico de una acción sobre un tipo de terreno." alt="" coords="545,133,739,173"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="478,107,554,127,552,132,476,112"/>
+</map>

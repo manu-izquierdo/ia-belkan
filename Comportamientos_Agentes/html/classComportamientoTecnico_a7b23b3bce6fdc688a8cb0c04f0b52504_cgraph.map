@@ -1,0 +1,67 @@
+<map id="ComportamientoTecnico::think" name="ComportamientoTecnico::think">
+<area shape="rect" id="Node000001" title="Bucle principal de decisión del técnico. Estudia los sensores y decide la siguiente acción." alt="" coords="5,475,185,515"/>
+<area shape="rect" id="Node000002" href="$classComportamientoTecnico.html#af3c5a623e69ca205492ec139a964b1d7" title="Comportamiento del técnico para el Nivel 0." alt="" coords="804,99,1041,139"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="123,473,173,439,232,403,402,320,574,246,730,185,849,141,851,146,732,190,576,251,404,325,235,408,175,443,126,477"/>
+<area shape="rect" id="Node000007" href="$classComportamientoTecnico.html#a4636a998ba23c9c4b04608726ab30b45" title="Comportamiento del técnico para el Nivel 1." alt="" coords="804,278,1041,318"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="119,473,169,436,200,418,232,403,304,378,378,358,528,327,669,309,790,299,790,304,670,314,528,333,379,363,305,384,234,408,202,423,172,441,122,477"/>
+<area shape="rect" id="Node000010" href="$classComportamientoTecnico.html#a2466fe06d2e87001d9664f76c0360977" title="Comportamiento del técnico para el Nivel 2." alt="" coords="233,664,471,704"/>
+<area shape="poly" id="edge12_Node000001_Node000010" title=" " alt="" coords="117,513,167,566,235,622,293,656,290,660,232,626,164,569,113,517"/>
+<area shape="rect" id="Node000013" href="$classComportamientoTecnico.html#aaf0c91771d72711ef02e6d6197c6ff0a" title="Comportamiento del técnico para el Nivel 3." alt="" coords="233,572,471,612"/>
+<area shape="poly" id="edge15_Node000001_Node000013" title=" " alt="" coords="150,513,286,565,284,570,148,518"/>
+<area shape="rect" id="Node000020" href="$classComportamientoTecnico.html#a37ecc25145ae335121ff2e2fdbf75d45" title="Comportamiento del técnico para el Nivel 4." alt="" coords="233,728,471,768"/>
+<area shape="poly" id="edge27_Node000001_Node000020" title=" " alt="" coords="106,514,122,556,149,610,187,667,210,692,235,714,243,719,240,724,232,718,206,696,183,670,145,613,118,558,101,516"/>
+<area shape="rect" id="Node000021" href="$classComportamientoTecnico.html#a55425d9a960004e46b34a2426745c903" title="Comportamiento del técnico para el Nivel 5." alt="" coords="519,443,756,483"/>
+<area shape="poly" id="edge28_Node000001_Node000021" title=" " alt="" coords="186,487,505,468,505,473,186,492"/>
+<area shape="rect" id="Node000025" href="$classComportamientoTecnico.html#a18e3ed18ab66cc48ca150e99c5c12450" title="Comportamiento del técnico para el Nivel 6." alt="" coords="233,418,471,458"/>
+<area shape="poly" id="edge38_Node000001_Node000025" title=" " alt="" coords="185,472,248,458,249,463,186,477"/>
+<area shape="rect" id="Node000003" href="$classComportamientoTecnico.html#a28a345e8035c0402fabd274e6cae7a1f" title="Actualiza el mapaResultado y mapaCotas con la información de los sensores. IMPORTANTE: Esta función y..." alt="" coords="1108,271,1288,311"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="957,137,1155,261,1152,266,954,141"/>
+<area shape="rect" id="Node000004" href="$classComportamientoTecnico.html#abf7aa70f7bb7973ae6ef181a53d044ed" title="Devuelve la posición (fila, columna) de la casilla que hay delante del agente." alt="" coords="1815,443,1995,483"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="1041,112,1170,110,1313,112,1443,122,1495,130,1536,142,1594,169,1649,204,1700,243,1748,284,1828,365,1882,430,1878,433,1824,369,1744,288,1697,247,1646,208,1591,174,1534,147,1494,136,1442,127,1312,118,1170,116,1042,117"/>
+<area shape="rect" id="Node000005" href="$classComportamientoTecnico.html#a7c83359dd750ef12e2438f4e5947cd9a" title="Decide la mejor opción para el Nivel 0 usando el mapa de pulgarcito." alt="" coords="1089,42,1307,82"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="1019,96,1088,82,1089,87,1020,101"/>
+<area shape="rect" id="Node000006" href="$classComportamientoTecnico.html#a5a1861587f66ed55e0d997e2400001ea" title="Determina si casilla viable por altura." alt="" coords="1355,156,1535,196"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="949,97,1011,59,1049,40,1089,27,1150,12,1200,4,1249,7,1308,27,1346,50,1379,81,1407,113,1427,143,1423,146,1402,116,1376,84,1343,55,1306,32,1248,13,1200,9,1151,17,1090,32,1051,45,1013,63,952,101"/>
+<area shape="poly" id="edge7_Node000007_Node000003" title=" " alt="" coords="1042,292,1094,291,1094,296,1042,297"/>
+<area shape="poly" id="edge8_Node000007_Node000004" title=" " alt="" coords="993,275,1089,256,1198,246,1246,248,1307,256,1386,272,1465,292,1617,341,1750,392,1849,435,1847,440,1748,397,1615,346,1463,297,1385,277,1306,262,1246,253,1198,251,1090,262,994,280"/>
+<area shape="rect" id="Node000008" href="$classComportamientoTecnico.html#af9ef332b66dfc413e278db51e38d3144" title="Decide la mejor opción para el Nivel 1 usando el mapa de pulgarcito." alt="" coords="1089,156,1307,196"/>
+<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="960,275,1088,212,1123,198,1125,203,1090,217,963,280"/>
+<area shape="rect" id="Node000009" href="$classComportamientoTecnico.html#af52314844ceecaa8f4836da51d63b8e5" title="Determina si una casilla es transitable en Nivel 1." alt="" coords="1108,335,1288,375"/>
+<area shape="poly" id="edge10_Node000007_Node000009" title=" " alt="" coords="1020,315,1095,331,1094,336,1019,320"/>
+<area shape="poly" id="edge11_Node000009_Node000006" title=" " alt="" coords="1282,332,1305,321,1340,295,1372,265,1420,206,1424,209,1376,268,1344,299,1308,325,1284,337"/>
+<area shape="rect" id="Node000011" href="$classComportamientoTecnico.html#ac095673a41784098a0fc1ac39ba6b537" title="Indica si el tipo de superficie es transitable para el Técnico en modo deliberativo (mapa conocido)." alt="" coords="1815,720,1995,760"/>
+<area shape="poly" id="edge13_Node000010_Node000011" title=" " alt="" coords="429,702,471,714,519,728,631,749,719,761,807,766,921,767,1446,767,1635,761,1801,748,1801,753,1635,766,1446,772,921,772,807,771,718,766,630,754,518,734,470,719,428,707"/>
+<area shape="rect" id="Node000012" href="$classComportamientoTecnico.html#a812221ed43dc160b256968caca161e54" title="Detecta si ejecutar una acción provocaría una colisión con el Ingeniero." alt="" coords="545,679,729,719"/>
+<area shape="poly" id="edge14_Node000010_Node000012" title=" " alt="" coords="471,688,532,691,532,696,471,693"/>
+<area shape="poly" id="edge25_Node000013_Node000012" title=" " alt="" coords="394,610,453,637,520,664,544,672,542,678,518,669,451,642,392,615"/>
+<area shape="rect" id="Node000014" href="$classComportamientoTecnico.html#adea944835b197bdbff93a86c96b1cae8" title="Encuentra el camino de mínimo coste energético mediante A*." alt="" coords="1355,560,1535,600"/>
+<area shape="poly" id="edge16_Node000013_Node000014" title=" " alt="" coords="471,588,1341,579,1341,584,471,594"/>
+<area shape="rect" id="Node000019" href="$classComportamientoTecnico.html#a37380960a817c504ed8e297775ae73b3" title="Convierte un plan de acciones en una lista de casillas para su visualización en el mapa gráfico." alt="" coords="547,615,727,655"/>
+<area shape="poly" id="edge26_Node000013_Node000019" title=" " alt="" coords="471,607,534,617,533,622,470,613"/>
+<area shape="rect" id="Node000015" href="$classComportamientoTecnico.html#a0c28bb39cb4af9759f7ae2fb6e0e828f" title="Aplica una acción al estado del Técnico y devuelve el estado resultante." alt="" coords="1585,564,1765,604"/>
+<area shape="poly" id="edge17_Node000014_Node000015" title=" " alt="" coords="1535,579,1571,580,1571,585,1535,584"/>
+<area shape="rect" id="Node000016" href="$classComportamientoTecnico.html#ac345cdb018fca8d96eb7f17cfffde5e6" title="Comprueba si el Técnico puede ejecutar una acción de movimiento desde su estado actual." alt="" coords="1583,692,1767,732"/>
+<area shape="poly" id="edge19_Node000014_Node000016" title=" " alt="" coords="1471,599,1521,638,1584,678,1598,684,1595,689,1581,683,1518,642,1468,603"/>
+<area shape="rect" id="Node000017" href="$classComportamientoTecnico.html#a80cd6874f3f6ab7c580ba6d35484d130" title="Calcula el coste energético de ejecutar una acción desde el estado actual." alt="" coords="1585,500,1765,540"/>
+<area shape="poly" id="edge22_Node000014_Node000017" title=" " alt="" coords="1522,558,1583,541,1585,546,1523,563"/>
+<area shape="rect" id="Node000018" href="$classComportamientoTecnico.html#aa6fc2ac8a764ce5566bd6a29f5940993" title="Heurística admisible para A*: distancia al objetivo." alt="" coords="1585,628,1765,668"/>
+<area shape="poly" id="edge24_Node000014_Node000018" title=" " alt="" coords="1514,598,1594,622,1593,627,1512,603"/>
+<area shape="poly" id="edge18_Node000015_Node000004" title=" " alt="" coords="1738,562,1765,550,1818,520,1864,489,1867,493,1821,525,1768,555,1740,567"/>
+<area shape="poly" id="edge20_Node000016_Node000004" title=" " alt="" coords="1746,690,1765,678,1808,635,1842,586,1869,537,1888,495,1893,497,1874,539,1847,589,1812,639,1768,682,1749,694"/>
+<area shape="poly" id="edge21_Node000016_Node000011" title=" " alt="" coords="1767,721,1801,725,1800,730,1767,726"/>
+<area shape="poly" id="edge23_Node000017_Node000004" title=" " alt="" coords="1755,498,1810,484,1811,489,1756,503"/>
+<area shape="rect" id="Node000022" href="$classComportamientoTecnico.html#a2d63310e9f87a95da275a7c5f943ebad" title="Extrae y devuelve la siguiente acción del plan de navegación." alt="" coords="833,443,1013,483"/>
+<area shape="poly" id="edge29_Node000021_Node000022" title=" " alt="" coords="756,460,818,460,818,466,756,466"/>
+<area shape="rect" id="Node000023" href="$classComportamientoTecnico.html#a829bc5ec1050106d8e7103637af5c280" title="Genera una ruta A* desde la posición actual del Técnico hasta el destino." alt="" coords="1108,500,1288,540"/>
+<area shape="poly" id="edge37_Node000021_Node000023" title=" " alt="" coords="731,480,804,492,956,507,1095,515,1094,520,956,512,804,498,731,486"/>
+<area shape="rect" id="Node000024" href="$classComportamientoTecnico.html#ac4bc19582ed5187c6f4fac2acbe18958" title="Decide la acción reactiva que más acerca al Técnico a un destino dado, considerando solo las tres cas..." alt="" coords="833,360,1013,400"/>
+<area shape="poly" id="edge33_Node000021_Node000024" title=" " alt="" coords="706,440,839,402,840,407,708,445"/>
+<area shape="poly" id="edge30_Node000022_Node000004" title=" " alt="" coords="1013,460,1801,460,1801,466,1013,466"/>
+<area shape="poly" id="edge31_Node000022_Node000023" title=" " alt="" coords="1013,479,1095,496,1094,501,1012,484"/>
+<area shape="poly" id="edge32_Node000023_Node000014" title=" " alt="" coords="1282,538,1349,554,1348,560,1280,543"/>
+<area shape="poly" id="edge34_Node000024_Node000003" title=" " alt="" coords="979,358,1089,320,1114,312,1115,318,1090,325,981,363"/>
+<area shape="poly" id="edge35_Node000024_Node000004" title=" " alt="" coords="1013,383,1345,405,1767,442,1801,446,1801,451,1766,447,1344,410,1013,388"/>
+<area shape="poly" id="edge36_Node000024_Node000009" title=" " alt="" coords="1013,369,1094,362,1095,367,1013,375"/>
+<area shape="poly" id="edge39_Node000025_Node000007" title=" " alt="" coords="471,423,608,402,683,386,755,367,779,357,803,346,861,321,863,326,805,351,781,362,757,372,684,391,609,407,471,428"/>
+<area shape="poly" id="edge40_Node000025_Node000021" title=" " alt="" coords="471,445,505,449,505,454,471,451"/>
+</map>

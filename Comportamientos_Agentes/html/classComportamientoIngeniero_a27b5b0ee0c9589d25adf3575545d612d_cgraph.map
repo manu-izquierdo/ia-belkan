@@ -1,0 +1,12 @@
+<map id="ComportamientoIngeniero::B_Anchura" name="ComportamientoIngeniero::B_Anchura">
+<area shape="rect" id="Node000001" title="Busca el camino de menor número de pasos desde inicio hasta final usando Búsqueda en Anchura (BFS)." alt="" coords="5,37,199,77"/>
+<area shape="rect" id="Node000002" href="$classComportamientoIngeniero.html#a1a867dcef57caf4ab68c56dd07d17bdc" title="Aplica una acción al estado actual y devuelve el estado resultante." alt="" coords="249,5,442,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="198,42,235,37,235,42,199,47"/>
+<area shape="rect" id="Node000004" href="$classComportamientoIngeniero.html#aeb73a06ebdb6b76e0d918952dec474a7" title="Comprueba si el Ingeniero puede ejecutar una acción de movimiento desde su estado actual." alt="" coords="247,69,444,109"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="199,67,233,72,233,77,198,73"/>
+<area shape="rect" id="Node000003" href="$classComportamientoIngeniero.html#a023e97d3be98a08682faae40a7213dfe" title="Devuelve la posición (fila, columna) de la casilla que hay delante del agente." alt="" coords="492,5,685,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="442,23,478,23,478,28,442,28"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="421,67,498,46,500,51,423,72"/>
+<area shape="rect" id="Node000005" href="$classComportamientoIngeniero.html#acaca9e933b50a3250837e5872175a8cc" title="Indica si el tipo de superficie es transitable para el Ingeniero en modo deliberativo (mapa conocido)..." alt="" coords="492,69,685,109"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="444,87,479,87,479,92,444,92"/>
+</map>

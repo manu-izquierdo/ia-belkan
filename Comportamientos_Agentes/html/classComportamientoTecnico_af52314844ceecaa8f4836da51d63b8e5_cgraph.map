@@ -1,0 +1,5 @@
+<map id="ComportamientoTecnico::TransitableNivel1" name="ComportamientoTecnico::TransitableNivel1">
+<area shape="rect" id="Node000001" title="Determina si una casilla es transitable en Nivel 1." alt="" coords="5,5,185,45"/>
+<area shape="rect" id="Node000002" href="$classComportamientoTecnico.html#a5a1861587f66ed55e0d997e2400001ea" title="Determina si casilla viable por altura." alt="" coords="233,5,413,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="186,23,220,23,220,28,186,28"/>
+</map>

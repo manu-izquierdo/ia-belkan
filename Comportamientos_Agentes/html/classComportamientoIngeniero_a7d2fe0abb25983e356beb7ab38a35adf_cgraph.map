@@ -1,0 +1,49 @@
+<map id="ComportamientoIngeniero::ComportamientoIngenieroNivel_6" name="ComportamientoIngeniero::ComportamientoIngenieroNivel_6">
+<area shape="rect" id="Node000001" title="Implementación del Nivel 6." alt="" coords="5,472,256,512"/>
+<area shape="rect" id="Node000002" href="$classComportamientoIngeniero.html#a3d93f687b043a0688c0ce00fff7f93e9" title="Implementación del Nivel 1." alt="" coords="304,133,555,173"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="148,470,399,182,403,186,152,474"/>
+<area shape="rect" id="Node000008" href="$classComportamientoIngeniero.html#af0b08657c67e8da8c9d0f1f1ca71fef2" title="Implementación del Nivel 5." alt="" coords="304,440,555,480"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="256,476,290,472,291,478,257,481"/>
+<area shape="rect" id="Node000018" href="$classComportamientoIngeniero.html#ab45457d77e0eccf7d49c89f9c7679bb1" title="Planifica la red de tuberías de mínima longitud con impacto ecológico dentro del límite dado,..." alt="" coords="615,504,808,544"/>
+<area shape="poly" id="edge24_Node000001_Node000018" title=" " alt="" coords="256,496,601,515,601,521,256,502"/>
+<area shape="rect" id="Node000022" href="$classComportamientoIngeniero.html#a1b4efebd2b460489ac0fb43b70f29d9f" title="Convierte un plan de tubería en la lista de casillas usada por el sistema de visualización." alt="" coords="615,568,808,608"/>
+<area shape="poly" id="edge25_Node000001_Node000022" title=" " alt="" coords="253,509,601,567,600,572,252,515"/>
+<area shape="rect" id="Node000003" href="$classComportamientoIngeniero.html#a932840520b42d11369813b34baf5fdc4" title="Actualiza la información del mapa interno basándose en los sensores. IMPORTANTE: Esta función ya está..." alt="" coords="615,69,808,109"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="518,131,609,110,610,115,519,136"/>
+<area shape="rect" id="Node000004" href="$classComportamientoIngeniero.html#a023e97d3be98a08682faae40a7213dfe" title="Devuelve la posición (fila, columna) de la casilla que hay delante del agente." alt="" coords="1355,248,1548,288"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="528,171,603,183,710,194,800,201,955,206,1110,212,1200,220,1307,233,1357,242,1356,248,1306,239,1200,225,1109,217,955,211,800,206,709,200,602,188,527,176"/>
+<area shape="rect" id="Node000005" href="$classComportamientoIngeniero.html#a6d40c40d7c2f2f27a104f05c7af7f756" title="Decide la mejor opción para el Nivel 1 usando el mapa de pulgarcito." alt="" coords="603,133,820,173"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="555,151,589,151,589,156,555,156"/>
+<area shape="rect" id="Node000006" href="$classComportamientoIngeniero.html#a89949cad32e26493d7f8a3c066701c34" title="Determina si una casilla es transitable en Nivel 1." alt="" coords="615,5,808,45"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="461,131,524,93,602,55,621,47,623,52,604,60,527,98,463,135"/>
+<area shape="rect" id="Node000007" href="$classComportamientoIngeniero.html#a1a867642f9aa49503ee9e74405a5f7ea" title="Determina si una casilla es accesible según la diferencia de altura." alt="" coords="868,5,1061,45"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="808,23,854,23,854,28,808,28"/>
+<area shape="rect" id="Node000009" href="$classComportamientoIngeniero.html#a1e0a313e98cd74d790bb8c5feffc40b1" title="Aplica la operación de adecuación de terreno del tramo actual." alt="" coords="615,440,808,480"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="555,457,601,457,601,463,555,463"/>
+<area shape="rect" id="Node000010" href="$classComportamientoIngeniero.html#aff0f25ac761e23037f5bc56559c85cad" title="Extrae y devuelve la siguiente acción del plan." alt="" coords="615,312,808,352"/>
+<area shape="poly" id="edge9_Node000008_Node000010" title=" " alt="" coords="461,437,524,400,602,362,621,354,623,359,604,366,527,404,463,442"/>
+<area shape="rect" id="Node000012" href="$classComportamientoIngeniero.html#a5d98266cfce9080008e5baea1f210c17" title="Genera una ruta BFS desde la posición actual hasta un destino y la almacena en plan,..." alt="" coords="615,248,808,288"/>
+<area shape="poly" id="edge11_Node000008_Node000012" title=" " alt="" coords="445,438,509,369,553,331,601,298,614,291,617,296,604,302,556,335,512,373,449,441"/>
+<area shape="rect" id="Node000017" href="$classComportamientoIngeniero.html#a8bd737895e673a820f21ee243a15591b" title="Calcula el giro mínimo para orientarse hacia una casilla adyacente." alt="" coords="615,376,808,416"/>
+<area shape="poly" id="edge18_Node000008_Node000017" title=" " alt="" coords="518,437,609,416,610,422,519,443"/>
+<area shape="poly" id="edge19_Node000008_Node000018" title=" " alt="" coords="519,477,610,498,609,504,518,483"/>
+<area shape="poly" id="edge23_Node000008_Node000022" title=" " alt="" coords="463,478,527,516,604,554,623,561,621,566,602,558,524,520,461,483"/>
+<area shape="rect" id="Node000011" href="$classComportamientoIngeniero.html#a553029cffd77fd6da5dbc8b136a4eeee" title="Detecta si ejecutar una acción provocaría una colisión con el Técnico." alt="" coords="868,312,1061,352"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="808,329,854,329,854,335,808,335"/>
+<area shape="rect" id="Node000013" href="$classComportamientoIngeniero.html#a27b5b0ee0c9589d25adf3575545d612d" title="Busca el camino de menor número de pasos desde inicio hasta final usando Búsqueda en Anchura (BFS)." alt="" coords="868,248,1061,288"/>
+<area shape="poly" id="edge12_Node000012_Node000013" title=" " alt="" coords="808,265,854,265,854,271,808,271"/>
+<area shape="rect" id="Node000014" href="$classComportamientoIngeniero.html#a1a867dcef57caf4ab68c56dd07d17bdc" title="Aplica una acción al estado actual y devuelve el estado resultante." alt="" coords="1111,248,1305,288"/>
+<area shape="poly" id="edge13_Node000013_Node000014" title=" " alt="" coords="1061,265,1098,265,1098,271,1061,271"/>
+<area shape="rect" id="Node000015" href="$classComportamientoIngeniero.html#aeb73a06ebdb6b76e0d918952dec474a7" title="Comprueba si el Ingeniero puede ejecutar una acción de movimiento desde su estado actual." alt="" coords="1109,312,1307,352"/>
+<area shape="poly" id="edge15_Node000013_Node000015" title=" " alt="" coords="1042,285,1119,306,1118,311,1041,291"/>
+<area shape="poly" id="edge14_Node000014_Node000004" title=" " alt="" coords="1305,265,1341,265,1341,271,1305,271"/>
+<area shape="poly" id="edge16_Node000015_Node000004" title=" " alt="" coords="1284,309,1361,289,1362,294,1286,315"/>
+<area shape="rect" id="Node000016" href="$classComportamientoIngeniero.html#acaca9e933b50a3250837e5872175a8cc" title="Indica si el tipo de superficie es transitable para el Ingeniero en modo deliberativo (mapa conocido)..." alt="" coords="1355,312,1548,352"/>
+<area shape="poly" id="edge17_Node000015_Node000016" title=" " alt="" coords="1307,329,1341,329,1341,335,1307,335"/>
+<area shape="rect" id="Node000019" href="$classComportamientoIngeniero.html#ab4ac007b9e4a710d91b0fbafc6481a7c" title="Indica si una casilla puede formar parte de la red de tuberías." alt="" coords="868,568,1061,608"/>
+<area shape="poly" id="edge20_Node000018_Node000019" title=" " alt="" coords="792,541,872,562,871,567,791,547"/>
+<area shape="rect" id="Node000020" href="$classComportamientoIngeniero.html#ad856801c50124740db4c70ae78fc62b9" title="Comprueba si aplicar un delta de altura es válido en una casilla." alt="" coords="868,440,1061,480"/>
+<area shape="poly" id="edge21_Node000018_Node000020" title=" " alt="" coords="791,501,871,481,872,486,792,507"/>
+<area shape="rect" id="Node000021" href="$classComportamientoIngeniero.html#a2cf60f4c977d826ae1c48b604a7e7383" title="Devuelve el impacto ecológico de una acción sobre un tipo de terreno." alt="" coords="868,504,1061,544"/>
+<area shape="poly" id="edge22_Node000018_Node000021" title=" " alt="" coords="808,521,854,521,854,527,808,527"/>
+</map>

@@ -1,0 +1,11 @@
+<map id="ComportamientoTecnico::ExploracionDirigida" name="ComportamientoTecnico::ExploracionDirigida">
+<area shape="rect" id="Node000001" title="Decide la acción reactiva que más acerca al Técnico a un destino dado, considerando solo las tres cas..." alt="" coords="5,69,185,109"/>
+<area shape="rect" id="Node000002" href="$classComportamientoTecnico.html#a28a345e8035c0402fabd274e6cae7a1f" title="Actualiza el mapaResultado y mapaCotas con la información de los sensores. IMPORTANTE: Esta función y..." alt="" coords="233,5,413,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="167,67,237,47,239,52,168,72"/>
+<area shape="rect" id="Node000003" href="$classComportamientoTecnico.html#abf7aa70f7bb7973ae6ef181a53d044ed" title="Devuelve la posición (fila, columna) de la casilla que hay delante del agente." alt="" coords="233,69,413,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="186,87,220,87,220,92,186,92"/>
+<area shape="rect" id="Node000004" href="$classComportamientoTecnico.html#af52314844ceecaa8f4836da51d63b8e5" title="Determina si una casilla es transitable en Nivel 1." alt="" coords="233,133,413,173"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="168,107,239,127,237,132,167,112"/>
+<area shape="rect" id="Node000005" href="$classComportamientoTecnico.html#a5a1861587f66ed55e0d997e2400001ea" title="Determina si casilla viable por altura." alt="" coords="461,133,641,173"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="414,151,448,151,448,156,414,156"/>
+</map>

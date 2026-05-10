@@ -1,0 +1,7 @@
+<map id="ComportamientoTecnico::ComportamientoTecnicoNivel_2" name="ComportamientoTecnico::ComportamientoTecnicoNivel_2">
+<area shape="rect" id="Node000001" title="Comportamiento del técnico para el Nivel 2." alt="" coords="5,37,243,77"/>
+<area shape="rect" id="Node000002" href="$classComportamientoTecnico.html#ac095673a41784098a0fc1ac39ba6b537" title="Indica si el tipo de superficie es transitable para el Técnico en modo deliberativo (mapa conocido)." alt="" coords="293,5,473,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="243,40,279,35,280,41,243,45"/>
+<area shape="rect" id="Node000003" href="$classComportamientoTecnico.html#a812221ed43dc160b256968caca161e54" title="Detecta si ejecutar una acción provocaría una colisión con el Ingeniero." alt="" coords="291,69,475,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="243,69,277,74,277,79,243,75"/>
+</map>

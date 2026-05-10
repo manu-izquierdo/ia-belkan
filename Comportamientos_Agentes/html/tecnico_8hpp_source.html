@@ -1,0 +1,340 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.9.8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Comportamiento Agentes IA(Manuel Jesús Izquierdo Izquierdo): Archivo de código fuente tecnico.hpp</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">Comportamiento Agentes IA(Manuel Jesús Izquierdo Izquierdo)
+   </div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Generado por Doxygen 1.9.8 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Buscar');
+  $(document).ready(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(document).ready(function() { init_codefold(0); });
+/* @license-end */
+</script>
+</div><!-- top -->
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Cargando...</div>
+<div class="SRStatus" id="Searching">Buscando...</div>
+<div class="SRStatus" id="NoMatches">Nada coincide</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">tecnico.hpp</div></div>
+</div><!--header-->
+<div class="contents">
+<a href="tecnico_8hpp.html">Ir a la documentación de este archivo.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="preprocessor">#ifndef COMPORTAMIENTOTECNICO_H</span></div>
+<div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="preprocessor">#define COMPORTAMIENTOTECNICO_H</span></div>
+<div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span> </div>
+<div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="preprocessor">#include &lt;chrono&gt;</span></div>
+<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="preprocessor">#include &lt;climits&gt;</span></div>
+<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="preprocessor">#include &lt;list&gt;</span></div>
+<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="preprocessor">#include &lt;thread&gt;</span></div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="preprocessor">#include &lt;time.h&gt;</span></div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span> </div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="preprocessor">#include &quot;comportamientos/comportamiento.hpp&quot;</span></div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span> </div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="comment">// =========================================================================</span></div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="comment">// DOCUMENTACIÓN PARA ESTUDIANTES</span></div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="comment">// =========================================================================</span></div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="comment">/*</span></div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="comment"> * CLASE: ComportamientoTecnico</span></div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="comment"> *</span></div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="comment"> * DESCRIPCIÓN:</span></div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="comment"> * Esta clase implementa el comportamiento del agente Técnico en el mundo Belkan.</span></div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="comment"> * El técnico colabora con el ingeniero para resolver el problema de instalación de tuberías</span></div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="comment"> */</span></div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span> </div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="comment">// Nivel 3</span></div>
+<div class="foldopen" id="foldopen00024" data-start="{" data-end="};">
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno"><a class="line" href="structEstadoT.html">   24</a></span><span class="keyword">struct </span><a class="code hl_struct" href="structEstadoT.html">EstadoT</a> {</div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno"><a class="line" href="structEstadoT.html#a6d28166b59166c66c5556c10117922fc">   25</a></span>  ubicacion <a class="code hl_variable" href="structEstadoT.html#a6d28166b59166c66c5556c10117922fc">site</a>;</div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno"><a class="line" href="structEstadoT.html#aa2e5a28b637c8fe3e81fa7296cc48dad">   26</a></span>  <span class="keywordtype">bool</span> <a class="code hl_variable" href="structEstadoT.html#aa2e5a28b637c8fe3e81fa7296cc48dad">zapatillas</a>;</div>
+<div class="foldopen" id="foldopen00027" data-start="{" data-end="}">
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno"><a class="line" href="structEstadoT.html#a3ccd1ad3cd6bd32bcd82a3d979e3404a">   27</a></span>  <span class="keywordtype">bool</span> <a class="code hl_function" href="structEstadoT.html#a3ccd1ad3cd6bd32bcd82a3d979e3404a">operator==</a>(<span class="keyword">const</span> <a class="code hl_struct" href="structEstadoT.html">EstadoT</a> &amp;st)<span class="keyword"> const </span>{</div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>    <span class="keywordflow">return</span> <a class="code hl_variable" href="structEstadoT.html#a6d28166b59166c66c5556c10117922fc">site</a>.f == st.<a class="code hl_variable" href="structEstadoT.html#a6d28166b59166c66c5556c10117922fc">site</a>.f &amp;&amp; <a class="code hl_variable" href="structEstadoT.html#a6d28166b59166c66c5556c10117922fc">site</a>.c == st.<a class="code hl_variable" href="structEstadoT.html#a6d28166b59166c66c5556c10117922fc">site</a>.c &amp;&amp; <a class="code hl_variable" href="structEstadoT.html#a6d28166b59166c66c5556c10117922fc">site</a>.brujula == st.<a class="code hl_variable" href="structEstadoT.html#a6d28166b59166c66c5556c10117922fc">site</a>.brujula &amp;&amp; <a class="code hl_variable" href="structEstadoT.html#aa2e5a28b637c8fe3e81fa7296cc48dad">zapatillas</a> == st.<a class="code hl_variable" href="structEstadoT.html#aa2e5a28b637c8fe3e81fa7296cc48dad">zapatillas</a>;</div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>  }</div>
+</div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>};</div>
+</div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span> </div>
+<div class="foldopen" id="foldopen00032" data-start="{" data-end="};">
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno"><a class="line" href="structNodoT.html">   32</a></span><span class="keyword">struct </span><a class="code hl_struct" href="structNodoT.html">NodoT</a> {</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno"><a class="line" href="structNodoT.html#a7b6a7b87f5c180aabd1d2ebfd471a86a">   33</a></span>  <a class="code hl_struct" href="structEstadoT.html">EstadoT</a> <a class="code hl_variable" href="structNodoT.html#a7b6a7b87f5c180aabd1d2ebfd471a86a">estado</a>;</div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno"><a class="line" href="structNodoT.html#acec7f3fe917334ef08ed3c5e68680769">   34</a></span>  <a class="code hl_function" href="structNodoT.html#ad49d14ce180593a0899a10eae7c24277">list&lt;Action&gt;</a> <a class="code hl_variable" href="structNodoT.html#acec7f3fe917334ef08ed3c5e68680769">secuencia</a>;</div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno"><a class="line" href="structNodoT.html#a1400949154b564041a3ba0f682ba3e8c">   35</a></span>  <span class="keywordtype">int</span> <a class="code hl_variable" href="structNodoT.html#a1400949154b564041a3ba0f682ba3e8c">g</a>; <span class="comment">// Coste acumulado</span></div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno"><a class="line" href="structNodoT.html#a7d4cc0427ff21efaec3a3664584404bb">   36</a></span>  <span class="keywordtype">int</span> <a class="code hl_variable" href="structNodoT.html#a7d4cc0427ff21efaec3a3664584404bb">h</a>; <span class="comment">// Heurística</span></div>
+<div class="foldopen" id="foldopen00037" data-start="{" data-end="}">
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno"><a class="line" href="structNodoT.html#ad49d14ce180593a0899a10eae7c24277">   37</a></span>  <span class="keywordtype">int</span> <a class="code hl_function" href="structNodoT.html#ad49d14ce180593a0899a10eae7c24277">f</a>()<span class="keyword"> const </span>{</div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>    <span class="keywordflow">return</span> <a class="code hl_variable" href="structNodoT.html#a1400949154b564041a3ba0f682ba3e8c">g</a> + <a class="code hl_variable" href="structNodoT.html#a7d4cc0427ff21efaec3a3664584404bb">h</a>;</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>  }</div>
+</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>};</div>
+</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span> </div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span><span class="comment">// Comparador para la cola de prioridad</span></div>
+<div class="foldopen" id="foldopen00043" data-start="{" data-end="};">
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno"><a class="line" href="structComparaNodos.html">   43</a></span><span class="keyword">struct </span><a class="code hl_struct" href="structComparaNodos.html">ComparaNodos</a> {</div>
+<div class="foldopen" id="foldopen00044" data-start="{" data-end="}">
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno"><a class="line" href="structComparaNodos.html#ac0983d8d8fec4be0d1bd643ad34af81b">   44</a></span>  <span class="keywordtype">bool</span> <a class="code hl_function" href="structComparaNodos.html#ac0983d8d8fec4be0d1bd643ad34af81b">operator()</a>(<span class="keyword">const</span> <a class="code hl_struct" href="structNodoT.html">NodoT</a> &amp;a, <span class="keyword">const</span> <a class="code hl_struct" href="structNodoT.html">NodoT</a> &amp;b)<span class="keyword"> const </span>{</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    <span class="keywordflow">return</span> a.<a class="code hl_function" href="structNodoT.html#ad49d14ce180593a0899a10eae7c24277">f</a>() &gt; b.<a class="code hl_function" href="structNodoT.html#ad49d14ce180593a0899a10eae7c24277">f</a>(); <span class="comment">// Mayor f() tiene menor prioridad</span></div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>  }</div>
+</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>};</div>
+</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span> </div>
+<div class="foldopen" id="foldopen00049" data-start="{" data-end="};">
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno"><a class="line" href="classComportamientoTecnico.html">   49</a></span><span class="keyword">class </span><a class="code hl_class" href="classComportamientoTecnico.html">ComportamientoTecnico</a> : <span class="keyword">public</span> Comportamiento {</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span><span class="keyword">public</span>:</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>  <span class="comment">// =========================================================================</span></div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>  <span class="comment">// CONSTRUCTORES</span></div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>  <span class="comment">// =========================================================================</span></div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span> </div>
+<div class="foldopen" id="foldopen00059" data-start="{" data-end="}">
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno"><a class="line" href="classComportamientoTecnico.html#aa9f15cce0a79d8191f324a737c94f513">   59</a></span>  <a class="code hl_function" href="classComportamientoTecnico.html#aa9f15cce0a79d8191f324a737c94f513">ComportamientoTecnico</a>(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> size = 0) : Comportamiento(size) {</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    <span class="comment">// Inicializar Variables de Estado</span></div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    <a class="code hl_variable" href="classComportamientoTecnico.html#a9f1b2c89e1d24d9ebd0091e766241ecd">tiene_zapatillas</a> = <span class="keyword">false</span>; <span class="comment">// Nada mas empezar el jugador no tiene zapatillas</span></div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    <a class="code hl_variable" href="classComportamientoTecnico.html#aa0178c3d86fd2d905e3db171da5777cf">instante</a> = 0;             <span class="comment">// Comenzará en el instante 0</span></div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>    vector&lt;int&gt; aux(size, 0); <span class="comment">// Creamos un vector del tamaño el tamaño del mapa relleno de ceros</span></div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; size; i++)</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>      <a class="code hl_variable" href="classComportamientoTecnico.html#a438cf33b9ea7953dfd1a543d927dc206">mtiempo</a>.push_back(aux); <span class="comment">// Hacemos un push back sobre el vector de vectores llamado mtiempo de manera que la matriz comience llena de ceros</span></div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>  }</div>
+</div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span> </div>
+<div class="foldopen" id="foldopen00073" data-start="{" data-end="}">
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno"><a class="line" href="classComportamientoTecnico.html#af8305219ce341e856b97165e831c7ca1">   73</a></span>  <a class="code hl_function" href="classComportamientoTecnico.html#af8305219ce341e856b97165e831c7ca1">ComportamientoTecnico</a>(std::vector&lt;std::vector&lt;unsigned char&gt;&gt; mapaR,</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>                        std::vector&lt;std::vector&lt;unsigned char&gt;&gt; mapaC) : Comportamiento(mapaR, mapaC) {</div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>    <span class="comment">// Inicializar Variables de Estado</span></div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>    <a class="code hl_variable" href="classComportamientoTecnico.html#a9f1b2c89e1d24d9ebd0091e766241ecd">tiene_zapatillas</a> = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>    <a class="code hl_variable" href="classComportamientoTecnico.html#ac2a5f951670e3aefc6c480f6f10babea">hayPlan</a> = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>  }</div>
+</div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span> </div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno"><a class="line" href="classComportamientoTecnico.html#a7c915e1406c5e1bc459175a63f87fd4e">   80</a></span>  <a class="code hl_function" href="classComportamientoTecnico.html#a7c915e1406c5e1bc459175a63f87fd4e">ComportamientoTecnico</a>(<span class="keyword">const</span> <a class="code hl_class" href="classComportamientoTecnico.html">ComportamientoTecnico</a> &amp;comport) : Comportamiento(comport) {}</div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno"><a class="line" href="classComportamientoTecnico.html#ae2378312bf60067f313271ab1e6d3e65">   81</a></span>  <a class="code hl_function" href="classComportamientoTecnico.html#ae2378312bf60067f313271ab1e6d3e65">~ComportamientoTecnico</a>() {}</div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span> </div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>  Action <a class="code hl_function" href="classComportamientoTecnico.html#a7b23b3bce6fdc688a8cb0c04f0b52504">think</a>(Sensores sensores);</div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span> </div>
+<div class="foldopen" id="foldopen00093" data-start="{" data-end="}">
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno"><a class="line" href="classComportamientoTecnico.html#a3babc356be63b1e862bdc50fdaa46cf0">   93</a></span>  <a class="code hl_class" href="classComportamientoTecnico.html">ComportamientoTecnico</a> *<a class="code hl_function" href="classComportamientoTecnico.html#a3babc356be63b1e862bdc50fdaa46cf0">clone</a>() {</div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>    <span class="keywordflow">return</span> <span class="keyword">new</span> <a class="code hl_class" href="classComportamientoTecnico.html">ComportamientoTecnico</a>(*<span class="keyword">this</span>);</div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>  }</div>
+</div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span> </div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>  <span class="comment">// =========================================================================</span></div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>  <span class="comment">// ÁREA DE IMPLEMENTACIÓN DEL ESTUDIANTE</span></div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>  <span class="comment">// =========================================================================</span></div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span> </div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>  Action <a class="code hl_function" href="classComportamientoTecnico.html#af3c5a623e69ca205492ec139a964b1d7">ComportamientoTecnicoNivel_0</a>(Sensores sensores);</div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span> </div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>  Action <a class="code hl_function" href="classComportamientoTecnico.html#a4636a998ba23c9c4b04608726ab30b45">ComportamientoTecnicoNivel_1</a>(Sensores sensores);</div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span> </div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>  <span class="comment">// Parte 2</span></div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span> </div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>  Action <a class="code hl_function" href="classComportamientoTecnico.html#a2466fe06d2e87001d9664f76c0360977">ComportamientoTecnicoNivel_2</a>(Sensores sensores);</div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span> </div>
+<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>  Action <a class="code hl_function" href="classComportamientoTecnico.html#aaf0c91771d72711ef02e6d6197c6ff0a">ComportamientoTecnicoNivel_3</a>(Sensores sensores);</div>
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span> </div>
+<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>  Action <a class="code hl_function" href="classComportamientoTecnico.html#a37ecc25145ae335121ff2e2fdbf75d45">ComportamientoTecnicoNivel_4</a>(Sensores sensores);</div>
+<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span> </div>
+<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>  Action <a class="code hl_function" href="classComportamientoTecnico.html#a55425d9a960004e46b34a2426745c903">ComportamientoTecnicoNivel_5</a>(Sensores sensores);</div>
+<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span> </div>
+<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>  Action <a class="code hl_function" href="classComportamientoTecnico.html#a18e3ed18ab66cc48ca150e99c5c12450">ComportamientoTecnicoNivel_6</a>(Sensores sensores);</div>
+<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span> </div>
+<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span><span class="keyword">protected</span>:</div>
+<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>  <span class="comment">// =========================================================================</span></div>
+<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>  <span class="comment">// FUNCIONES PROPORCIONADAS</span></div>
+<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span>  <span class="comment">// =========================================================================</span></div>
+<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span> </div>
+<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classComportamientoTecnico.html#a28a345e8035c0402fabd274e6cae7a1f">ActualizarMapa</a>(Sensores sensores);</div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span> </div>
+<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>  <span class="keywordtype">bool</span> <a class="code hl_function" href="classComportamientoTecnico.html#a253eebe9c040163ab2b11ab6680c48cc">EsCasillaTransitableLevel0</a>(<span class="keywordtype">int</span> f, <span class="keywordtype">int</span> c, <span class="keywordtype">bool</span> tieneZapatillas);</div>
+<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span> </div>
+<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>  <span class="keywordtype">bool</span> <a class="code hl_function" href="classComportamientoTecnico.html#a3b9901864a8b314416951e8b5dbd477a">EsAccesiblePorAltura</a>(<span class="keyword">const</span> ubicacion &amp;actual);</div>
+<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span> </div>
+<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>  ubicacion <a class="code hl_function" href="classComportamientoTecnico.html#abf7aa70f7bb7973ae6ef181a53d044ed">Delante</a>(<span class="keyword">const</span> ubicacion &amp;actual) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span> </div>
+<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>  <span class="keywordtype">bool</span> <a class="code hl_function" href="classComportamientoTecnico.html#ab5dbce598e688b58e31d056971108416">es_camino</a>(<span class="keywordtype">unsigned</span> <span class="keywordtype">char</span> c) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span> </div>
+<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classComportamientoTecnico.html#ab495cc1fdfdef97c570c71c179825103">PintaPlan</a>(<span class="keyword">const</span> list&lt;Action&gt; &amp;<a class="code hl_variable" href="classComportamientoTecnico.html#a84598533746fedec0771e68b84289d76">plan</a>);</div>
+<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span> </div>
+<div class="line"><a id="l00206" name="l00206"></a><span class="lineno"><a class="line" href="classComportamientoTecnico.html#aaeac1608dd9cc94c94cef817a8d2f4d2">  206</a></span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classComportamientoTecnico.html#aaeac1608dd9cc94c94cef817a8d2f4d2">PintaPlan</a>(<span class="keyword">const</span> list&lt;Paso&gt; &amp;<a class="code hl_variable" href="classComportamientoTecnico.html#a84598533746fedec0771e68b84289d76">plan</a>);</div>
+<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span> </div>
+<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classComportamientoTecnico.html#a37380960a817c504ed8e297775ae73b3">VisualizaPlan</a>(<span class="keyword">const</span> ubicacion &amp;st, <span class="keyword">const</span> list&lt;Action&gt; &amp;<a class="code hl_variable" href="classComportamientoTecnico.html#a84598533746fedec0771e68b84289d76">plan</a>);</div>
+<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span> </div>
+<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span><span class="keyword">private</span>:</div>
+<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span>  <span class="comment">// =========================================================================</span></div>
+<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>  <span class="comment">// VARIABLES DE ESTADO (PUEDEN SER EXTENDIDAS POR EL ALUMNO)</span></div>
+<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>  <span class="comment">// =========================================================================</span></div>
+<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>  <span class="comment">// Como los sensores se borran en cada turno creamos variables que guarden estados concretos para que sean persistentes</span></div>
+<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span> </div>
+<div class="line"><a id="l00222" name="l00222"></a><span class="lineno"><a class="line" href="classComportamientoTecnico.html#a9f1b2c89e1d24d9ebd0091e766241ecd">  222</a></span>  <span class="keywordtype">bool</span> <a class="code hl_variable" href="classComportamientoTecnico.html#a9f1b2c89e1d24d9ebd0091e766241ecd">tiene_zapatillas</a>;</div>
+<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span> </div>
+<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>  <span class="comment">// NIVEL 0-1 (Reactivos)</span></div>
+<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>  <span class="comment">// &quot;Mapa de Pulgarcito&quot; (sugerencia del profesor)</span></div>
+<div class="line"><a id="l00226" name="l00226"></a><span class="lineno"><a class="line" href="classComportamientoTecnico.html#a438cf33b9ea7953dfd1a543d927dc206">  226</a></span>  vector&lt;vector&lt;int&gt;&gt; <a class="code hl_variable" href="classComportamientoTecnico.html#a438cf33b9ea7953dfd1a543d927dc206">mtiempo</a>; <span class="comment">// Se usará para que se tenga un mapa de valores que representará el recorrido, de manera que intente acceder a la posición que hace más tiempo que no accedió</span></div>
+<div class="line"><a id="l00227" name="l00227"></a><span class="lineno"><a class="line" href="classComportamientoTecnico.html#aa0178c3d86fd2d905e3db171da5777cf">  227</a></span>  <span class="keywordtype">int</span> <a class="code hl_variable" href="classComportamientoTecnico.html#aa0178c3d86fd2d905e3db171da5777cf">instante</a>;                <span class="comment">// Variable que se incrementará representando el recorrido hecho por el jugador</span></div>
+<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>  </div>
+<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span>  <span class="comment">// NIVEL 2-6 (Deliberativos)</span></div>
+<div class="line"><a id="l00230" name="l00230"></a><span class="lineno"><a class="line" href="classComportamientoTecnico.html#ac2a5f951670e3aefc6c480f6f10babea">  230</a></span>  <span class="keywordtype">bool</span> <a class="code hl_variable" href="classComportamientoTecnico.html#ac2a5f951670e3aefc6c480f6f10babea">hayPlan</a>;      <span class="comment">// Nos dirá si se ha planteado una ruta</span></div>
+<div class="line"><a id="l00231" name="l00231"></a><span class="lineno"><a class="line" href="classComportamientoTecnico.html#a84598533746fedec0771e68b84289d76">  231</a></span>  list&lt;Action&gt; <a class="code hl_variable" href="classComportamientoTecnico.html#a84598533746fedec0771e68b84289d76">plan</a>; <span class="comment">// Ruta que el agente ejecutará</span></div>
+<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span>  </div>
+<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>  <span class="comment">// Nivel 5</span></div>
+<div class="line"><a id="l00234" name="l00234"></a><span class="lineno"><a class="line" href="classComportamientoTecnico.html#ae88b671afd7cf670a24fb41d6598292d">  234</a></span>  <span class="keywordtype">int</span> <a class="code hl_variable" href="classComportamientoTecnico.html#ae88b671afd7cf670a24fb41d6598292d">fase</a> = 0;</div>
+<div class="line"><a id="l00235" name="l00235"></a><span class="lineno"><a class="line" href="classComportamientoTecnico.html#a144ccece46d39a6b81297cebbeaf140c">  235</a></span>  <span class="keywordtype">int</span> <a class="code hl_variable" href="classComportamientoTecnico.html#a144ccece46d39a6b81297cebbeaf140c">destino_f</a> = -1;</div>
+<div class="line"><a id="l00236" name="l00236"></a><span class="lineno"><a class="line" href="classComportamientoTecnico.html#aa603f273d2b076ae7781715c8a239006">  236</a></span>  <span class="keywordtype">int</span> <a class="code hl_variable" href="classComportamientoTecnico.html#aa603f273d2b076ae7781715c8a239006">destino_c</a> = -1;</div>
+<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span> </div>
+<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span>  <span class="comment">// =========================================================================</span></div>
+<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span>  <span class="comment">// FUNCIONES</span></div>
+<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span>  <span class="comment">// =========================================================================</span></div>
+<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span> </div>
+<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span>  <span class="comment">// Nivel 0</span></div>
+<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>  <span class="keywordtype">char</span> <a class="code hl_function" href="classComportamientoTecnico.html#a5a1861587f66ed55e0d997e2400001ea">ViablePorAltura</a>(<span class="keywordtype">char</span> terreno, <span class="keywordtype">int</span> dif_cota) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>  <span class="keywordtype">int</span> <a class="code hl_function" href="classComportamientoTecnico.html#a7c83359dd750ef12e2438f4e5947cd9a">SeleccionaCasillaPulgarcito0</a>(<span class="keywordtype">char</span> i, <span class="keywordtype">char</span> c, <span class="keywordtype">char</span> d, <span class="keywordtype">int</span> t_i, <span class="keywordtype">int</span> t_c, <span class="keywordtype">int</span> t_d) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span> </div>
+<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span> </div>
+<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>  <span class="comment">// Nivel 1</span></div>
+<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>  <span class="keywordtype">char</span> <a class="code hl_function" href="classComportamientoTecnico.html#af52314844ceecaa8f4836da51d63b8e5">TransitableNivel1</a>(<span class="keywordtype">char</span> terreno, <span class="keywordtype">int</span> dif_cota, <span class="keywordtype">bool</span> zap) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>  <span class="keywordtype">int</span> <a class="code hl_function" href="classComportamientoTecnico.html#af9ef332b66dfc413e278db51e38d3144">SeleccionaCasillaPulgarcito1</a>(<span class="keywordtype">char</span> i, <span class="keywordtype">char</span> c, <span class="keywordtype">char</span> d, <span class="keywordtype">int</span> t_i, <span class="keywordtype">int</span> t_c, <span class="keywordtype">int</span> t_d, <span class="keywordtype">bool</span> zap) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>  </div>
+<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span> </div>
+<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>  <span class="comment">// Nivel 2</span></div>
+<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>  <span class="keywordtype">bool</span> <a class="code hl_function" href="classComportamientoTecnico.html#ac095673a41784098a0fc1ac39ba6b537">esSuperficieValida</a>(<span class="keywordtype">unsigned</span> <span class="keywordtype">char</span> superficie, <span class="keywordtype">bool</span> zap) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>  <span class="keywordtype">bool</span> <a class="code hl_function" href="classComportamientoTecnico.html#a812221ed43dc160b256968caca161e54">RiesgoChoqueIngeniero</a>(<span class="keyword">const</span> Sensores &amp;sensores, Action accion) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span> </div>
+<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span> </div>
+<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>  <span class="comment">// Nivel 3</span></div>
+<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>  <span class="keywordtype">int</span> <a class="code hl_function" href="classComportamientoTecnico.html#a80cd6874f3f6ab7c580ba6d35484d130">CostoEnergiaTecnico</a>(Action accion, <span class="keyword">const</span> <a class="code hl_struct" href="structEstadoT.html">EstadoT</a> &amp;st, <span class="keyword">const</span> vector&lt;vector&lt;unsigned char&gt;&gt; &amp;terreno, <span class="keyword">const</span> vector&lt;vector&lt;unsigned char&gt;&gt; &amp;altura) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>  <span class="keywordtype">bool</span> <a class="code hl_function" href="classComportamientoTecnico.html#ac345cdb018fca8d96eb7f17cfffde5e6">CasillaAccesibleTecnico</a>(Action accion, <span class="keyword">const</span> <a class="code hl_struct" href="structEstadoT.html">EstadoT</a> &amp;st, <span class="keyword">const</span> vector&lt;vector&lt;unsigned char&gt;&gt; &amp;terreno, <span class="keyword">const</span> vector&lt;vector&lt;unsigned char&gt;&gt; &amp;altura) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>  <a class="code hl_struct" href="structEstadoT.html">EstadoT</a> <a class="code hl_function" href="classComportamientoTecnico.html#a0c28bb39cb4af9759f7ae2fb6e0e828f">applyT</a>(Action accion, <span class="keyword">const</span> <a class="code hl_struct" href="structEstadoT.html">EstadoT</a> &amp;st, <span class="keyword">const</span> vector&lt;vector&lt;unsigned char&gt;&gt; &amp;terreno, <span class="keyword">const</span> vector&lt;vector&lt;unsigned char&gt;&gt; &amp;altura) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>  <span class="keywordtype">int</span> <a class="code hl_function" href="classComportamientoTecnico.html#aa6fc2ac8a764ce5566bd6a29f5940993">Heuristica</a>(<span class="keyword">const</span> <a class="code hl_struct" href="structEstadoT.html">EstadoT</a> &amp;actual, <span class="keyword">const</span> <a class="code hl_struct" href="structEstadoT.html">EstadoT</a> &amp;objetivo) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>  list&lt;Action&gt; <a class="code hl_function" href="classComportamientoTecnico.html#adea944835b197bdbff93a86c96b1cae8">A_Estrella</a>(<span class="keyword">const</span> <a class="code hl_struct" href="structEstadoT.html">EstadoT</a> &amp;inicio, <span class="keyword">const</span> <a class="code hl_struct" href="structEstadoT.html">EstadoT</a> &amp;<span class="keyword">final</span>, <span class="keyword">const</span> vector&lt;vector&lt;unsigned char&gt;&gt; &amp;terreno, <span class="keyword">const</span> vector&lt;vector&lt;unsigned char&gt;&gt; &amp;altura);</div>
+<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span> </div>
+<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span> </div>
+<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>  <span class="comment">// Nivel 5</span></div>
+<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classComportamientoTecnico.html#a829bc5ec1050106d8e7103637af5c280">GenerarRuta</a>(<span class="keywordtype">int</span> dest_f, <span class="keywordtype">int</span> dest_c, <span class="keyword">const</span> Sensores &amp;sensores);</div>
+<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>  Action <a class="code hl_function" href="classComportamientoTecnico.html#a2d63310e9f87a95da275a7c5f943ebad">AvanzarCasilla</a>(<span class="keyword">const</span> Sensores &amp;sensores);</div>
+<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span> </div>
+<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>  <span class="comment">// Nivel 6</span></div>
+<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>  Action <a class="code hl_function" href="classComportamientoTecnico.html#ac4bc19582ed5187c6f4fac2acbe18958">ExploracionDirigida</a>(<span class="keywordtype">int</span> dest_f, <span class="keywordtype">int</span> dest_c, <span class="keyword">const</span> Sensores &amp;sensores);</div>
+<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>};</div>
+</div>
+<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span> </div>
+<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span><span class="preprocessor">#endif</span></div>
+<div class="ttc" id="aclassComportamientoTecnico_html"><div class="ttname"><a href="classComportamientoTecnico.html">ComportamientoTecnico</a></div><div class="ttdef"><b>Definition</b> tecnico.hpp:49</div></div>
+<div class="ttc" id="aclassComportamientoTecnico_html_a0c28bb39cb4af9759f7ae2fb6e0e828f"><div class="ttname"><a href="classComportamientoTecnico.html#a0c28bb39cb4af9759f7ae2fb6e0e828f">ComportamientoTecnico::applyT</a></div><div class="ttdeci">EstadoT applyT(Action accion, const EstadoT &amp;st, const vector&lt; vector&lt; unsigned char &gt; &gt; &amp;terreno, const vector&lt; vector&lt; unsigned char &gt; &gt; &amp;altura) const</div><div class="ttdoc">Aplica una acción al estado del Técnico y devuelve el estado resultante.</div><div class="ttdef"><b>Definition</b> tecnico.cpp:433</div></div>
+<div class="ttc" id="aclassComportamientoTecnico_html_a144ccece46d39a6b81297cebbeaf140c"><div class="ttname"><a href="classComportamientoTecnico.html#a144ccece46d39a6b81297cebbeaf140c">ComportamientoTecnico::destino_f</a></div><div class="ttdeci">int destino_f</div><div class="ttdef"><b>Definition</b> tecnico.hpp:235</div></div>
+<div class="ttc" id="aclassComportamientoTecnico_html_a18e3ed18ab66cc48ca150e99c5c12450"><div class="ttname"><a href="classComportamientoTecnico.html#a18e3ed18ab66cc48ca150e99c5c12450">ComportamientoTecnico::ComportamientoTecnicoNivel_6</a></div><div class="ttdeci">Action ComportamientoTecnicoNivel_6(Sensores sensores)</div><div class="ttdoc">Comportamiento del técnico para el Nivel 6.</div><div class="ttdef"><b>Definition</b> tecnico.cpp:917</div></div>
+<div class="ttc" id="aclassComportamientoTecnico_html_a2466fe06d2e87001d9664f76c0360977"><div class="ttname"><a href="classComportamientoTecnico.html#a2466fe06d2e87001d9664f76c0360977">ComportamientoTecnico::ComportamientoTecnicoNivel_2</a></div><div class="ttdeci">Action ComportamientoTecnicoNivel_2(Sensores sensores)</div><div class="ttdoc">Comportamiento del técnico para el Nivel 2.</div><div class="ttdef"><b>Definition</b> tecnico.cpp:374</div></div>
+<div class="ttc" id="aclassComportamientoTecnico_html_a253eebe9c040163ab2b11ab6680c48cc"><div class="ttname"><a href="classComportamientoTecnico.html#a253eebe9c040163ab2b11ab6680c48cc">ComportamientoTecnico::EsCasillaTransitableLevel0</a></div><div class="ttdeci">bool EsCasillaTransitableLevel0(int f, int c, bool tieneZapatillas)</div><div class="ttdoc">Determina si una casilla es transitable para el técnico. NOTA: El técnico puede tener reglas de trans...</div><div class="ttdef"><b>Definition</b> tecnico.cpp:1108</div></div>
+<div class="ttc" id="aclassComportamientoTecnico_html_a28a345e8035c0402fabd274e6cae7a1f"><div class="ttname"><a href="classComportamientoTecnico.html#a28a345e8035c0402fabd274e6cae7a1f">ComportamientoTecnico::ActualizarMapa</a></div><div class="ttdeci">void ActualizarMapa(Sensores sensores)</div><div class="ttdoc">Actualiza el mapaResultado y mapaCotas con la información de los sensores. IMPORTANTE: Esta función y...</div><div class="ttdef"><b>Definition</b> tecnico.cpp:935</div></div>
+<div class="ttc" id="aclassComportamientoTecnico_html_a2d63310e9f87a95da275a7c5f943ebad"><div class="ttname"><a href="classComportamientoTecnico.html#a2d63310e9f87a95da275a7c5f943ebad">ComportamientoTecnico::AvanzarCasilla</a></div><div class="ttdeci">Action AvanzarCasilla(const Sensores &amp;sensores)</div><div class="ttdoc">Extrae y devuelve la siguiente acción del plan de navegación.</div><div class="ttdef"><b>Definition</b> tecnico.cpp:695</div></div>
+<div class="ttc" id="aclassComportamientoTecnico_html_a37380960a817c504ed8e297775ae73b3"><div class="ttname"><a href="classComportamientoTecnico.html#a37380960a817c504ed8e297775ae73b3">ComportamientoTecnico::VisualizaPlan</a></div><div class="ttdeci">void VisualizaPlan(const ubicacion &amp;st, const list&lt; Action &gt; &amp;plan)</div><div class="ttdoc">Convierte un plan de acciones en una lista de casillas para su visualización en el mapa gráfico.</div><div class="ttdef"><b>Definition</b> tecnico.cpp:1206</div></div>
+<div class="ttc" id="aclassComportamientoTecnico_html_a37ecc25145ae335121ff2e2fdbf75d45"><div class="ttname"><a href="classComportamientoTecnico.html#a37ecc25145ae335121ff2e2fdbf75d45">ComportamientoTecnico::ComportamientoTecnicoNivel_4</a></div><div class="ttdeci">Action ComportamientoTecnicoNivel_4(Sensores sensores)</div><div class="ttdoc">Comportamiento del técnico para el Nivel 4.</div><div class="ttdef"><b>Definition</b> tecnico.cpp:650</div></div>
+<div class="ttc" id="aclassComportamientoTecnico_html_a3b9901864a8b314416951e8b5dbd477a"><div class="ttname"><a href="classComportamientoTecnico.html#a3b9901864a8b314416951e8b5dbd477a">ComportamientoTecnico::EsAccesiblePorAltura</a></div><div class="ttdeci">bool EsAccesiblePorAltura(const ubicacion &amp;actual)</div><div class="ttdoc">Comprueba si la casilla de delante es accesible por diferencia de altura. REGLA PARA TÉCNICO: Desnive...</div><div class="ttdef"><b>Definition</b> tecnico.cpp:1120</div></div>
+<div class="ttc" id="aclassComportamientoTecnico_html_a3babc356be63b1e862bdc50fdaa46cf0"><div class="ttname"><a href="classComportamientoTecnico.html#a3babc356be63b1e862bdc50fdaa46cf0">ComportamientoTecnico::clone</a></div><div class="ttdeci">ComportamientoTecnico * clone()</div><div class="ttdef"><b>Definition</b> tecnico.hpp:93</div></div>
+<div class="ttc" id="aclassComportamientoTecnico_html_a438cf33b9ea7953dfd1a543d927dc206"><div class="ttname"><a href="classComportamientoTecnico.html#a438cf33b9ea7953dfd1a543d927dc206">ComportamientoTecnico::mtiempo</a></div><div class="ttdeci">vector&lt; vector&lt; int &gt; &gt; mtiempo</div><div class="ttdef"><b>Definition</b> tecnico.hpp:226</div></div>
+<div class="ttc" id="aclassComportamientoTecnico_html_a4636a998ba23c9c4b04608726ab30b45"><div class="ttname"><a href="classComportamientoTecnico.html#a4636a998ba23c9c4b04608726ab30b45">ComportamientoTecnico::ComportamientoTecnicoNivel_1</a></div><div class="ttdeci">Action ComportamientoTecnicoNivel_1(Sensores sensores)</div><div class="ttdoc">Comportamiento del técnico para el Nivel 1.</div><div class="ttdef"><b>Definition</b> tecnico.cpp:271</div></div>
+<div class="ttc" id="aclassComportamientoTecnico_html_a55425d9a960004e46b34a2426745c903"><div class="ttname"><a href="classComportamientoTecnico.html#a55425d9a960004e46b34a2426745c903">ComportamientoTecnico::ComportamientoTecnicoNivel_5</a></div><div class="ttdeci">Action ComportamientoTecnicoNivel_5(Sensores sensores)</div><div class="ttdoc">Comportamiento del técnico para el Nivel 5.</div><div class="ttdef"><b>Definition</b> tecnico.cpp:760</div></div>
+<div class="ttc" id="aclassComportamientoTecnico_html_a5a1861587f66ed55e0d997e2400001ea"><div class="ttname"><a href="classComportamientoTecnico.html#a5a1861587f66ed55e0d997e2400001ea">ComportamientoTecnico::ViablePorAltura</a></div><div class="ttdeci">char ViablePorAltura(char terreno, int dif_cota) const</div><div class="ttdoc">Determina si casilla viable por altura.</div><div class="ttdef"><b>Definition</b> tecnico.cpp:69</div></div>
+<div class="ttc" id="aclassComportamientoTecnico_html_a7b23b3bce6fdc688a8cb0c04f0b52504"><div class="ttname"><a href="classComportamientoTecnico.html#a7b23b3bce6fdc688a8cb0c04f0b52504">ComportamientoTecnico::think</a></div><div class="ttdeci">Action think(Sensores sensores)</div><div class="ttdoc">Bucle principal de decisión del técnico. Estudia los sensores y decide la siguiente acción.</div><div class="ttdef"><b>Definition</b> tecnico.cpp:13</div></div>
+<div class="ttc" id="aclassComportamientoTecnico_html_a7c83359dd750ef12e2438f4e5947cd9a"><div class="ttname"><a href="classComportamientoTecnico.html#a7c83359dd750ef12e2438f4e5947cd9a">ComportamientoTecnico::SeleccionaCasillaPulgarcito0</a></div><div class="ttdeci">int SeleccionaCasillaPulgarcito0(char i, char c, char d, int t_i, int t_c, int t_d) const</div><div class="ttdoc">Decide la mejor opción para el Nivel 0 usando el mapa de pulgarcito.</div><div class="ttdef"><b>Definition</b> tecnico.cpp:87</div></div>
+<div class="ttc" id="aclassComportamientoTecnico_html_a7c915e1406c5e1bc459175a63f87fd4e"><div class="ttname"><a href="classComportamientoTecnico.html#a7c915e1406c5e1bc459175a63f87fd4e">ComportamientoTecnico::ComportamientoTecnico</a></div><div class="ttdeci">ComportamientoTecnico(const ComportamientoTecnico &amp;comport)</div><div class="ttdef"><b>Definition</b> tecnico.hpp:80</div></div>
+<div class="ttc" id="aclassComportamientoTecnico_html_a80cd6874f3f6ab7c580ba6d35484d130"><div class="ttname"><a href="classComportamientoTecnico.html#a80cd6874f3f6ab7c580ba6d35484d130">ComportamientoTecnico::CostoEnergiaTecnico</a></div><div class="ttdeci">int CostoEnergiaTecnico(Action accion, const EstadoT &amp;st, const vector&lt; vector&lt; unsigned char &gt; &gt; &amp;terreno, const vector&lt; vector&lt; unsigned char &gt; &gt; &amp;altura) const</div><div class="ttdoc">Calcula el coste energético de ejecutar una acción desde el estado actual.</div><div class="ttdef"><b>Definition</b> tecnico.cpp:481</div></div>
+<div class="ttc" id="aclassComportamientoTecnico_html_a812221ed43dc160b256968caca161e54"><div class="ttname"><a href="classComportamientoTecnico.html#a812221ed43dc160b256968caca161e54">ComportamientoTecnico::RiesgoChoqueIngeniero</a></div><div class="ttdeci">bool RiesgoChoqueIngeniero(const Sensores &amp;sensores, Action accion) const</div><div class="ttdoc">Detecta si ejecutar una acción provocaría una colisión con el Ingeniero.</div><div class="ttdef"><b>Definition</b> tecnico.cpp:355</div></div>
+<div class="ttc" id="aclassComportamientoTecnico_html_a829bc5ec1050106d8e7103637af5c280"><div class="ttname"><a href="classComportamientoTecnico.html#a829bc5ec1050106d8e7103637af5c280">ComportamientoTecnico::GenerarRuta</a></div><div class="ttdeci">void GenerarRuta(int dest_f, int dest_c, const Sensores &amp;sensores)</div><div class="ttdoc">Genera una ruta A* desde la posición actual del Técnico hasta el destino.</div><div class="ttdef"><b>Definition</b> tecnico.cpp:669</div></div>
+<div class="ttc" id="aclassComportamientoTecnico_html_a84598533746fedec0771e68b84289d76"><div class="ttname"><a href="classComportamientoTecnico.html#a84598533746fedec0771e68b84289d76">ComportamientoTecnico::plan</a></div><div class="ttdeci">list&lt; Action &gt; plan</div><div class="ttdef"><b>Definition</b> tecnico.hpp:231</div></div>
+<div class="ttc" id="aclassComportamientoTecnico_html_a9f1b2c89e1d24d9ebd0091e766241ecd"><div class="ttname"><a href="classComportamientoTecnico.html#a9f1b2c89e1d24d9ebd0091e766241ecd">ComportamientoTecnico::tiene_zapatillas</a></div><div class="ttdeci">bool tiene_zapatillas</div><div class="ttdef"><b>Definition</b> tecnico.hpp:222</div></div>
+<div class="ttc" id="aclassComportamientoTecnico_html_aa0178c3d86fd2d905e3db171da5777cf"><div class="ttname"><a href="classComportamientoTecnico.html#aa0178c3d86fd2d905e3db171da5777cf">ComportamientoTecnico::instante</a></div><div class="ttdeci">int instante</div><div class="ttdef"><b>Definition</b> tecnico.hpp:227</div></div>
+<div class="ttc" id="aclassComportamientoTecnico_html_aa603f273d2b076ae7781715c8a239006"><div class="ttname"><a href="classComportamientoTecnico.html#aa603f273d2b076ae7781715c8a239006">ComportamientoTecnico::destino_c</a></div><div class="ttdeci">int destino_c</div><div class="ttdef"><b>Definition</b> tecnico.hpp:236</div></div>
+<div class="ttc" id="aclassComportamientoTecnico_html_aa6fc2ac8a764ce5566bd6a29f5940993"><div class="ttname"><a href="classComportamientoTecnico.html#aa6fc2ac8a764ce5566bd6a29f5940993">ComportamientoTecnico::Heuristica</a></div><div class="ttdeci">int Heuristica(const EstadoT &amp;actual, const EstadoT &amp;objetivo) const</div><div class="ttdoc">Heurística admisible para A*: distancia al objetivo.</div><div class="ttdef"><b>Definition</b> tecnico.cpp:464</div></div>
+<div class="ttc" id="aclassComportamientoTecnico_html_aa9f15cce0a79d8191f324a737c94f513"><div class="ttname"><a href="classComportamientoTecnico.html#aa9f15cce0a79d8191f324a737c94f513">ComportamientoTecnico::ComportamientoTecnico</a></div><div class="ttdeci">ComportamientoTecnico(unsigned int size=0)</div><div class="ttdoc">Constructor para niveles 0, 1 y 6 (sin mapa completo)</div><div class="ttdef"><b>Definition</b> tecnico.hpp:59</div></div>
+<div class="ttc" id="aclassComportamientoTecnico_html_aaeac1608dd9cc94c94cef817a8d2f4d2"><div class="ttname"><a href="classComportamientoTecnico.html#aaeac1608dd9cc94c94cef817a8d2f4d2">ComportamientoTecnico::PintaPlan</a></div><div class="ttdeci">void PintaPlan(const list&lt; Paso &gt; &amp;plan)</div><div class="ttdoc">Imprime las coordenadas y operaciones de un plan de tubería.</div></div>
+<div class="ttc" id="aclassComportamientoTecnico_html_aaf0c91771d72711ef02e6d6197c6ff0a"><div class="ttname"><a href="classComportamientoTecnico.html#aaf0c91771d72711ef02e6d6197c6ff0a">ComportamientoTecnico::ComportamientoTecnicoNivel_3</a></div><div class="ttdeci">Action ComportamientoTecnicoNivel_3(Sensores sensores)</div><div class="ttdoc">Comportamiento del técnico para el Nivel 3.</div><div class="ttdef"><b>Definition</b> tecnico.cpp:595</div></div>
+<div class="ttc" id="aclassComportamientoTecnico_html_ab495cc1fdfdef97c570c71c179825103"><div class="ttname"><a href="classComportamientoTecnico.html#ab495cc1fdfdef97c570c71c179825103">ComportamientoTecnico::PintaPlan</a></div><div class="ttdeci">void PintaPlan(const list&lt; Action &gt; &amp;plan)</div><div class="ttdoc">Imprime por consola la secuencia de acciones de un plan para un agente.</div><div class="ttdef"><b>Definition</b> tecnico.cpp:1176</div></div>
+<div class="ttc" id="aclassComportamientoTecnico_html_ab5dbce598e688b58e31d056971108416"><div class="ttname"><a href="classComportamientoTecnico.html#ab5dbce598e688b58e31d056971108416">ComportamientoTecnico::es_camino</a></div><div class="ttdeci">bool es_camino(unsigned char c) const</div><div class="ttdoc">Comprueba si una celda es de tipo transitable por defecto.</div><div class="ttdef"><b>Definition</b> tecnico.cpp:54</div></div>
+<div class="ttc" id="aclassComportamientoTecnico_html_abf7aa70f7bb7973ae6ef181a53d044ed"><div class="ttname"><a href="classComportamientoTecnico.html#abf7aa70f7bb7973ae6ef181a53d044ed">ComportamientoTecnico::Delante</a></div><div class="ttdeci">ubicacion Delante(const ubicacion &amp;actual) const</div><div class="ttdoc">Devuelve la posición (fila, columna) de la casilla que hay delante del agente.</div><div class="ttdef"><b>Definition</b> tecnico.cpp:1136</div></div>
+<div class="ttc" id="aclassComportamientoTecnico_html_ac095673a41784098a0fc1ac39ba6b537"><div class="ttname"><a href="classComportamientoTecnico.html#ac095673a41784098a0fc1ac39ba6b537">ComportamientoTecnico::esSuperficieValida</a></div><div class="ttdeci">bool esSuperficieValida(unsigned char superficie, bool zap) const</div><div class="ttdoc">Indica si el tipo de superficie es transitable para el Técnico en modo deliberativo (mapa conocido).</div><div class="ttdef"><b>Definition</b> tecnico.cpp:335</div></div>
+<div class="ttc" id="aclassComportamientoTecnico_html_ac2a5f951670e3aefc6c480f6f10babea"><div class="ttname"><a href="classComportamientoTecnico.html#ac2a5f951670e3aefc6c480f6f10babea">ComportamientoTecnico::hayPlan</a></div><div class="ttdeci">bool hayPlan</div><div class="ttdef"><b>Definition</b> tecnico.hpp:230</div></div>
+<div class="ttc" id="aclassComportamientoTecnico_html_ac345cdb018fca8d96eb7f17cfffde5e6"><div class="ttname"><a href="classComportamientoTecnico.html#ac345cdb018fca8d96eb7f17cfffde5e6">ComportamientoTecnico::CasillaAccesibleTecnico</a></div><div class="ttdeci">bool CasillaAccesibleTecnico(Action accion, const EstadoT &amp;st, const vector&lt; vector&lt; unsigned char &gt; &gt; &amp;terreno, const vector&lt; vector&lt; unsigned char &gt; &gt; &amp;altura) const</div><div class="ttdoc">Comprueba si el Técnico puede ejecutar una acción de movimiento desde su estado actual.</div><div class="ttdef"><b>Definition</b> tecnico.cpp:406</div></div>
+<div class="ttc" id="aclassComportamientoTecnico_html_ac4bc19582ed5187c6f4fac2acbe18958"><div class="ttname"><a href="classComportamientoTecnico.html#ac4bc19582ed5187c6f4fac2acbe18958">ComportamientoTecnico::ExploracionDirigida</a></div><div class="ttdeci">Action ExploracionDirigida(int dest_f, int dest_c, const Sensores &amp;sensores)</div><div class="ttdoc">Decide la acción reactiva que más acerca al Técnico a un destino dado, considerando solo las tres cas...</div><div class="ttdef"><b>Definition</b> tecnico.cpp:846</div></div>
+<div class="ttc" id="aclassComportamientoTecnico_html_adea944835b197bdbff93a86c96b1cae8"><div class="ttname"><a href="classComportamientoTecnico.html#adea944835b197bdbff93a86c96b1cae8">ComportamientoTecnico::A_Estrella</a></div><div class="ttdeci">list&lt; Action &gt; A_Estrella(const EstadoT &amp;inicio, const EstadoT &amp;final, const vector&lt; vector&lt; unsigned char &gt; &gt; &amp;terreno, const vector&lt; vector&lt; unsigned char &gt; &gt; &amp;altura)</div><div class="ttdoc">Encuentra el camino de mínimo coste energético mediante A*.</div><div class="ttdef"><b>Definition</b> tecnico.cpp:534</div></div>
+<div class="ttc" id="aclassComportamientoTecnico_html_ae2378312bf60067f313271ab1e6d3e65"><div class="ttname"><a href="classComportamientoTecnico.html#ae2378312bf60067f313271ab1e6d3e65">ComportamientoTecnico::~ComportamientoTecnico</a></div><div class="ttdeci">~ComportamientoTecnico()</div><div class="ttdef"><b>Definition</b> tecnico.hpp:81</div></div>
+<div class="ttc" id="aclassComportamientoTecnico_html_ae88b671afd7cf670a24fb41d6598292d"><div class="ttname"><a href="classComportamientoTecnico.html#ae88b671afd7cf670a24fb41d6598292d">ComportamientoTecnico::fase</a></div><div class="ttdeci">int fase</div><div class="ttdef"><b>Definition</b> tecnico.hpp:234</div></div>
+<div class="ttc" id="aclassComportamientoTecnico_html_af3c5a623e69ca205492ec139a964b1d7"><div class="ttname"><a href="classComportamientoTecnico.html#af3c5a623e69ca205492ec139a964b1d7">ComportamientoTecnico::ComportamientoTecnicoNivel_0</a></div><div class="ttdeci">Action ComportamientoTecnicoNivel_0(Sensores sensores)</div><div class="ttdoc">Comportamiento del técnico para el Nivel 0.</div><div class="ttdef"><b>Definition</b> tecnico.cpp:113</div></div>
+<div class="ttc" id="aclassComportamientoTecnico_html_af52314844ceecaa8f4836da51d63b8e5"><div class="ttname"><a href="classComportamientoTecnico.html#af52314844ceecaa8f4836da51d63b8e5">ComportamientoTecnico::TransitableNivel1</a></div><div class="ttdeci">char TransitableNivel1(char terreno, int dif_cota, bool zap) const</div><div class="ttdoc">Determina si una casilla es transitable en Nivel 1.</div><div class="ttdef"><b>Definition</b> tecnico.cpp:199</div></div>
+<div class="ttc" id="aclassComportamientoTecnico_html_af8305219ce341e856b97165e831c7ca1"><div class="ttname"><a href="classComportamientoTecnico.html#af8305219ce341e856b97165e831c7ca1">ComportamientoTecnico::ComportamientoTecnico</a></div><div class="ttdeci">ComportamientoTecnico(std::vector&lt; std::vector&lt; unsigned char &gt; &gt; mapaR, std::vector&lt; std::vector&lt; unsigned char &gt; &gt; mapaC)</div><div class="ttdoc">Constructor para niveles 2, 3, 4 y 5 (con mapa completo conocido)</div><div class="ttdef"><b>Definition</b> tecnico.hpp:73</div></div>
+<div class="ttc" id="aclassComportamientoTecnico_html_af9ef332b66dfc413e278db51e38d3144"><div class="ttname"><a href="classComportamientoTecnico.html#af9ef332b66dfc413e278db51e38d3144">ComportamientoTecnico::SeleccionaCasillaPulgarcito1</a></div><div class="ttdeci">int SeleccionaCasillaPulgarcito1(char i, char c, char d, int t_i, int t_c, int t_d, bool zap) const</div><div class="ttdoc">Decide la mejor opción para el Nivel 1 usando el mapa de pulgarcito.</div><div class="ttdef"><b>Definition</b> tecnico.cpp:221</div></div>
+<div class="ttc" id="astructComparaNodos_html"><div class="ttname"><a href="structComparaNodos.html">ComparaNodos</a></div><div class="ttdef"><b>Definition</b> tecnico.hpp:43</div></div>
+<div class="ttc" id="astructComparaNodos_html_ac0983d8d8fec4be0d1bd643ad34af81b"><div class="ttname"><a href="structComparaNodos.html#ac0983d8d8fec4be0d1bd643ad34af81b">ComparaNodos::operator()</a></div><div class="ttdeci">bool operator()(const NodoT &amp;a, const NodoT &amp;b) const</div><div class="ttdef"><b>Definition</b> tecnico.hpp:44</div></div>
+<div class="ttc" id="astructEstadoT_html"><div class="ttname"><a href="structEstadoT.html">EstadoT</a></div><div class="ttdef"><b>Definition</b> tecnico.hpp:24</div></div>
+<div class="ttc" id="astructEstadoT_html_a3ccd1ad3cd6bd32bcd82a3d979e3404a"><div class="ttname"><a href="structEstadoT.html#a3ccd1ad3cd6bd32bcd82a3d979e3404a">EstadoT::operator==</a></div><div class="ttdeci">bool operator==(const EstadoT &amp;st) const</div><div class="ttdef"><b>Definition</b> tecnico.hpp:27</div></div>
+<div class="ttc" id="astructEstadoT_html_a6d28166b59166c66c5556c10117922fc"><div class="ttname"><a href="structEstadoT.html#a6d28166b59166c66c5556c10117922fc">EstadoT::site</a></div><div class="ttdeci">ubicacion site</div><div class="ttdef"><b>Definition</b> tecnico.hpp:25</div></div>
+<div class="ttc" id="astructEstadoT_html_aa2e5a28b637c8fe3e81fa7296cc48dad"><div class="ttname"><a href="structEstadoT.html#aa2e5a28b637c8fe3e81fa7296cc48dad">EstadoT::zapatillas</a></div><div class="ttdeci">bool zapatillas</div><div class="ttdef"><b>Definition</b> tecnico.hpp:26</div></div>
+<div class="ttc" id="astructNodoT_html"><div class="ttname"><a href="structNodoT.html">NodoT</a></div><div class="ttdef"><b>Definition</b> tecnico.hpp:32</div></div>
+<div class="ttc" id="astructNodoT_html_a1400949154b564041a3ba0f682ba3e8c"><div class="ttname"><a href="structNodoT.html#a1400949154b564041a3ba0f682ba3e8c">NodoT::g</a></div><div class="ttdeci">int g</div><div class="ttdef"><b>Definition</b> tecnico.hpp:35</div></div>
+<div class="ttc" id="astructNodoT_html_a7b6a7b87f5c180aabd1d2ebfd471a86a"><div class="ttname"><a href="structNodoT.html#a7b6a7b87f5c180aabd1d2ebfd471a86a">NodoT::estado</a></div><div class="ttdeci">EstadoT estado</div><div class="ttdef"><b>Definition</b> tecnico.hpp:33</div></div>
+<div class="ttc" id="astructNodoT_html_a7d4cc0427ff21efaec3a3664584404bb"><div class="ttname"><a href="structNodoT.html#a7d4cc0427ff21efaec3a3664584404bb">NodoT::h</a></div><div class="ttdeci">int h</div><div class="ttdef"><b>Definition</b> tecnico.hpp:36</div></div>
+<div class="ttc" id="astructNodoT_html_acec7f3fe917334ef08ed3c5e68680769"><div class="ttname"><a href="structNodoT.html#acec7f3fe917334ef08ed3c5e68680769">NodoT::secuencia</a></div><div class="ttdeci">list&lt; Action &gt; secuencia</div><div class="ttdef"><b>Definition</b> tecnico.hpp:34</div></div>
+<div class="ttc" id="astructNodoT_html_ad49d14ce180593a0899a10eae7c24277"><div class="ttname"><a href="structNodoT.html#ad49d14ce180593a0899a10eae7c24277">NodoT::f</a></div><div class="ttdeci">int f() const</div><div class="ttdef"><b>Definition</b> tecnico.hpp:37</div></div>
+</div><!-- fragment --></div><!-- contents -->
+<!-- start footer part -->
+<hr class="footer"/><address class="footer"><small>
+Generado por&#160;<a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8
+</small></address>
+</body>
+</html>

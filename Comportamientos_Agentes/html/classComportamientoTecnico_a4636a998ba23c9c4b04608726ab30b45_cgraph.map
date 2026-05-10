@@ -1,0 +1,13 @@
+<map id="ComportamientoTecnico::ComportamientoTecnicoNivel_1" name="ComportamientoTecnico::ComportamientoTecnicoNivel_1">
+<area shape="rect" id="Node000001" title="Comportamiento del técnico para el Nivel 1." alt="" coords="5,101,243,141"/>
+<area shape="rect" id="Node000002" href="$classComportamientoTecnico.html#a28a345e8035c0402fabd274e6cae7a1f" title="Actualiza el mapaResultado y mapaCotas con la información de los sensores. IMPORTANTE: Esta función y..." alt="" coords="309,5,489,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="173,99,290,55,314,47,316,52,292,60,175,104"/>
+<area shape="rect" id="Node000003" href="$classComportamientoTecnico.html#abf7aa70f7bb7973ae6ef181a53d044ed" title="Devuelve la posición (fila, columna) de la casilla que hay delante del agente." alt="" coords="309,69,489,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="243,105,295,99,296,104,243,110"/>
+<area shape="rect" id="Node000004" href="$classComportamientoTecnico.html#af9ef332b66dfc413e278db51e38d3144" title="Decide la mejor opción para el Nivel 1 usando el mapa de pulgarcito." alt="" coords="291,133,508,173"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="243,132,278,137,277,142,243,138"/>
+<area shape="rect" id="Node000005" href="$classComportamientoTecnico.html#af52314844ceecaa8f4836da51d63b8e5" title="Determina si una casilla es transitable en Nivel 1." alt="" coords="309,197,489,237"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="175,139,292,183,316,191,314,196,290,188,173,144"/>
+<area shape="rect" id="Node000006" href="$classComportamientoTecnico.html#a5a1861587f66ed55e0d997e2400001ea" title="Determina si casilla viable por altura." alt="" coords="556,197,736,237"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="489,215,543,215,543,220,489,220"/>
+</map>

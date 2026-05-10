@@ -1,0 +1,7 @@
+<map id="ComportamientoIngeniero::CasillaAccesibleIngeniero" name="ComportamientoIngeniero::CasillaAccesibleIngeniero">
+<area shape="rect" id="Node000001" title="Comprueba si el Ingeniero puede ejecutar una acción de movimiento desde su estado actual." alt="" coords="5,37,203,77"/>
+<area shape="rect" id="Node000002" href="$classComportamientoIngeniero.html#a023e97d3be98a08682faae40a7213dfe" title="Devuelve la posición (fila, columna) de la casilla que hay delante del agente." alt="" coords="251,5,444,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="203,42,237,37,238,42,203,47"/>
+<area shape="rect" id="Node000003" href="$classComportamientoIngeniero.html#acaca9e933b50a3250837e5872175a8cc" title="Indica si el tipo de superficie es transitable para el Ingeniero en modo deliberativo (mapa conocido)..." alt="" coords="251,69,444,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="203,68,238,72,237,78,203,73"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="ComportamientoTecnico::CasillaAccesibleTecnico" name="ComportamientoTecnico::CasillaAccesibleTecnico">
+<area shape="rect" id="Node000001" title="Comprueba si el Técnico puede ejecutar una acción de movimiento desde su estado actual." alt="" coords="5,37,189,77"/>
+<area shape="rect" id="Node000002" href="$classComportamientoTecnico.html#abf7aa70f7bb7973ae6ef181a53d044ed" title="Devuelve la posición (fila, columna) de la casilla que hay delante del agente." alt="" coords="237,5,417,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="189,42,223,37,224,42,190,47"/>
+<area shape="rect" id="Node000003" href="$classComportamientoTecnico.html#ac095673a41784098a0fc1ac39ba6b537" title="Indica si el tipo de superficie es transitable para el Técnico en modo deliberativo (mapa conocido)." alt="" coords="237,69,417,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="190,68,224,72,223,78,189,73"/>
+</map>

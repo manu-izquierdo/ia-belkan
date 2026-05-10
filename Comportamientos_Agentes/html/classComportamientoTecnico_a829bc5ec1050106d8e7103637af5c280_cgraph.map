@@ -1,0 +1,19 @@
+<map id="ComportamientoTecnico::GenerarRuta" name="ComportamientoTecnico::GenerarRuta">
+<area shape="rect" id="Node000001" title="Genera una ruta A* desde la posición actual del Técnico hasta el destino." alt="" coords="5,101,185,141"/>
+<area shape="rect" id="Node000002" href="$classComportamientoTecnico.html#adea944835b197bdbff93a86c96b1cae8" title="Encuentra el camino de mínimo coste energético mediante A*." alt="" coords="233,101,413,141"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="186,119,220,119,220,124,186,124"/>
+<area shape="rect" id="Node000003" href="$classComportamientoTecnico.html#a0c28bb39cb4af9759f7ae2fb6e0e828f" title="Aplica una acción al estado del Técnico y devuelve el estado resultante." alt="" coords="463,5,643,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="364,99,460,55,479,48,480,53,462,60,366,104"/>
+<area shape="rect" id="Node000005" href="$classComportamientoTecnico.html#ac345cdb018fca8d96eb7f17cfffde5e6" title="Comprueba si el Técnico puede ejecutar una acción de movimiento desde su estado actual." alt="" coords="461,133,645,173"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="414,131,448,136,448,141,413,137"/>
+<area shape="rect" id="Node000007" href="$classComportamientoTecnico.html#a80cd6874f3f6ab7c580ba6d35484d130" title="Calcula el coste energético de ejecutar una acción desde el estado actual." alt="" coords="463,69,643,109"/>
+<area shape="poly" id="edge7_Node000002_Node000007" title=" " alt="" coords="413,106,449,101,450,106,414,111"/>
+<area shape="rect" id="Node000008" href="$classComportamientoTecnico.html#aa6fc2ac8a764ce5566bd6a29f5940993" title="Heurística admisible para A*: distancia al objetivo." alt="" coords="463,197,643,237"/>
+<area shape="poly" id="edge9_Node000002_Node000008" title=" " alt="" coords="366,139,462,183,480,190,479,195,460,188,364,144"/>
+<area shape="rect" id="Node000004" href="$classComportamientoTecnico.html#abf7aa70f7bb7973ae6ef181a53d044ed" title="Devuelve la posición (fila, columna) de la casilla que hay delante del agente." alt="" coords="693,69,873,109"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="627,43,699,63,697,68,625,48"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="625,131,697,110,699,116,627,136"/>
+<area shape="rect" id="Node000006" href="$classComportamientoTecnico.html#ac095673a41784098a0fc1ac39ba6b537" title="Indica si el tipo de superficie es transitable para el Técnico en modo deliberativo (mapa conocido)." alt="" coords="693,133,873,173"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="646,151,679,151,679,156,646,156"/>
+<area shape="poly" id="edge8_Node000007_Node000004" title=" " alt="" coords="644,87,680,87,680,92,644,92"/>
+</map>
