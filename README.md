@@ -1,81 +1,120 @@
-# Práctica 2 de *Inteligencia Artificial*, curso 2025/2026
+# Práctica 2 — Operación Contención Belkanita
+### Inteligencia Artificial · Universidad de Granada · ETSIIT · Curso 2025-2026
 
-## Prerrequisitos
+---
 
-### Crear una cuenta en [GitHub](https://github.com/). 
-Para ello, puedes usar tu correo personal, el de *@correo.ugr.es* o el de *@go.ugr.es*.
+## Autoría y propiedad del código
 
+Este repositorio es una copia privada del repositorio oficial de la asignatura **Inteligencia Artificial** del Departamento de Ciencias de la Computación e Inteligencia Artificial (DECSAI) de la Universidad de Granada.
+
+**El código del simulador, el motor del juego y toda la infraestructura del proyecto pertenecen a sus autores originales** del DECSAI/UGR y están disponibles en el repositorio oficial de la asignatura: [`ugr-ccia-IA/practica2`](https://github.com/ugr-ccia-IA/practica2).
+
+La única parte de este repositorio cuya autoría me corresponde es el contenido de la carpeta:
+
+```
+Comportamientos_Agentes/
+├── ingeniero.hpp
+├── ingeniero.cpp
+├── tecnico.hpp
+└── tecnico.cpp
+```
+
+Estos cuatro ficheros contienen la implementación de los comportamientos reactivos y deliberativos de los agentes **Ingeniero** y **Técnico** para los Niveles 0 al 6 de la práctica.
+
+**Estudiante:** Manuel Jesús Izquierdo Izquierdo  
+**Grupo teoría:** 2ºC
+
+---
+
+## Descripción de la práctica
+
+El objetivo es dotar de inteligencia a dos agentes autónomos que deben construir una red de tuberías para transportar la sustancia tóxica **Belkanita** desde su punto de filtración hasta una planta de tratamiento de residuos (`'U'`), navegando por un mapa con terrenos, alturas y restricciones de energía e impacto ecológico.
+
+Los niveles implementados son:
+
+| Nivel | Nombre | Tipo | Agente principal |
+|-------|--------|------|-----------------|
+| 0 | Rastreadores de Alcantarillas | Reactivo | Ingeniero + Técnico |
+| 1 | De Reconocimiento por la Naturaleza | Reactivo | Ingeniero + Técnico |
+| 2 | Corre, Ingeniero, Corre! | Deliberativo (BFS) | Ingeniero |
+| 3 | El Técnico mide sus esfuerzos | Deliberativo (A*) | Técnico |
+| 4 | Planifica, Ingeniero, Planifica | Deliberativo (Priority Queue) | Ingeniero |
+| 5 | A Poner Tuberías | Multiagente coordinado | Ingeniero + Técnico |
+| 6 | ¿Qué alguien ponga luz? | Multiagente + mapa desconocido | Ingeniero + Técnico |
+
+---
+
+## Prerrequisitos y configuración del repositorio
 
 ### 1. Añadir tu clave SSH a GitHub
-Hay varias maneras de conectarte desde tu ordenador a GitHub. Si utilizas un navegador, usarás tu usuario y contraseña. Desde el terminal, lo más cómodo es utilizar una clave SSH. Puedes crear una nueva si no tienes, o reutilizar una ya existente. Tienes toda la información para realizar la configuración en: 
+Lo más cómodo es utilizar una clave SSH para conectarte desde el terminal. Consulta la guía oficial:
 [Conectar a GitHub con SSH](https://docs.github.com/es/authentication/connecting-to-github-with-ssh)
 
+### 2. Crear tu copia personal del repositorio
+Para que tu copia sea privada, en lugar de un fork usa la opción de importación:
+1. Ve a <https://github.com/new/import>
+2. Introduce como URL de origen: `https://github.com/ugr-ccia-IA/practica2`
+3. Marca el repositorio como **privado**
 
-### 2. Crear tu copia personal del repositorio de la asignatura
-Cada estudiante debe tener su propia copia del repositorio para poder trabajar sobre ella. En adelante, a tu copia la llamaremos *origin*, y al repositorio original de la asignatura lo llamaremos *upstream* (NOTA: Estas son convenciones que la mayoría de los desarrolladores usan, pero los puedes llamar como quieras). 
-
-> La forma usual de crear tu copia del repositorio es realizando un *fork*. Sin embargo, dado que realizar un *fork* de un repositorio con visibilidad pública obliga al que la copia sea también pública, nosotros usaremos un procedimiento diferente que nos permite que nuestra copia del repositorio sea privada.
-
-Para realizar la copia, una vez que tengas creada tu cuenta en GitHub, haz click en <https://github.com/new/import> y rellena tal y como se ve en la imagen de abajo. El repositorio que quieres importar es `https://github.com/ugr-ccia-IA/practica2`. ¡Asegúrate de que tu repositorio es privado!
-
-![Importar repositorio practica2](doc/img/import_new_repo.png)
-
-
-### 3. Clonar tu repositorio en tu máquina
-Una vez hecho el paso anterior, tendrás tu repositorio personal de la práctica1 en GitHub; puedes descargarlo a tu ordenador usando:
-`git clone git@github.com:TU_USUARIO_GITHUB/practica2.git` (si no has configurado tu clave SSH, esto no funcionará).
-
-
-### 4. Modificar el código y guardar los cambios
-Es el momento de empezar a modificar ficheros. Abre el fichero README.md (este fichero), ve al final y añade una línea que diga "Esto lo puse yo."
-Una vez lo hayas modificado, guarda el fichero, y ejecuta los siguientes comandos en el terminal estando dentro de la carpeta `practica2`:
-
-```
-git add . 
-git commit -m "Modificando README.md"
-git push origin main 
+### 3. Clonar tu repositorio en local
+```bash
+git clone git@github.com:TU_USUARIO_GITHUB/practica2.git
 ```
 
-Los tres comandos anteriores le indican a git que 1) queremos guardar una nueva versión con todos los ficheros modificados de la carpeta, 2) que haga esa versión y le ponga el comentario "Cambiando el enlace del botón", y 3) que envíe esta nueva versión a la copia de nuestro repositorio alojada en GitHub.
+### 4. Enlazar con el repositorio oficial de la asignatura
+```bash
+git remote add upstream git@github.com:ugr-ccia-IA/practica2.git
+```
 
-Este proceso es el que debes repetir cada vez que vayas avanzando en la implementación de la práctica: add, commit, push.
+Para incorporar actualizaciones del repositorio oficial a tu copia:
+```bash
+git pull upstream main
+git push origin main
+```
 
+---
 
+## Instalación y compilación (Linux)
 
-### 5. Enlazar tu repositorio personal con el de la asignatura
-Aunque tu repositorio y el de la asignatura (recuerda que los conocemos por *origin* y *upstream* respectivamente) sean independientes, nos va a interesar que estén enlazados. De esta forma, podrás aplicar fácilmente sobre tu repositorio (*origin*) cualquier actualización que los profesores realicemos en *upstream*. Para enlazarlos, ejecuta lo siguiente dentro de la carpeta de tu repositorio:
+```bash
+# Primera vez: instala dependencias y compila
+./install.sh
 
-`git remote add upstream git@github.com:ugr-ccia-IA/practica2.git`
+# Recompilar tras cambios en el código
+make clean && make -j$(nproc)
+```
 
+---
 
-### Actualizar tu repositorio con cambios realizados en el de la asignatura
-Una vez tengas los repositiorios enlazados, lo único que debes hacer para aplicar posibles cambios en el repositorio de la asignatura en tu repositorio (cambios de *upstream* en *origin*) es: `git pull upstream main`
+## Ejecución
 
-Hacer esto no sobreescribirá tus avances en la implementación de la práctica, puesto que tú no deberías haber modificado ninguna parte del código diferente a la que se indica en el guión.
+**Con interfaz gráfica:**
+```bash
+./practica2
+```
 
-Si quieres que esos cambios también se guarden en github, a continuación ejecuta: `git push origin main`
+**Sin interfaz (modo batch), útil para depuración:**
+```bash
+./practica2SG -m ./mapas/MAPA.map -n NIVEL -i F_ING C_ING O_ING -t F_TEC C_TEC O_TEC -seed 0 -Tiempo 3000 -Ambiental 1000 -Energia 3000 -O F_BELK C_BELK
+```
 
+Ejemplo completo:
+```bash
+./practica2SG -m ./mapas/mapa30.map -n 5 -i 15 17 2 -t 17 20 6 -seed 0 -Tiempo 3000 -Ambiental 1000 -Energia 3000 -O 19 15
+```
+---
 
-> Si quieres saber más sobre Git y GitHub, en Internet existen multitud de recursos, incluidos videos y tutoriales. Para realizar esta práctica sólo necesitas lo básico (hacer commits), pero hay muchas cosas más que se pueden hacer con estas herramientas (uso de ramas, gestión de conflictos, etc.) 
-El propio GitHub pone a tu disposición un [breve curso](https://classroom.github.com/a/W33pQ3pa) (en inglés) para aprender lo básico.
+## Flujo de trabajo con Git
 
+```bash
+git add .
+git commit -m "Descripción del cambio"
+git push origin main
+```
 
-## Realización de la práctica
-El guión (disponible en [PRADO](https://pradogrado2526.ugr.es/)) contiene toda la información sobre en qué consiste la práctica2. Leelo con atención.
-
-Junto a ellos, también tienes a tu disposición una pequeña presentación de resumen, y un tutorial. Debes revisarlos pues continen los primeros pasos a realizar.
-
-
-### Instalación local (linux)
-
-Una vez que tengas tu repositorio (el fork que has realizado) en tu ordenador, puedes compilar el código usando `./install.sh` (esto instalará todas las dependencias, y ejecutará `cmake` y `make`. ).
-A continuación, puedes lanzar el software con interfaz gráfica con `./practica2`, o sin ella con `./practica2SG`.
-
-Cuando realices cualquier modificación en el código, debes recompilar, así que usa `make clean` y `make -j$(nproc)`.
-
-
-> Esto lo puse yo.
+---
 
 ## Más información
-Hemos creado un [fichero con preguntas frecuentes](./FAQ.md) que han ido apareciendo en las distintas sesiones de prácticas.
 
+- [Repositorio oficial de la asignatura](https://github.com/ugr-ccia-IA/practica2)
+- Guión completo disponible en [PRADO](https://pradogrado2526.ugr.es/)
