@@ -625,9 +625,9 @@ bool ComportamientoIngeniero::CasillaValidaTuberia(int f, int c, const vector<ve
   if (f < 0 || f >= (int)terreno.size() || c < 0 || c >= (int)terreno[0].size())
     return false;
     
-  if (t == 'M' || t == 'P' || t == 'B' || t == '?')
-    return false;
-  return true; // A, H, S, C, D, U son válidas
+  if (t == 'H' || t == 'U')
+    return true;
+  return false; // H , U son válidas, el resto, no
 }
 
 /**
@@ -802,9 +802,12 @@ Action ComportamientoIngeniero::ComportamientoIngenieroNivel_4(Sensores sensores
 
     if (!plan_tuberias.empty()) {
       VisualizaRedTuberias(plan_tuberias);
-      // cout << "Nivel 4: red de " << plan_tuberias.size() << " tramos planificada" << endl;
+      cout << "Nivel 4: red de " << plan_tuberias.size() << " tramos planificada" << endl;
+      hayPlan = true; // Solo bloqueamos futuros intentos si la planificación tuvo éxito
+    } else {
+      cout << "No se puede planificar una red solo por Hierba" << endl;
+      // hayPlan se queda false → el siguiente paso volverá a intentarlo
     }
-    hayPlan = true;
   }
   return IDLE;
 }
