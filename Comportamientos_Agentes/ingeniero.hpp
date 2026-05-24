@@ -35,6 +35,8 @@ struct NodoTuberia {
   int longitud;      // Número de pasos hasta aquí
   int impacto;       // Impacto ecológico
   list<Paso> camino; // Secuencia de pasos de la tubería {f, c, op}
+  // Restricción: la red debe pasar por al menos una casilla Sendero ('S')
+  bool tiene_sendero = false;
 };
 
 // Comparador para la priority_queue:

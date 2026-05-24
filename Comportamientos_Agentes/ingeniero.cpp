@@ -670,7 +670,7 @@ int ComportamientoIngeniero::getCosteEco(unsigned char sup, Action accion) const
  * hacia los 4 vecinos ortogonales. Cada nodo representa una casilla con
  * un delta de altura aplicado (-1=DIG, 0=nada, 1=RAISE). La frontera
  * ordena por longitud primero e impacto como desempate (ComparaTuberia).
- * Usa min_imp[f][c][delta] en vez de visitados bool para permitir que
+ * Usa min_imp[f][c][delta][tiene_sendero] en vez de visitados bool para permitir que
  * un mismo nodo sea revisitado si llega con menor impacto.
  *
  * @param fInicio          Fila de la casilla origen (filtración Belkanita).
@@ -684,12 +684,14 @@ list<Paso> ComportamientoIngeniero::PlanificarRedTuberias(int fInicio, int cInic
   
   priority_queue<NodoTuberia, vector<NodoTuberia>, ComparaTuberia> frontera;
   
-  // Matriz 3D: [f][c][delta]
-  // Se usa int en vez de bool para permitir revisitar si llega con menor impacto
-  vector<vector<vector<int>>> min_imp(
+  // Matriz 4D: [f][c][delta][tiene_sendero]
+  // La restriccion de Sendero dobla el espacio de estados: (f,c,delta,false) y
+  // (f,c,delta,true) son estados distintos con mínimos de impacto independientes.
+  vector<vector<vector<vector<int>>>> min_imp(
       terreno.size(),
-      vector<vector<int>>(terreno[0].size(),
-                          vector<int>(3, INT_MAX)));
+      vector<vector<vector<int>>>(terreno[0].size(),
+          vector<vector<int>>(3,
+              vector<int>(2, INT_MAX))));
 
   // Inicializar con los 3 deltas posibles en la Belkanita (-1,0,1), el primer impacto es solo DIG o RAISE, no suma INSTALL
   for (int delta = -1; delta <= 1; delta++) {
@@ -706,6 +708,7 @@ list<Paso> ComportamientoIngeniero::PlanificarRedTuberias(int fInicio, int cInic
       if (delta == 1)
         imp = getCosteEco(terreno[fInicio][cInicio], RAISE);
       inicio.impacto = imp;
+      inicio.tiene_sendero = (terreno[fInicio][cInicio] == 'S');
       Paso p0{fInicio, cInicio, delta};
       inicio.camino.push_back(p0);
       frontera.push(inicio);
@@ -717,17 +720,17 @@ list<Paso> ComportamientoIngeniero::PlanificarRedTuberias(int fInicio, int cInic
     NodoTuberia actual = frontera.top();
     frontera.pop(); // Extraemos el nodo más prometedor según ComparaTuberia, extrae siempre el de menor longitud y en caso de empate, el de menor impacto
 
-    // Visitados AL EXTRAER
-    int &mi = min_imp[actual.f][actual.c][actual.delta + 1]; // mi será una referencia a min_imp
+    // Visitados AL EXTRAER: el estado incluye si ya se ha pasado por un Sendero
+    int &mi = min_imp[actual.f][actual.c][actual.delta + 1][actual.tiene_sendero ? 1 : 0];
     if (mi <= actual.impacto)
-      continue; //ya llegamos a este nodo con menor impacto
+      continue; //ya llegamos a este estado con menor impacto
 
-    // Test objetivo
+    // Test objetivo: solo aceptamos si la ruta ha pasado por al menos un Sendero ('S')
     if (terreno[actual.f][actual.c] == 'U') {
-      if (actual.impacto <= limiteAmbiental) {
-        return actual.camino; // Primera 'U' válida = óptima en longitud y dentro del límite
+      if (actual.tiene_sendero && actual.impacto <= limiteAmbiental) {
+        return actual.camino;
       }
-      continue; // Supera el límite, no actualizamos min_imp, seguimos buscando
+      continue; // No cumple la restricción o supera el límite, seguimos buscando
     }
 
     // Actualizamos mínimo solo para nodos que NO son 'U'
@@ -774,6 +777,8 @@ list<Paso> ComportamientoIngeniero::PlanificarRedTuberias(int fInicio, int cInic
         hijo.delta = dv;
         hijo.longitud++;
         hijo.impacto += imp_conexion;
+        // Si la casilla vecina es Sendero, activamos el flag (una vez true, nunca vuelve a false)
+        if (terreno[nf][nc] == 'S') hijo.tiene_sendero = true;
         Paso p{nf, nc, dv};
         hijo.camino.push_back(p);
         frontera.push(hijo);
