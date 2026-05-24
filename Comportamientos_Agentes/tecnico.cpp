@@ -436,12 +436,15 @@ EstadoT ComportamientoTecnico::applyT(Action accion, const EstadoT &st, const ve
   switch (accion) {
   case WALK:
     nuevo_st.site = Delante(st.site);
+    nuevo_st.num_pasos++;
     break;
   case TURN_SR:
     nuevo_st.site.brujula = (Orientacion)((nuevo_st.site.brujula + 1) % 8);
+    nuevo_st.num_pasos++;
     break;
   case TURN_SL:
     nuevo_st.site.brujula = (Orientacion)((nuevo_st.site.brujula + 7) % 8);
+    nuevo_st.num_pasos++;
     break;
   }
   // Adquisición de zapatillas en el nuevo estadoT
@@ -536,12 +539,15 @@ list<Action> ComportamientoTecnico::A_Estrella(const EstadoT &inicio, const Esta
   priority_queue<NodoT, vector<NodoT>, ComparaNodos> frontier;
   list<Action> camino_solucion;
 
-  // Matriz 4D para visitados: [Fila][Columna][Orientacion][Zapatillas]
-  // Evito el uso de set y reduzco la complejidad de O(log N) a O(1)
-  vector<vector<vector<vector<bool>>>> visitados(terreno.size(),
-                                                 vector<vector<vector<bool>>>(terreno[0].size(),
-                                                                              vector<vector<bool>>(8,
-                                                                                                   vector<bool>(2, false))));
+  // Matriz 5D para visitados: [Fila][Columna][Orientacion][Zapatillas][Paridad]
+  // No podemos indexar por num_pasos exacto (crece sin límite).
+  // Solo necesitamos la paridad (num_pasos % 2): 0=par, 1=impar.
+  // Dos estados con la misma (f,c,brujula,zap,paridad) son equivalentes en A*.
+  vector<vector<vector<vector<vector<bool>>>>> visitados(terreno.size(),
+      vector<vector<vector<vector<bool>>>>(terreno[0].size(),
+          vector<vector<vector<bool>>>(8,
+              vector<vector<bool>>(2,
+                  vector<bool>(2, false)))));
 
   NodoT n_inicial;
   n_inicial.estado = inicio;
@@ -554,15 +560,19 @@ list<Action> ComportamientoTecnico::A_Estrella(const EstadoT &inicio, const Esta
     frontier.pop();
 
     int zapatillas = nodo_actual.estado.zapatillas ? 1 : 0;
+    int par = nodo_actual.estado.num_pasos % 2; // 0=par, 1=impar
 
-    // Saltar estados qeu ya han sido explorados
-    if (visitados[nodo_actual.estado.site.f][nodo_actual.estado.site.c][nodo_actual.estado.site.brujula][zapatillas])
+    // Saltar estados que ya han sido explorados con la misma paridad de pasos
+    if (visitados[nodo_actual.estado.site.f][nodo_actual.estado.site.c][nodo_actual.estado.site.brujula][zapatillas][par])
       continue;
-    visitados[nodo_actual.estado.site.f][nodo_actual.estado.site.c][nodo_actual.estado.site.brujula][zapatillas] = true;
+    visitados[nodo_actual.estado.site.f][nodo_actual.estado.site.c][nodo_actual.estado.site.brujula][zapatillas][par] = true;
 
-    // Comprobamos si hemos llegado al destino
+    // Comprobamos si hemos llegado al destino con número impar de pasos
     if (nodo_actual.estado.site.f == final.site.f && nodo_actual.estado.site.c == final.site.c) {
-      return nodo_actual.secuencia;
+      if (par == 1) {
+        cout << "Plan encontrado con " << nodo_actual.estado.num_pasos << " pasos (impar)" << endl;
+        return nodo_actual.secuencia;
+      }
     }
 
     Action accionesPosibles[] = {WALK, TURN_SR, TURN_SL};
@@ -615,6 +625,8 @@ Action ComportamientoTecnico::ComportamientoTecnicoNivel_3(Sensores sensores) {
     hayPlan = plan.size() != 0;
     VisualizaPlan(inicio.site, plan);
   }
+
+  cout << "Tamaño del plan: " << plan.size() << endl;
 
   // 2. Si hay plan, lo ejecutamos paso a paso
   if (hayPlan && plan.size() > 0) {
