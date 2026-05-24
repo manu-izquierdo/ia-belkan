@@ -16,8 +16,13 @@ struct EstadoI {
   ubicacion site;
   bool zapatillas;
   bool operator==(const EstadoI &st) const {
-    return site.f == st.site.f && site.c == st.site.c && site.brujula == st.site.brujula && zapatillas == st.zapatillas;
+    return site.f == st.site.f && site.c == st.site.c && site.brujula == st.site.brujula && zapatillas == st.zapatillas && walk == st.walk && right == st.right && left == st.left;
   }
+  
+  // Ejercicio 1: Obligatoriedad de diversidad de acciones en la ruta del Ingeniero
+  bool walk=false;
+  bool right=false;
+  bool left=false;
 };
 
 struct NodoI {

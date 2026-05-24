@@ -408,15 +408,18 @@ EstadoI ComportamientoIngeniero::applyI(Action accion, const EstadoI &st, const 
   switch (accion) {
   case WALK:
     nuevo_st.site = Delante(st.site);
+    nuevo_st.walk = true;
     break;
   case JUMP:
     nuevo_st.site = Delante(Delante(st.site));
     break;
   case TURN_SR:
     nuevo_st.site.brujula = (Orientacion)((nuevo_st.site.brujula + 1) % 8);
+    nuevo_st.right = true;
     break;
   case TURN_SL:
     nuevo_st.site.brujula = (Orientacion)((nuevo_st.site.brujula + 7) % 8);
+    nuevo_st.left = true;
     break;
   }
   // Adquisición de zapatillas en el nuevo estado
@@ -444,11 +447,18 @@ list<Action> ComportamientoIngeniero::B_Anchura(const EstadoI &inicio, const Est
   NodoI nodo_actual;
   list<NodoI> frontera; // Actuará como si fuese una cola FIFO, nodos abiertos pero no explorados
 
-  // Matriz 4D para visitados: [Fila][Columna][Orientacion][Zapatillas]
-  vector<vector<vector<vector<bool>>>> visitados(terreno.size(),
-                                                 vector<vector<vector<bool>>>(terreno[0].size(),
-                                                                              vector<vector<bool>>(8,
-                                                                                                   vector<bool>(2, false))));
+  // Matriz 7D para visitados: [Fila][Columna][Orientacion][Zapatillas][Walk][Right][Left]
+  // Es necesario incluir los 3 flags porque (f,c,brujula,zap) con walk=false es un estado
+  // DISTINTO a (f,c,brujula,zap) con walk=true. Sin esta distinción, el BFS descartaría
+  // caminos que aún pueden alcanzar la meta con todos los flags activos.
+  vector<vector<vector<vector<vector<vector<vector<bool>>>>>>> visitados(
+      terreno.size(),
+      vector<vector<vector<vector<vector<vector<bool>>>>>>(terreno[0].size(),
+          vector<vector<vector<vector<vector<bool>>>>>(8,
+              vector<vector<vector<vector<bool>>>>(2,
+                  vector<vector<vector<bool>>>(2,
+                      vector<vector<bool>>(2,
+                          vector<bool>(2, false)))))));
 
   nodo_actual.estado = inicio;
 
@@ -463,15 +473,26 @@ list<Action> ComportamientoIngeniero::B_Anchura(const EstadoI &inicio, const Est
     nodo_actual = frontera.front();
     frontera.pop_front();
 
-    // 2. Control de nodos visitados optimizado (O(log N))
-    int zapatillas = nodo_actual.estado.zapatillas ? 1 : 0;
-    if (visitados[nodo_actual.estado.site.f][nodo_actual.estado.site.c][nodo_actual.estado.site.brujula][zapatillas])
-      continue; // Si ya se ha visitado, no se vuelve a visitar
-    visitados[nodo_actual.estado.site.f][nodo_actual.estado.site.c][nodo_actual.estado.site.brujula][zapatillas] = true; // Marcamos el estado como explorado
+    // 2. Control de nodos visitados: el estado completo incluye los 3 flags de restricción
+    int zap = nodo_actual.estado.zapatillas ? 1 : 0;
+    int iw  = nodo_actual.estado.walk  ? 1 : 0;
+    int ir  = nodo_actual.estado.right ? 1 : 0;
+    int il  = nodo_actual.estado.left  ? 1 : 0;
+    // vector<bool> usa bits empaquetados y no admite bool&: accedemos dos veces
+    if (visitados[nodo_actual.estado.site.f][nodo_actual.estado.site.c]
+                 [nodo_actual.estado.site.brujula][zap][iw][ir][il])
+      continue; // Si ya se ha visitado este estado exacto, no se vuelve a explorar
+    visitados[nodo_actual.estado.site.f][nodo_actual.estado.site.c]
+             [nodo_actual.estado.site.brujula][zap][iw][ir][il] = true; // Marcamos el estado como explorado
 
     // Si llegmaos a la solucion sale del while y devuelve camino_solucion
+    // En B_Anchura:
     if (nodo_actual.estado.site.f == final.site.f && nodo_actual.estado.site.c == final.site.c) {
-      return nodo_actual.secuencia;
+        // Solo si el camino que ha llegado a la meta cumple los requisitos, lo aceptamos
+        if (nodo_actual.estado.walk && nodo_actual.estado.left && nodo_actual.estado.right) {
+            return nodo_actual.secuencia;
+        }
+        // Si no cumple, el algoritmo sigue buscando. ¡No hagas return aquí!
     }
 
     // Añadimos a la cola una copia de lo que ya llevaba mas lo que pasaría si hace cada una de sus acciones
@@ -542,6 +563,8 @@ Action ComportamientoIngeniero::ComportamientoIngenieroNivel_2(Sensores sensores
     plan = B_Anchura(inicio, destino, mapaResultado, mapaCotas);
     hayPlan = plan.size() != 0;
     VisualizaPlan(inicio.site, plan);
+    // DEBUG: imprime la secuencia completa para verificar que contiene W, l y r
+    cout << "[N2] Plan encontrado: "; PintaPlan(plan);
   }
 
   // 2. Si hay plan, lo ejecutamos paso a paso
