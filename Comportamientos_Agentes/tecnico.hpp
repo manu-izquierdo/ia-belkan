@@ -256,10 +256,13 @@ private:
 
   // Nivel 3
   int CostoEnergiaTecnico(Action accion, const EstadoT &st, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura) const;
-  bool CasillaAccesibleTecnico(Action accion, const EstadoT &st, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura) const;
+  // solo_diagonal=true → WALK solo permitido en orientaciones diagonales (NE,SE,SO,NO)
+  bool CasillaAccesibleTecnico(Action accion, const EstadoT &st, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura, bool solo_diagonal = false) const;
   EstadoT applyT(Action accion, const EstadoT &st, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura) const;
   int Heuristica(const EstadoT &actual, const EstadoT &objetivo) const;
-  list<Action> A_Estrella(const EstadoT &inicio, const EstadoT &final, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura);
+  bool EsDiagonal(Orientacion o) const; // true si la orientacion es diagonal (impar: NE,SE,SO,NO)
+  // solo_diagonal=true activa la restriccion diagonal para Nivel 3; false = movimiento normal
+  list<Action> A_Estrella(const EstadoT &inicio, const EstadoT &final, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura, bool solo_diagonal = false);
 
 
   // Nivel 5

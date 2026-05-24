@@ -403,9 +403,20 @@ Action ComportamientoTecnico::ComportamientoTecnicoNivel_2(Sensores sensores) {
  * @param altura  Matriz de cotas.
  * @return true si la acción es ejecutable.
  */
-bool ComportamientoTecnico::CasillaAccesibleTecnico(Action accion, const EstadoT &st, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura) const {
+
+// Las orientaciones diagonales son las impares: NE=1, SE=3, SO=5, NO=7
+bool ComportamientoTecnico::EsDiagonal(Orientacion o) const {
+  return (o % 2 == 1);
+}
+
+bool ComportamientoTecnico::CasillaAccesibleTecnico(Action accion, const EstadoT &st, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura, bool solo_diagonal) const {
   if (accion != WALK)
     return true; // Giros siempre son viables, el técnico no tiene JUMP
+
+  // Restricción de movimiento diagonal: si está activa, WALK solo se permite
+  // cuando el agente mira en diagonal. Los giros se usan para cambiar orientación.
+  if (solo_diagonal && !EsDiagonal(st.site.brujula))
+    return false;
 
   ubicacion casilla_delante = Delante(st.site);
 
@@ -531,7 +542,7 @@ int ComportamientoTecnico::CostoEnergiaTecnico(Action accion, const EstadoT &st,
  * @param altura  Matriz de cotas.
  * @return Secuencia de acciones de mínimo coste, o lista vacía si no existe.
  */
-list<Action> ComportamientoTecnico::A_Estrella(const EstadoT &inicio, const EstadoT &final, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura) {
+list<Action> ComportamientoTecnico::A_Estrella(const EstadoT &inicio, const EstadoT &final, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura, bool solo_diagonal) {
   
   priority_queue<NodoT, vector<NodoT>, ComparaNodos> frontier;
   list<Action> camino_solucion;
@@ -567,7 +578,7 @@ list<Action> ComportamientoTecnico::A_Estrella(const EstadoT &inicio, const Esta
 
     Action accionesPosibles[] = {WALK, TURN_SR, TURN_SL};
     for (Action accion : accionesPosibles) {
-      if (CasillaAccesibleTecnico(accion, nodo_actual.estado, terreno, altura)) {
+      if (CasillaAccesibleTecnico(accion, nodo_actual.estado, terreno, altura, solo_diagonal)) {
         NodoT hijo;
         hijo.estado = applyT(accion, nodo_actual.estado, terreno, altura);
         hijo.secuencia = nodo_actual.secuencia;
@@ -610,8 +621,8 @@ Action ComportamientoTecnico::ComportamientoTecnicoNivel_3(Sensores sensores) {
     destino.site.brujula = norte; // La orientación de llegada y las zapatillas dan igual
     destino.zapatillas = false;
 
-    // Llamamos a nuestro algoritmo BFS
-    plan = A_Estrella(inicio, destino, mapaResultado, mapaCotas);
+    // solo_diagonal=true porque nivel 3 exige movimientos en diagonal (NE,SE,SO,NO)
+    plan = A_Estrella(inicio, destino, mapaResultado, mapaCotas, true);
     hayPlan = plan.size() != 0;
     VisualizaPlan(inicio.site, plan);
   }
