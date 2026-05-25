@@ -411,6 +411,7 @@ EstadoI ComportamientoIngeniero::applyI(Action accion, const EstadoI &st, const 
     break;
   case JUMP:
     nuevo_st.site = Delante(Delante(st.site));
+    nuevo_st.num_jump++;
     break;
   case TURN_SR:
     nuevo_st.site.brujula = (Orientacion)((nuevo_st.site.brujula + 1) % 8);
@@ -445,10 +446,11 @@ list<Action> ComportamientoIngeniero::B_Anchura(const EstadoI &inicio, const Est
   list<NodoI> frontera; // Actuará como si fuese una cola FIFO, nodos abiertos pero no explorados
 
   // Matriz 4D para visitados: [Fila][Columna][Orientacion][Zapatillas]
-  vector<vector<vector<vector<bool>>>> visitados(terreno.size(),
-                                                 vector<vector<vector<bool>>>(terreno[0].size(),
-                                                                              vector<vector<bool>>(8,
-                                                                                                   vector<bool>(2, false))));
+  vector<vector<vector<vector<vector<bool>>>>> visitados(terreno.size(),
+                                                 vector<vector<vector<vector<bool>>>>(terreno[0].size(),
+                                                                              vector<vector<vector<bool>>>(8,
+                                                                                                   vector<vector<bool>>(2,
+                                                                                                              vector<bool>(2,false)))));
 
   nodo_actual.estado = inicio;
 
@@ -465,13 +467,17 @@ list<Action> ComportamientoIngeniero::B_Anchura(const EstadoI &inicio, const Est
 
     // 2. Control de nodos visitados optimizado (O(log N))
     int zapatillas = nodo_actual.estado.zapatillas ? 1 : 0;
-    if (visitados[nodo_actual.estado.site.f][nodo_actual.estado.site.c][nodo_actual.estado.site.brujula][zapatillas])
+    int jump_par = nodo_actual.estado.num_jump%2;
+    if (visitados[nodo_actual.estado.site.f][nodo_actual.estado.site.c][nodo_actual.estado.site.brujula][zapatillas][jump_par])
       continue; // Si ya se ha visitado, no se vuelve a visitar
-    visitados[nodo_actual.estado.site.f][nodo_actual.estado.site.c][nodo_actual.estado.site.brujula][zapatillas] = true; // Marcamos el estado como explorado
+    visitados[nodo_actual.estado.site.f][nodo_actual.estado.site.c][nodo_actual.estado.site.brujula][zapatillas][jump_par] = true; // Marcamos el estado como explorado
 
     // Si llegmaos a la solucion sale del while y devuelve camino_solucion
     if (nodo_actual.estado.site.f == final.site.f && nodo_actual.estado.site.c == final.site.c) {
-      return nodo_actual.secuencia;
+      if(jump_par==1){
+        cout << "Plan encontrado con " << nodo_actual.estado.num_jump << " JUMP." << endl;
+        return nodo_actual.secuencia;
+      }
     }
 
     // Añadimos a la cola una copia de lo que ya llevaba mas lo que pasaría si hace cada una de sus acciones

@@ -18,6 +18,7 @@ struct EstadoI {
   bool operator==(const EstadoI &st) const {
     return site.f == st.site.f && site.c == st.site.c && site.brujula == st.site.brujula && zapatillas == st.zapatillas;
   }
+  int num_jump = 0; // Racha impar consecutiva para llegar a meta
 };
 
 struct NodoI {
