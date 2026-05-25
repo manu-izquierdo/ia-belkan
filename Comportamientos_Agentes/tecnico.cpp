@@ -567,6 +567,9 @@ list<Action> ComportamientoTecnico::A_Estrella(const EstadoT &inicio, const Esta
 
     Action accionesPosibles[] = {WALK, TURN_SR, TURN_SL};
     for (Action accion : accionesPosibles) {
+      if (accion == WALK && nodo_actual.estado.site.brujula % 2 == 0)
+        continue;
+
       if (CasillaAccesibleTecnico(accion, nodo_actual.estado, terreno, altura)) {
         NodoT hijo;
         hijo.estado = applyT(accion, nodo_actual.estado, terreno, altura);
