@@ -477,6 +477,9 @@ list<Action> ComportamientoIngeniero::B_Anchura(const EstadoI &inicio, const Est
     // Añadimos a la cola una copia de lo que ya llevaba mas lo que pasaría si hace cada una de sus acciones
     Action accionesPosibles[] = {WALK, JUMP, TURN_SR, TURN_SL};
     for (Action accion : accionesPosibles) {
+      if((accion == WALK || accion == JUMP) && (nodo_actual.estado.site.brujula%2==1))
+        continue;
+
       if (CasillaAccesibleIngeniero(accion, nodo_actual.estado, terreno, altura)) {
         NodoI hijo = nodo_actual;
         hijo.estado = applyI(accion, nodo_actual.estado, terreno, altura);
