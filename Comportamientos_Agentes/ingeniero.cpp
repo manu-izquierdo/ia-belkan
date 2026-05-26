@@ -686,10 +686,11 @@ list<Paso> ComportamientoIngeniero::PlanificarRedTuberias(int fInicio, int cInic
   
   // Matriz 3D: [f][c][delta]
   // Se usa int en vez de bool para permitir revisitar si llega con menor impacto
-  vector<vector<vector<int>>> min_imp(
+  vector<vector<vector<vector<int>>>> min_imp(
       terreno.size(),
-      vector<vector<int>>(terreno[0].size(),
-                          vector<int>(3, INT_MAX)));
+      vector<vector<vector<int>>>(terreno[0].size(),
+                          vector<vector<int>>(3,
+                                vector<int>(2, INT_MAX))));
 
   // Inicializar con los 3 deltas posibles en la Belkanita (-1,0,1), el primer impacto es solo DIG o RAISE, no suma INSTALL
   for (int delta = -1; delta <= 1; delta++) {
@@ -718,14 +719,15 @@ list<Paso> ComportamientoIngeniero::PlanificarRedTuberias(int fInicio, int cInic
     frontera.pop(); // Extraemos el nodo más prometedor según ComparaTuberia, extrae siempre el de menor longitud y en caso de empate, el de menor impacto
 
     // Visitados AL EXTRAER
-    int &mi = min_imp[actual.f][actual.c][actual.delta + 1]; // mi será una referencia a min_imp
+    int &mi = min_imp[actual.f][actual.c][actual.delta + 1][actual.agua]; // mi será una referencia a min_imp
     if (mi <= actual.impacto)
       continue; //ya llegamos a este nodo con menor impacto
 
     // Test objetivo
     if (terreno[actual.f][actual.c] == 'U') {
       if (actual.impacto <= limiteAmbiental) {
-        return actual.camino; // Primera 'U' válida = óptima en longitud y dentro del límite
+        if (actual.agua)
+          return actual.camino; // Primera 'U' válida = óptima en longitud y dentro del límite
       }
       continue; // Supera el límite, no actualizamos min_imp, seguimos buscando
     }
@@ -768,6 +770,8 @@ list<Paso> ComportamientoIngeniero::PlanificarRedTuberias(int fInicio, int cInic
         if (dv == 1)
         imp_conexion += getCosteEco(terr_vecino, RAISE);
 
+        if(terr_actual=='A') actual.agua = true;
+
         NodoTuberia hijo = actual;
         hijo.f = nf;
         hijo.c = nc;
@@ -803,8 +807,8 @@ Action ComportamientoIngeniero::ComportamientoIngenieroNivel_4(Sensores sensores
     if (!plan_tuberias.empty()) {
       VisualizaRedTuberias(plan_tuberias);
       // cout << "Nivel 4: red de " << plan_tuberias.size() << " tramos planificada" << endl;
+      hayPlan = true;
     }
-    hayPlan = true;
   }
   return IDLE;
 }
