@@ -625,9 +625,9 @@ bool ComportamientoIngeniero::CasillaValidaTuberia(int f, int c, const vector<ve
   if (f < 0 || f >= (int)terreno.size() || c < 0 || c >= (int)terreno[0].size())
     return false;
     
-  if (t == 'M' || t == 'P' || t == 'B' || t == '?')
-    return false;
-  return true; // A, H, S, C, D, U son válidas
+  if (t == 'U' || t == 'H')
+    return true; // A, H, S, C, D, U son válidas
+  return false;
 }
 
 /**
