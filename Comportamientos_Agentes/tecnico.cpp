@@ -447,6 +447,9 @@ EstadoT ComportamientoTecnico::applyT(Action accion, const EstadoT &st, const ve
   // Adquisición de zapatillas en el nuevo estadoT
   if (terreno[nuevo_st.site.f][nuevo_st.site.c] == 'D')
     nuevo_st.zapatillas = true;
+  if (terreno[nuevo_st.site.f][nuevo_st.site.c] == 'X')
+    nuevo_st.puesto_base = true;
+
   return nuevo_st;
 }
 
@@ -538,10 +541,11 @@ list<Action> ComportamientoTecnico::A_Estrella(const EstadoT &inicio, const Esta
 
   // Matriz 4D para visitados: [Fila][Columna][Orientacion][Zapatillas]
   // Evito el uso de set y reduzco la complejidad de O(log N) a O(1)
-  vector<vector<vector<vector<bool>>>> visitados(terreno.size(),
-                                                 vector<vector<vector<bool>>>(terreno[0].size(),
-                                                                              vector<vector<bool>>(8,
-                                                                                                   vector<bool>(2, false))));
+  vector<vector<vector<vector<vector<bool>>>>> visitados(terreno.size(),
+                                                 vector<vector<vector<vector<bool>>>>(terreno[0].size(),
+                                                                              vector<vector<vector<bool>>>(8,
+                                                                                                   vector<vector<bool>>(2,
+                                                                                                         vector<bool> (2,false)))));
 
   NodoT n_inicial;
   n_inicial.estado = inicio;
@@ -554,15 +558,19 @@ list<Action> ComportamientoTecnico::A_Estrella(const EstadoT &inicio, const Esta
     frontier.pop();
 
     int zapatillas = nodo_actual.estado.zapatillas ? 1 : 0;
+    int puestobase = nodo_actual.estado.puesto_base;
 
     // Saltar estados qeu ya han sido explorados
-    if (visitados[nodo_actual.estado.site.f][nodo_actual.estado.site.c][nodo_actual.estado.site.brujula][zapatillas])
+    if (visitados[nodo_actual.estado.site.f][nodo_actual.estado.site.c][nodo_actual.estado.site.brujula][zapatillas][puestobase])
       continue;
-    visitados[nodo_actual.estado.site.f][nodo_actual.estado.site.c][nodo_actual.estado.site.brujula][zapatillas] = true;
+    visitados[nodo_actual.estado.site.f][nodo_actual.estado.site.c][nodo_actual.estado.site.brujula][zapatillas][puestobase] = true;
 
     // Comprobamos si hemos llegado al destino
     if (nodo_actual.estado.site.f == final.site.f && nodo_actual.estado.site.c == final.site.c) {
-      return nodo_actual.secuencia;
+      if(nodo_actual.estado.puesto_base){
+        cout << "Paso por al menos 1 puesto base" << endl;
+        return nodo_actual.secuencia;
+      }
     }
 
     Action accionesPosibles[] = {WALK, TURN_SR, TURN_SL};
