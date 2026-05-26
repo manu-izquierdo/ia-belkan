@@ -24,8 +24,9 @@
 struct EstadoT {
   ubicacion site;
   bool zapatillas;
+  bool puesto_base = false;
   bool operator==(const EstadoT &st) const {
-    return site.f == st.site.f && site.c == st.site.c && site.brujula == st.site.brujula && zapatillas == st.zapatillas;
+    return site.f == st.site.f && site.c == st.site.c && site.brujula == st.site.brujula && zapatillas == st.zapatillas && puesto_base == st.puesto_base;
   }
 };
 
@@ -234,6 +235,7 @@ private:
   int fase = 0;
   int destino_f = -1;
   int destino_c = -1;
+  bool puesto_base_visitado = false; // true tras el primer viaje que pasó por 'X'
 
   // =========================================================================
   // FUNCIONES

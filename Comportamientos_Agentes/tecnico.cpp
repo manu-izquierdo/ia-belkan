@@ -447,6 +447,8 @@ EstadoT ComportamientoTecnico::applyT(Action accion, const EstadoT &st, const ve
   // Adquisición de zapatillas en el nuevo estadoT
   if (terreno[nuevo_st.site.f][nuevo_st.site.c] == 'D')
     nuevo_st.zapatillas = true;
+  if (terreno[nuevo_st.site.f][nuevo_st.site.c] == 'X')
+    nuevo_st.puesto_base = true;
   return nuevo_st;
 }
 
@@ -536,12 +538,13 @@ list<Action> ComportamientoTecnico::A_Estrella(const EstadoT &inicio, const Esta
   priority_queue<NodoT, vector<NodoT>, ComparaNodos> frontier;
   list<Action> camino_solucion;
 
-  // Matriz 4D para visitados: [Fila][Columna][Orientacion][Zapatillas]
+  // Matriz 5D para visitados: [Fila][Columna][Orientacion][Zapatillas][PuestoBase]
   // Evito el uso de set y reduzco la complejidad de O(log N) a O(1)
-  vector<vector<vector<vector<bool>>>> visitados(terreno.size(),
-                                                 vector<vector<vector<bool>>>(terreno[0].size(),
-                                                                              vector<vector<bool>>(8,
-                                                                                                   vector<bool>(2, false))));
+  vector<vector<vector<vector<vector<bool>>>>> visitados(terreno.size(),
+                                                 vector<vector<vector<vector<bool>>>>(terreno[0].size(),
+                                                                              vector<vector<vector<bool>>>(8,
+                                                                                                   vector<vector<bool>>(2,
+                                                                                                         vector<bool>(2, false)))));
 
   NodoT n_inicial;
   n_inicial.estado = inicio;
@@ -554,15 +557,16 @@ list<Action> ComportamientoTecnico::A_Estrella(const EstadoT &inicio, const Esta
     frontier.pop();
 
     int zapatillas = nodo_actual.estado.zapatillas ? 1 : 0;
+    int pb = nodo_actual.estado.puesto_base ? 1 : 0;
 
-    // Saltar estados qeu ya han sido explorados
-    if (visitados[nodo_actual.estado.site.f][nodo_actual.estado.site.c][nodo_actual.estado.site.brujula][zapatillas])
+    // Saltar estados que ya han sido explorados
+    if (visitados[nodo_actual.estado.site.f][nodo_actual.estado.site.c][nodo_actual.estado.site.brujula][zapatillas][pb])
       continue;
-    visitados[nodo_actual.estado.site.f][nodo_actual.estado.site.c][nodo_actual.estado.site.brujula][zapatillas] = true;
+    visitados[nodo_actual.estado.site.f][nodo_actual.estado.site.c][nodo_actual.estado.site.brujula][zapatillas][pb] = true;
 
-    // Comprobamos si hemos llegado al destino
+    // Comprobamos si hemos llegado al destino habiendo pasado por 'X'
     if (nodo_actual.estado.site.f == final.site.f && nodo_actual.estado.site.c == final.site.c) {
-      return nodo_actual.secuencia;
+      if (nodo_actual.estado.puesto_base) return nodo_actual.secuencia;
     }
 
     Action accionesPosibles[] = {WALK, TURN_SR, TURN_SL};
@@ -672,6 +676,7 @@ void ComportamientoTecnico::GenerarRuta(int dest_f, int dest_c, const Sensores &
   inicio.site.c = sensores.posC;
   inicio.site.brujula = sensores.rumbo;
   inicio.zapatillas = tiene_zapatillas;
+  inicio.puesto_base = puesto_base_visitado; // Si ya pasó por 'X', el constraint ya está cumplido
 
   EstadoT destino;
   destino.site.f = dest_f;
@@ -802,6 +807,7 @@ Action ComportamientoTecnico::ComportamientoTecnicoNivel_5(Sensores sensores) {
       if (sensores.enfrente) {
         // Condición óptima: el Ingeniero también ve al Técnico
         accion = INSTALL;
+        puesto_base_visitado = true; // Ya cumplimos el requisito de 'X' en el primer viaje
         fase = 0; // Reiniciar el ciclo para esperar el siguiente tramo
       } else if (sensores.agentes[2] == 'i') {
         // El Técnico está mirando al Ingeniero, pero el Ingeniero
