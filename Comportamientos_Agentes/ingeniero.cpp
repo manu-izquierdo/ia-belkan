@@ -601,9 +601,11 @@ bool ComportamientoIngeniero::DeltaValido(int f, int c, int delta, const vector<
   int h = altura[f][c];
 
   if (terr == 'A' && delta != 0)
-    return false; // Agua el agua no puede tener DIG ni RAISE
+    return false; // Agua no puede tener DIG ni RAISE
   if (delta == 1 && h >= 9)
     return false; // RAISE: solo si h < 9
+  if (delta == 2 && h >= 8)
+    return false; // RAISE RAISE: solo si h < 8
   if (delta == -1 && h <= 1)
     return false; // DIG: solo si h > 1
   return true;
@@ -684,15 +686,15 @@ list<Paso> ComportamientoIngeniero::PlanificarRedTuberias(int fInicio, int cInic
   
   priority_queue<NodoTuberia, vector<NodoTuberia>, ComparaTuberia> frontera;
   
-  // Matriz 3D: [f][c][delta]
+  // Matriz 3D: [f][c][delta+1]  delta en {-1,0,1,2} → índices {0,1,2,3}
   // Se usa int en vez de bool para permitir revisitar si llega con menor impacto
   vector<vector<vector<int>>> min_imp(
       terreno.size(),
       vector<vector<int>>(terreno[0].size(),
-                          vector<int>(3, INT_MAX)));
+                          vector<int>(4, INT_MAX)));
 
-  // Inicializar con los 3 deltas posibles en la Belkanita (-1,0,1), el primer impacto es solo DIG o RAISE, no suma INSTALL
-  for (int delta = -1; delta <= 1; delta++) {
+  // Inicializar con los 4 deltas posibles en la Belkanita (-1,0,1,2)
+  for (int delta = -1; delta <= 2; delta++) {
     if (DeltaValido(fInicio, cInicio, delta, terreno, altura)) {
       NodoTuberia inicio;
       inicio.f = fInicio;
@@ -705,6 +707,8 @@ list<Paso> ComportamientoIngeniero::PlanificarRedTuberias(int fInicio, int cInic
         imp = getCosteEco(terreno[fInicio][cInicio], DIG);
       if (delta == 1)
         imp = getCosteEco(terreno[fInicio][cInicio], RAISE);
+      if (delta == 2)
+        imp = getCosteEco(terreno[fInicio][cInicio], RAISE) * 2;
       inicio.impacto = imp;
       Paso p0{fInicio, cInicio, delta};
       inicio.camino.push_back(p0);
@@ -746,27 +750,29 @@ list<Paso> ComportamientoIngeniero::PlanificarRedTuberias(int fInicio, int cInic
       if (!CasillaValidaTuberia(nf, nc, terreno))
         continue;
 
-      // Por cada vecino probamos los 3 deltas posibles
-      for (int dv = -1; dv <= 1; dv++) {
+      // Por cada vecino probamos los 4 deltas posibles
+      for (int dv = -1; dv <= 2; dv++) {
         if (!DeltaValido(nf, nc, dv, terreno, altura))
           continue;
 
         int h_v = altura[nf][nc] + dv;
-        int diff = h_actual - h_v; // La diferencia de altura entre el nodo y su hijo no puede ser mayor de 1 ni menor a 0
+        int diff = h_actual - h_v;
         if (diff != 0 && diff != 1)
           continue;
-          
+
         unsigned char terr_actual = terreno[actual.f][actual.c];
         unsigned char terr_vecino = terreno[nf][nc];
-        
+
         // Calculamos la fórmula para cada conexión entre dos casillas:
         // INSTALL(casilla_anterior) + INSTALL(casilla_nueva) + DIG/RAISE(casilla_nueva si aplica)
         int imp_conexion = 0;
         imp_conexion += getCosteEco(terr_actual, INSTALL) + getCosteEco(terr_vecino, INSTALL);
         if (dv == -1)
-        imp_conexion += getCosteEco(terr_vecino, DIG);
+          imp_conexion += getCosteEco(terr_vecino, DIG);
         if (dv == 1)
-        imp_conexion += getCosteEco(terr_vecino, RAISE);
+          imp_conexion += getCosteEco(terr_vecino, RAISE);
+        if (dv == 2)
+          imp_conexion += getCosteEco(terr_vecino, RAISE) * 2;
 
         NodoTuberia hijo = actual;
         hijo.f = nf;
