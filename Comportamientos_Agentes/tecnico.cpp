@@ -572,7 +572,7 @@ list<Action> ComportamientoTecnico::A_Estrella(const EstadoT &inicio, const Esta
         hijo.estado = applyT(accion, nodo_actual.estado, terreno, altura);
         hijo.secuencia = nodo_actual.secuencia;
         hijo.secuencia.push_back(accion);
-        hijo.g = nodo_actual.g + CostoEnergiaTecnico(accion, nodo_actual.estado, terreno, altura);
+        hijo.g = nodo_actual.g + 1;
         hijo.h = Heuristica(hijo.estado, final);
 
         frontier.push(hijo);
