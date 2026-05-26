@@ -436,6 +436,7 @@ EstadoT ComportamientoTecnico::applyT(Action accion, const EstadoT &st, const ve
   switch (accion) {
   case WALK:
     nuevo_st.site = Delante(st.site);
+    nuevo_st.descansito++;
     break;
   case TURN_SR:
     nuevo_st.site.brujula = (Orientacion)((nuevo_st.site.brujula + 1) % 8);
@@ -536,12 +537,13 @@ list<Action> ComportamientoTecnico::A_Estrella(const EstadoT &inicio, const Esta
   priority_queue<NodoT, vector<NodoT>, ComparaNodos> frontier;
   list<Action> camino_solucion;
 
-  // Matriz 4D para visitados: [Fila][Columna][Orientacion][Zapatillas]
-  // Evito el uso de set y reduzco la complejidad de O(log N) a O(1)
-  vector<vector<vector<vector<bool>>>> visitados(terreno.size(),
-                                                 vector<vector<vector<bool>>>(terreno[0].size(),
-                                                                              vector<vector<bool>>(8,
-                                                                                                   vector<bool>(2, false))));
+  // Matriz 5D para visitados: [Fila][Columna][Orientacion][Zapatillas][Descansito]
+  // descansito ∈ {0,1} (se resetea a 0 al llegar a 2)
+  vector<vector<vector<vector<vector<bool>>>>> visitados(terreno.size(),
+                                                 vector<vector<vector<vector<bool>>>>(terreno[0].size(),
+                                                                              vector<vector<vector<bool>>>(8,
+                                                                                                   vector<vector<bool>>(2,
+                                                                                                         vector<bool>(2, false)))));
 
   NodoT n_inicial;
   n_inicial.estado = inicio;
@@ -554,11 +556,12 @@ list<Action> ComportamientoTecnico::A_Estrella(const EstadoT &inicio, const Esta
     frontier.pop();
 
     int zapatillas = nodo_actual.estado.zapatillas ? 1 : 0;
+    int desc = nodo_actual.estado.descansito; // ya es 0 o 1 tras el reset
 
-    // Saltar estados qeu ya han sido explorados
-    if (visitados[nodo_actual.estado.site.f][nodo_actual.estado.site.c][nodo_actual.estado.site.brujula][zapatillas])
+    // Saltar estados que ya han sido explorados
+    if (visitados[nodo_actual.estado.site.f][nodo_actual.estado.site.c][nodo_actual.estado.site.brujula][zapatillas][desc])
       continue;
-    visitados[nodo_actual.estado.site.f][nodo_actual.estado.site.c][nodo_actual.estado.site.brujula][zapatillas] = true;
+    visitados[nodo_actual.estado.site.f][nodo_actual.estado.site.c][nodo_actual.estado.site.brujula][zapatillas][desc] = true;
 
     // Comprobamos si hemos llegado al destino
     if (nodo_actual.estado.site.f == final.site.f && nodo_actual.estado.site.c == final.site.c) {
@@ -567,6 +570,7 @@ list<Action> ComportamientoTecnico::A_Estrella(const EstadoT &inicio, const Esta
 
     Action accionesPosibles[] = {WALK, TURN_SR, TURN_SL};
     for (Action accion : accionesPosibles) {
+      
       if (CasillaAccesibleTecnico(accion, nodo_actual.estado, terreno, altura)) {
         NodoT hijo;
         hijo.estado = applyT(accion, nodo_actual.estado, terreno, altura);
@@ -575,7 +579,14 @@ list<Action> ComportamientoTecnico::A_Estrella(const EstadoT &inicio, const Esta
         hijo.g = nodo_actual.g + CostoEnergiaTecnico(accion, nodo_actual.estado, terreno, altura);
         hijo.h = Heuristica(hijo.estado, final);
 
+        // Si el hijo acumula 2 WALKs, insertar IDLE y resetear el contador
+        if (hijo.estado.descansito == 2) {
+          hijo.secuencia.push_back(IDLE);
+          hijo.estado.descansito = 0;
+        }
+
         frontier.push(hijo);
+
       }
     }
   }
@@ -614,6 +625,18 @@ Action ComportamientoTecnico::ComportamientoTecnicoNivel_3(Sensores sensores) {
     plan = A_Estrella(inicio, destino, mapaResultado, mapaCotas);
     hayPlan = plan.size() != 0;
     VisualizaPlan(inicio.site, plan);
+
+    // DEBUG: verificar que hay un IDLE cada 2 WALKs
+    int walks = 0;
+    bool ok = true;
+    cout << "[DEBUG N3] Plan: ";
+    for (Action a : plan) {
+      if      (a == WALK)    { cout << "W "; walks++; }
+      else if (a == TURN_SR) { cout << "R "; }
+      else if (a == TURN_SL) { cout << "L "; }
+      else if (a == IDLE)    { cout << "I "; if (walks != 2) ok = false; walks = 0; }
+    }
+    cout << "\n[DEBUG N3] Patron correcto: " << (ok ? "SI" : "NO") << endl;
   }
 
   // 2. Si hay plan, lo ejecutamos paso a paso
