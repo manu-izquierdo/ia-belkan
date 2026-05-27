@@ -360,7 +360,7 @@ bool ComportamientoIngeniero::esSuperficieValida(unsigned char superficie) const
  */
 bool ComportamientoIngeniero::CasillaAccesibleIngeniero(Action accion, const EstadoI &st, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura) const {
   // Si no avanzamos, la acción es válida
-  if (accion != WALK && accion != JUMP)
+  if (accion != WALK && accion != JUMP && accion != DIG)
     return true;
 
   ubicacion casilla_delante = Delante(st.site);
@@ -370,7 +370,11 @@ bool ComportamientoIngeniero::CasillaAccesibleIngeniero(Action accion, const Est
 
   if (!esSuperficieValida(terreno[casilla_delante.f][casilla_delante.c]))
     return false;
-  
+
+  // DIG excava la casilla de delante y avanza: ignora restricción de altura
+  if (accion == DIG)
+    return true;
+
   // Ingeniero tiene como casillas intransitables Muro 'M', Precipicio 'P' y Bosque 'B'
   if (accion == WALK) {
     int dif_altura = altura[casilla_delante.f][casilla_delante.c] - altura[st.site.f][st.site.c];
@@ -407,6 +411,7 @@ EstadoI ComportamientoIngeniero::applyI(Action accion, const EstadoI &st, const 
   
   switch (accion) {
   case WALK:
+  case DIG:
     nuevo_st.site = Delante(st.site);
     break;
   case JUMP:
@@ -475,7 +480,7 @@ list<Action> ComportamientoIngeniero::B_Anchura(const EstadoI &inicio, const Est
     }
 
     // Añadimos a la cola una copia de lo que ya llevaba mas lo que pasaría si hace cada una de sus acciones
-    Action accionesPosibles[] = {WALK, JUMP, TURN_SR, TURN_SL};
+    Action accionesPosibles[] = {WALK, JUMP, TURN_SR, TURN_SL, DIG};
     for (Action accion : accionesPosibles) {
       if (CasillaAccesibleIngeniero(accion, nodo_actual.estado, terreno, altura)) {
         NodoI hijo = nodo_actual;
