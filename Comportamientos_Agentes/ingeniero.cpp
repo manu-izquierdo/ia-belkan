@@ -414,9 +414,11 @@ EstadoI ComportamientoIngeniero::applyI(Action accion, const EstadoI &st, const 
     break;
   case TURN_SR:
     nuevo_st.site.brujula = (Orientacion)((nuevo_st.site.brujula + 1) % 8);
+    nuevo_st.giros++;
     break;
   case TURN_SL:
     nuevo_st.site.brujula = (Orientacion)((nuevo_st.site.brujula + 7) % 8);
+    nuevo_st.giros++;
     break;
   }
   // Adquisición de zapatillas en el nuevo estado
@@ -445,10 +447,11 @@ list<Action> ComportamientoIngeniero::B_Anchura(const EstadoI &inicio, const Est
   list<NodoI> frontera; // Actuará como si fuese una cola FIFO, nodos abiertos pero no explorados
 
   // Matriz 4D para visitados: [Fila][Columna][Orientacion][Zapatillas]
-  vector<vector<vector<vector<bool>>>> visitados(terreno.size(),
-                                                 vector<vector<vector<bool>>>(terreno[0].size(),
-                                                                              vector<vector<bool>>(8,
-                                                                                                   vector<bool>(2, false))));
+  vector<vector<vector<vector<vector<bool>>>>> visitados(terreno.size(),
+                                                 vector<vector<vector<vector<bool>>>>(terreno[0].size(),
+                                                                              vector<vector<vector<bool>>>(8,
+                                                                                                   vector<vector<bool>>(2,
+                                                                                                            vector<bool>(5,false)))));
 
   nodo_actual.estado = inicio;
 
@@ -465,9 +468,10 @@ list<Action> ComportamientoIngeniero::B_Anchura(const EstadoI &inicio, const Est
 
     // 2. Control de nodos visitados optimizado (O(log N))
     int zapatillas = nodo_actual.estado.zapatillas ? 1 : 0;
-    if (visitados[nodo_actual.estado.site.f][nodo_actual.estado.site.c][nodo_actual.estado.site.brujula][zapatillas])
+    int giros = nodo_actual.estado.giros;
+    if (visitados[nodo_actual.estado.site.f][nodo_actual.estado.site.c][nodo_actual.estado.site.brujula][zapatillas][giros])
       continue; // Si ya se ha visitado, no se vuelve a visitar
-    visitados[nodo_actual.estado.site.f][nodo_actual.estado.site.c][nodo_actual.estado.site.brujula][zapatillas] = true; // Marcamos el estado como explorado
+    visitados[nodo_actual.estado.site.f][nodo_actual.estado.site.c][nodo_actual.estado.site.brujula][zapatillas][giros] = true; // Marcamos el estado como explorado
 
     // Si llegmaos a la solucion sale del while y devuelve camino_solucion
     if (nodo_actual.estado.site.f == final.site.f && nodo_actual.estado.site.c == final.site.c) {
@@ -481,6 +485,7 @@ list<Action> ComportamientoIngeniero::B_Anchura(const EstadoI &inicio, const Est
         NodoI hijo = nodo_actual;
         hijo.estado = applyI(accion, nodo_actual.estado, terreno, altura);
         hijo.secuencia.push_back(accion);
+        if (hijo.estado.giros > 4) continue;
         frontera.push_back(hijo);
       }
     }
