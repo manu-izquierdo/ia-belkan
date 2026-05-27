@@ -25,8 +25,9 @@ struct EstadoT {
   ubicacion site;
   bool zapatillas;
   bool operator==(const EstadoT &st) const {
-    return site.f == st.site.f && site.c == st.site.c && site.brujula == st.site.brujula && zapatillas == st.zapatillas;
+    return site.f == st.site.f && site.c == st.site.c && site.brujula == st.site.brujula && zapatillas == st.zapatillas && meahogo == st.meahogo;
   }
+  int meahogo = 0;
 };
 
 struct NodoT {

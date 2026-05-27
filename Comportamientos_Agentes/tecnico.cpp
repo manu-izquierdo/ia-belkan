@@ -447,6 +447,11 @@ EstadoT ComportamientoTecnico::applyT(Action accion, const EstadoT &st, const ve
   // Adquisición de zapatillas en el nuevo estadoT
   if (terreno[nuevo_st.site.f][nuevo_st.site.c] == 'D')
     nuevo_st.zapatillas = true;
+  if(terreno[nuevo_st.site.f][nuevo_st.site.c]=='A')
+    nuevo_st.meahogo++;
+  else
+    nuevo_st.meahogo=0;
+
   return nuevo_st;
 }
 
@@ -538,10 +543,11 @@ list<Action> ComportamientoTecnico::A_Estrella(const EstadoT &inicio, const Esta
 
   // Matriz 4D para visitados: [Fila][Columna][Orientacion][Zapatillas]
   // Evito el uso de set y reduzco la complejidad de O(log N) a O(1)
-  vector<vector<vector<vector<bool>>>> visitados(terreno.size(),
-                                                 vector<vector<vector<bool>>>(terreno[0].size(),
-                                                                              vector<vector<bool>>(8,
-                                                                                                   vector<bool>(2, false))));
+  vector<vector<vector<vector<vector<bool>>>>> visitados(terreno.size(),
+                                                 vector<vector<vector<vector<bool>>>>(terreno[0].size(),
+                                                                              vector<vector<vector<bool>>>(8,
+                                                                                                   vector<vector<bool>>(2, 
+                                                                                                           vector<bool>(4,false)))));
 
   NodoT n_inicial;
   n_inicial.estado = inicio;
@@ -554,11 +560,11 @@ list<Action> ComportamientoTecnico::A_Estrella(const EstadoT &inicio, const Esta
     frontier.pop();
 
     int zapatillas = nodo_actual.estado.zapatillas ? 1 : 0;
-
+    int ahogamiento = nodo_actual.estado.meahogo;
     // Saltar estados qeu ya han sido explorados
-    if (visitados[nodo_actual.estado.site.f][nodo_actual.estado.site.c][nodo_actual.estado.site.brujula][zapatillas])
+    if (visitados[nodo_actual.estado.site.f][nodo_actual.estado.site.c][nodo_actual.estado.site.brujula][zapatillas][ahogamiento])
       continue;
-    visitados[nodo_actual.estado.site.f][nodo_actual.estado.site.c][nodo_actual.estado.site.brujula][zapatillas] = true;
+    visitados[nodo_actual.estado.site.f][nodo_actual.estado.site.c][nodo_actual.estado.site.brujula][zapatillas][ahogamiento] = true;
 
     // Comprobamos si hemos llegado al destino
     if (nodo_actual.estado.site.f == final.site.f && nodo_actual.estado.site.c == final.site.c) {
@@ -574,6 +580,10 @@ list<Action> ComportamientoTecnico::A_Estrella(const EstadoT &inicio, const Esta
         hijo.secuencia.push_back(accion);
         hijo.g = nodo_actual.g + CostoEnergiaTecnico(accion, nodo_actual.estado, terreno, altura);
         hijo.h = Heuristica(hijo.estado, final);
+
+        if(hijo.estado.meahogo>3){
+          continue;
+        }
 
         frontier.push(hijo);
       }
