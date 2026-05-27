@@ -488,11 +488,12 @@ list<Action> ComportamientoIngeniero::B_Anchura(const EstadoI &inicio, const Est
     // Si llegmaos a la solucion sale del while y devuelve camino_solucion
     // En B_Anchura:
     if (nodo_actual.estado.site.f == final.site.f && nodo_actual.estado.site.c == final.site.c) {
-        // Solo si el camino que ha llegado a la meta cumple los requisitos, lo aceptamos
         if (nodo_actual.estado.walk && nodo_actual.estado.left && nodo_actual.estado.right) {
             return nodo_actual.secuencia;
         }
-        // Si no cumple, el algoritmo sigue buscando. ¡No hagas return aquí!
+        // En el destino pero sin cumplir los flags: no generar hijos.
+        // Los giros aquí no se ejecutarán porque el simulador para al llegar.
+        continue;
     }
 
     // Añadimos a la cola una copia de lo que ya llevaba mas lo que pasaría si hace cada una de sus acciones
